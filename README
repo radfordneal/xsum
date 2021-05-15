@@ -4,9 +4,7 @@ Written by Radford M. Neal.
 
 Source repository is at gitlab.com/radfordneal/xsum
 
-First version: 2015-05-20.
-Minor fixes and license update: 2018-12-02 (tagged as stable-version-1)
-Current revisions in progress: 2021.
+See NEWS for information on release history.
 
 
 These routines and programs implement the methods described in the

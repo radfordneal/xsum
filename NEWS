@@ -1,0 +1,32 @@
+Current revisions in progress: 2021.
+
+  Added xsum_small_add_accumulator and xsum_large_add_accumulator
+  procedures, for adding one superaccumulator to another.
+
+  Added procedures xsum_large_to_small_accumulator and 
+  xsum_small_to_large_accumulator, for converting between
+  superaccumulator types.
+
+  Added xsum_large_add1 procedure for completeness.   
+
+  Added documentation in api-doc.
+
+  Changed default xsum_length type to int64_t (from int), so array
+  lengths on 64-bit systems will be accomodated.  (Can be changed
+  back to int, or int32_t, on 32-bit systems if desired.)
+
+  Changed build process so pbinary.c is needed only if asked for
+  (used only for debug output).
+
+  Various tweaks made to improve performance.
+
+  Revised build, test, and plotting apparatus.
+
+
+Minor fixes and license update: 2018-12-02 (tagged as stable-version-1)
+
+
+First version: 2015-05-20.
+
+  This version was distributed as supplementary information for the 
+  paper, at https://arxiv.org/abs/1505.05571 
