@@ -121,7 +121,7 @@ typedef struct
 
 /* TYPE FOR LENGTHS OF ARRAYS.  Must be a signed integer type. */
 
-typedef int xsum_length;
+typedef int64_t xsum_length;
 
 
 /* FUNCTIONS FOR EXACT SUMMATION. */

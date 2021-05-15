@@ -87,7 +87,8 @@ procedures:
 The '...add1' procedures add a single double-precision value to the
 given small or large superaccumulator.  The '...addv' procedures add
 the elements in an array of double-precision values, with length given
-by 'length' (of type 'int').
+by 'length'.  Adding many values with '...addv' is much faster than
+calling '...add1' repeatedly.
 
 
 Obtaining a rounded value from a superaccumulator.
