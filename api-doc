@@ -146,9 +146,11 @@ The superaccumulators can represent numbers of larger size than IEEE
 double-precision values.  Adding finite double-precision values to a
 superaccumulator can result in it overflowing only if at least 2^45
 values are added - so a vector of double-precision values whose sum
-overflows a superaccumulator would occupy over 281 Terabytes of
-memory.  Rounding a superaccumulator value to a double-precision value
-can produce overflow even when the superaccumulator itself has not
+overflows a superaccumulator would occupy at least 256 Terabytes of
+memory.  
+
+Rounding a superaccumulator value to a double-precision value can
+produce overflow even when the superaccumulator itself has not
 overflowed.  When overflow of the superaccumulator does not occur, the
 order in which values are summed has no effect on the result - in
 particular, the rounded result of summing a vector will be finite if
