@@ -3,13 +3,16 @@ Current revisions in progress: 2021.
   Added xsum_small_add_accumulator and xsum_large_add_accumulator
   procedures, for adding one superaccumulator to another.
 
+  Added xsum_small_negate and xsum_large_negate for negating the
+  value in a superaccumulator.
+
   Added procedures xsum_large_to_small_accumulator and 
   xsum_small_to_large_accumulator, for converting between
   superaccumulator types.
 
-  Added xsum_large_add1 procedure for completeness.   
+  Added an xsum_large_add1 procedure for completeness.   
 
-  Added documentation in api-doc.
+  Wrote documentation on the API in api-doc.
 
   Changed default xsum_length type to int64_t (from int), so array
   lengths on 64-bit systems will be accomodated.  (Can be changed

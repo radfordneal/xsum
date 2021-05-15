@@ -27,13 +27,18 @@ a C program.
 
 The 'xsum' package implements exact summation of double-precision
 (IEEE) floating-point numbers, with the exact sum stored in a
-"superaccumulator".  Both "small" and "large" superaccumulators are
-implemented, with the large superaccumulator being more efficient when
-many (more than about 1000) numbers are being summed.  The exact sum
-in a superaccumulator can be used to produce a double-precision
-rounded result, which is the exactly-correct rounding (to nearest,
-ties to even) of the exact sum.  See the paper in xsum-paper.pdf (also
-at https://arxiv.org/abs/1505.05571) for more details.
+"superaccumulator".  
+
+Both "small" and "large" superaccumulators are implemented, with the
+large superaccumulator being more efficient when many (more than about
+1000) numbers are being summed, whereas the small superaccumulator is
+more efficient when fewer numbers are summed.
+
+The exact sum in a superaccumulator can be used to produce a
+double-precision rounded result, which is the exactly-correct rounding
+(to nearest, ties to even) of the exact sum.  See the paper in
+xsum-paper.pdf (also at https://arxiv.org/abs/1505.05571) for more
+details.
 
 
 How to use the xsum package.
@@ -105,19 +110,13 @@ functions.  Additional values can be added to the superaccumulator,
 and then the result of rounding it can again be obtained, etc.
 
 
-Operations on superaccumulators.
+Other operations on superaccumulators.
 
-The value in a large superaccumulator can be stored in a small
-superaccumulator, or vice versa, with the following procedures:
+Values stored in a superaccumulator can be negated with the following
+procedures:
 
-  xsum_large_to_small_accumulator (pointer_to_small_accumulator,
-                                   pointer_to_large_accumulator)
-  xsum_small_to_large_accumulator (pointer_to_large_accumulator,
-                                   pointer_to_small_accumulator)
-
-The value in the second accumulator is stored in the first
-accumulator, replacing any value it previously contained.  The value
-in the second accumulator is not changed.
+  xsum_small_negate (pointer_to_small_accumulator)
+  xsum_large_negate (pointer_to_large_accumulator)
 
 The value in one small or large accumulator can be added to another
 of the same type with the following procedures:
@@ -130,6 +129,18 @@ of the same type with the following procedures:
 The value in the destination is modified by adding the value in the
 source; the value in the source is not changed.  The source and
 destination must not be the same.
+
+The value in a large superaccumulator can be stored in a small
+superaccumulator, or vice versa, with the following procedures:
+
+  xsum_large_to_small_accumulator (pointer_to_small_accumulator,
+                                   pointer_to_large_accumulator)
+  xsum_small_to_large_accumulator (pointer_to_large_accumulator,
+                                   pointer_to_small_accumulator)
+
+The value in the second accumulator is stored in the first
+accumulator, replacing any value it previously contained.  The value
+in the second accumulator is not changed.
 
 A small or large superaccumulator can be copied by simply assigning it
 to another variable of the same type.

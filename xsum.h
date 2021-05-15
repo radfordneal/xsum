@@ -136,9 +136,8 @@ void xsum_small_add_dot (xsum_small_accumulator *restrict,
                          const xsum_flt *, const xsum_flt *, xsum_length);
 void xsum_small_add_accumulator (xsum_small_accumulator *restrict, 
                                  xsum_small_accumulator *restrict);
+void xsum_small_negate (xsum_small_accumulator *restrict);
 xsum_flt xsum_small_round (xsum_small_accumulator *restrict);
-void xsum_small_display (xsum_small_accumulator *restrict);
-int xsum_small_chunks_used (xsum_small_accumulator *restrict);
 
 void xsum_large_init (xsum_large_accumulator *restrict);
 void xsum_large_add1 (xsum_large_accumulator *restrict, xsum_flt);
@@ -150,16 +149,25 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict,
                          const xsum_flt *, const xsum_flt *, xsum_length);
 void xsum_large_add_accumulator (xsum_large_accumulator *restrict, 
                                  xsum_large_accumulator *restrict);
+void xsum_large_negate (xsum_large_accumulator *restrict);
 xsum_flt xsum_large_round (xsum_large_accumulator *restrict);
-void xsum_large_display (xsum_large_accumulator *restrict);
-int xsum_large_chunks_used (xsum_large_accumulator *restrict);
+
 void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict, 
                                       xsum_large_accumulator *restrict);
 void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict, 
                                       xsum_small_accumulator *restrict);
 
 
-/* FUNCTIONS FOR DOUBLE AND OTHER INEXACT SUMMATION. */
+/* FUNCTIONS USEFUL FOR TESTING AND DEBUGGING. */
+
+void xsum_small_display (xsum_small_accumulator *restrict);
+int xsum_small_chunks_used (xsum_small_accumulator *restrict);
+
+void xsum_large_display (xsum_large_accumulator *restrict);
+int xsum_large_chunks_used (xsum_large_accumulator *restrict);
+
+
+/* FUNCTIONS FOR DOUBLE AND OTHER INEXACT SUMMATION.  Used for testing. */
 
 xsum_flt xsum_sum_double (const xsum_flt *restrict, xsum_length);
 xsum_flt xsum_sum_double_not_ordered (const xsum_flt *restrict, xsum_length);

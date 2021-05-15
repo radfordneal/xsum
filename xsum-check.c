@@ -228,6 +228,7 @@ int different (double a, double b)
 void small_result (xsum_small_accumulator *sacc, double s, int i)
 {
   double r, r2;
+  if (xsum_debug) printf("SMALL RESULT:\n");
   if (xsum_debug) xsum_small_display(sacc);
   r = xsum_small_round (sacc);
   r2 = xsum_small_round (sacc);
@@ -240,11 +241,13 @@ void small_result (xsum_small_accumulator *sacc, double s, int i)
     printf("    "); pbinary_double(r); printf("\n");
     printf("    "); pbinary_double(s); printf("\n");
   }
+  if (xsum_debug) printf("END RESULT\n");
 }
 
 void large_result (xsum_large_accumulator *lacc, double s, int i)
 {
   double r, r2;
+  if (xsum_debug) printf("LARGE RESULT:\n");
   if (xsum_debug) xsum_large_display(lacc);
   r = xsum_large_round (lacc);
   r2 = xsum_large_round (lacc);
@@ -257,6 +260,7 @@ void large_result (xsum_large_accumulator *lacc, double s, int i)
     printf("    "); pbinary_double(r); printf("\n");
     printf("    "); pbinary_double(s); printf("\n");
   }
+  if (xsum_debug) printf("END RESULT\n");
 }
 
 int main (int argc, char **argv)
@@ -670,12 +674,80 @@ int main (int argc, char **argv)
     }
   }
 
-  printf("\nI: SPECIAL TESTS\n");
+  printf("\nI: TESTS INVOLVING NEGATION\n");
+
+  int tstno = 0;
+
+  if (echo) printf(" \n-- TEST %2d\n",tstno);
+  s = -1.0/0;
+  if (echo) printf("   ANSWER:  %.16le\n",s);
+
+  xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add1 (&sacc, 1.0/0);
+  xsum_small_negate (&sacc);
+  small_result(&sacc,s,tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add1 (&lacc, 1.0/0);
+  xsum_large_negate (&lacc);
+  large_result(&lacc,s,tstno);
+
+  tstno += 1;
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = -ten_term[i+10];
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_negate (&sacc);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_negate (&lacc);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = 123456789;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_negate (&sacc);
+    xsum_small_add1 (&sacc, s);
+    xsum_small_addv (&sacc, ten_term+i, 10);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_negate (&lacc);
+    xsum_large_add1 (&lacc, s);
+    xsum_large_addv (&lacc, ten_term+i, 10);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  printf("\nJ: SPECIAL TESTS\n");
 
   done = 0;
   for (i = 0; !done; i += 1)
   { 
-    xsum_debug = debug_all || debug_letter=='I' && debug_number==i;
+    xsum_debug = debug_all || debug_letter=='J' && debug_number==i;
     if (echo) printf(" \n-- TEST %2d\n",i);
     s = 1234.5;
     if (echo) printf("   ANSWER:  %.16le\n",s);

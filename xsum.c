@@ -873,6 +873,24 @@ void xsum_small_add_accumulator (xsum_small_accumulator *restrict dst_sacc,
 }
 
 
+/* NEGATE THE VALUE IN A SMALL ACCUMULATOR. */
+
+void xsum_small_negate (xsum_small_accumulator *restrict sacc)
+{
+  int i;
+
+  if (xsum_debug) printf("Negating a small accumulator\n");
+
+  for (i = 0; i < XSUM_SCHUNKS; i++)
+  { sacc->chunk[i] = -sacc->chunk[i];
+  }
+
+  if (sacc->Inf != 0)
+  { sacc->Inf ^= XSUM_SIGN_MASK;
+  }
+}
+
+
 /* RETURN THE RESULT OF ROUNDING A SMALL ACCUMULATOR.  The rounding mode 
    is to nearest, with ties to even.  The small accumulator may be modified 
    by this operation (by carry propagation being done), but the value it
@@ -1667,6 +1685,18 @@ void xsum_large_add_accumulator (xsum_large_accumulator *restrict dst_lacc,
 }
 
 
+/* NEGATE THE VALUE IN A LARGE ACCUMULATOR. */
+
+void xsum_large_negate (xsum_large_accumulator *restrict lacc)
+{
+  if (xsum_debug) printf("Negating a large accumulator\n");
+
+  xsum_large_transfer_to_small (lacc);
+  xsum_small_negate (&lacc->sacc);
+}
+
+
+
 /* RETURN RESULT OF ROUNDING A LARGE ACCUMULATOR.  Rounding mode is to nearest,
    with ties to even.  
 
@@ -1929,6 +1959,10 @@ void xsum_small_display (xsum_small_accumulator *restrict sacc)
   printf("Small accumulator:");
   if (sacc->Inf) 
   { printf (" %cInf", sacc->Inf>0 ? '+' : '-');
+    if ((sacc->Inf & ((xsum_uint)XSUM_EXP_MASK << XSUM_MANTISSA_BITS))
+          != ((xsum_uint)XSUM_EXP_MASK << XSUM_MANTISSA_BITS))
+    { printf(" BUT WRONG CONTENTS: %llx", (long long) sacc->Inf);
+    }
   }
   if (sacc->NaN)
   { printf (" NaN (%llx)", (long long) sacc->NaN);
