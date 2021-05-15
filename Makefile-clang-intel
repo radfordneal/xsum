@@ -13,7 +13,7 @@ LDCPP=$(CPP)
 ZHUFLAGS=
 
 default:	xsum-test xsum-time xsum-check show
-	@ (echo CLANG=$(CLANG); clang$(GCC) -v 2>&1 | head -1) >>Make-info
+	@ (echo CLANG=$(CLANG); clang$(CLANG) -v 2>&1 | head -1) >>Make-info
 
 with-zhu:	default xsum-time-zhu
 
