@@ -29,11 +29,14 @@ The 'xsum' package implements exact summation of double-precision
 (IEEE) floating-point numbers, with the exact sum stored in a
 "superaccumulator".  Both "small" and "large" superaccumulators are
 implemented, with the large superaccumulator being more efficient when
-many (over 1000) numbers are being summed.  The exact sum in a
-superaccumulator can be used to produce a double-precision rounded
-result, which is the exactly-correct rounding (to nearest, ties to
-even) of the exact sum.  See the paper in xsum-paper.pdf (also at
-https://arxiv.org/abs/1505.05571) for more details.
+many (more than about 1000) numbers are being summed.  The exact sum
+in a superaccumulator can be used to produce a double-precision
+rounded result, which is the exactly-correct rounding (to nearest,
+ties to even) of the exact sum.  See the paper in xsum-paper.pdf (also
+at https://arxiv.org/abs/1505.05571) for more details.
+
+
+How to use the xsum package.
 
 Declarations required for use of 'xsum' are in the xsum.h file, which
 should be included in a C module that uses the functions.  The
@@ -42,6 +45,9 @@ linked with the application program.  There are various options that
 can be set in xsum.c, which may affect performance with a given
 processor and compiler, but the settings in the released version
 should be adequate.
+
+
+Superaccumulator declaration and initialization.
 
 Small and large superaccumulators are represented by the following C
 structure types:
@@ -52,8 +58,8 @@ structure types:
 Space for values of these types may be allocated by just declaring
 variables of one of these types, or by using 'calloc'.  No special
 action is required to free space used by an superaccumulator - the
-space is freed when the variable's scope is exitted, or when 'free' is
-called on the value from 'calloc'.
+space is freed when the variable's scope is left, or when 'free' is
+called on a pointer obtained from 'calloc'.
 
 A superaccumulator should not be used until it has been initialized
 with one of the following procedures:
@@ -63,7 +69,10 @@ with one of the following procedures:
 
 These routines set the value stored in the superaccumulator to zero.
 If desired, the initialization routine can be called later to reset
-the value to zero.
+the value back to zero.
+
+
+Adding to a superaccumulator.
 
 After initialization, double-precision floating-point values can be
 added to a small or large superaccumulator using one of the following
@@ -80,6 +89,9 @@ given small or large superaccumulator.  The '...addv' procedures add
 the elements in an array of double-precision values, with length given
 by 'length' (of type 'int').
 
+
+Obtaining a rounded value from a superaccumulator.
+
 After adding values to a superaccumulator, the correct rounding of the
 value it contains to a double-precision value can be obtained with one
 of the following functions:
@@ -91,6 +103,9 @@ The value stored in the superaccumulator is not changed by these
 functions.  Additional values can be added to the superaccumulator,
 and then the result of rounding it can again be obtained, etc.
 
+
+Operations on superaccumulators.
+
 The value in a large superaccumulator can be stored in a small
 superaccumulator, or vice versa, with the following procedures:
 
@@ -99,9 +114,9 @@ superaccumulator, or vice versa, with the following procedures:
   xsum_small_to_large_accumulator (pointer_to_large_accumulator,
                                    pointer_to_small_accumulator)
 
-The value in the large accumulator is stored in the small accumulator,
-replacing any value it previously contained.  The value in the large
-accumulator is not changed.
+The value in the second accumulator is stored in the first
+accumulator, replacing any value it previously contained.  The value
+in the second accumulator is not changed.
 
 The value in one small or large accumulator can be added to another
 of the same type with the following procedures:
@@ -112,10 +127,41 @@ of the same type with the following procedures:
                               pointer_to_source_accumulator)
 
 The value in the destination is modified by adding the value in the
-source; the value in the source is not changed.
+source; the value in the source is not changed.  The source and
+destination must not be the same.
 
 A small or large superaccumulator can be copied by simply assigning it
 to another variable of the same type.
+
+
+Handling of overflow.
+
+Adding +Inf, -Inf, or a NaN to a superaccumulator will produce a
+non-finite result in accordance with the usual rules for IEEE
+floating-point arithmetic.  Negative zero is not representable,
+and is never returned as a rounded result.
+
+The superaccumulators can represent numbers of larger size than IEEE
+double-precision values.  Adding finite double-precision values to a
+superaccumulator can result in it overflowing only if at least 2^45
+values are added - so a vector of double-precision values whose sum
+overflows a superaccumulator would occupy over 281 Terabytes of
+memory.  Rounding a superaccumulator value to a double-precision value
+can produce overflow even when the superaccumulator itself has not
+overflowed.  When overflow of the superaccumulator does not occur, the
+order in which values are summed has no effect on the result - in
+particular, the rounded result of summing a vector will be finite if
+the true sum is finite, even if some intermediate sums would overflow.
+
+However, overflow of a superaccumulator can occur more easily if a
+superaccumulator is repeatedly copied and then added to itself.  When
+overflow occurs, the value is set to a NaN (with payload of all 1s),
+rather than attempt to produce a +Inf or -Inf value (which could be
+sensitive to the order of summation).  Such overflows are best
+regarded as errors.
+
+
+Other procedures.
 
 Some additional procedures are declared in xsum.h and implemented in
 xsum.c.  They are mainly meant for debugging and for producing results
@@ -123,5 +169,9 @@ in the paper, but the procedures for adding a vector dot product or
 squared vector norm to a superaccumulator may be of use for
 applications.
 
+
+Example programs.
+
 The programs in 'example-small.c' and 'example-large.c' illustrate
-simple uses of some of the routines.
+simple uses of some of the routines.  See the comments in the source
+files for how to compile them.
