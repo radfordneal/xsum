@@ -1,4 +1,8 @@
 # FUNCTIONS FOR READING TIMING DATA AND CREATING PLOTS.
+#
+# Run with:
+#
+#   R --vanilla <plots.r
 
 plot_key <- function ()
 {
@@ -198,5 +202,55 @@ for (task in c("sum","norm","dot"))
                col=c("pink","pink","lightblue","lightblue","gray","gray"))
   }
   plot_times(macbookpro2_no_opt[,,task], add=TRUE)
+  dev.off()
+}
+
+
+# Intel Xeon W3565.
+
+cache = c(32*1024, 256*1024, 8*1024*1024)
+
+macpro2_gcc_9_2_0 <- read_times ("results-macpro2-gcc-9.3.0")
+macpro2_clang_9_0_0 <- read_times ("results-macpro2-clang-9.0.0")
+
+macpro2_gcc_9_2_0 <- read_times ("results-macpro2-gcc-9.3.0")
+macpro2_clang_10_0_0 <- read_times ("results-macpro2-clang-9.0.0")
+
+macpro2 <- find_min_times (macpro2_gcc_9_2_0,
+                           macpro2_clang_10_0_0)
+
+for (task in c("sum","norm","dot"))
+{
+  plot_times (macpro2[,,task],  
+              paste0("macpro2-",task), 
+              cache / c(sum=8,norm=8,dot=16)[task])
+  for (dat in list (macpro2_gcc_9_2_0,
+                    macpro2_clang_10_0_0))
+  { plot_times(dat[,,task], add=TRUE,
+               col=c("pink","pink","lightblue","lightblue","gray","gray"))
+  }
+  plot_times(macpro2[,,task], add=TRUE)
+  dev.off()
+}
+
+macpro2_gcc_9_2_0_no_opt <- 
+  read_times ("results-macpro2-gcc-9.3.0-no-opt")
+macpro2_clang_10_0_0_no_opt <- 
+  read_times ("results-macpro2-clang-9.0.0-no-opt")
+
+macpro2_no_opt <- find_min_times (macpro2_gcc_9_2_0_no_opt,
+                                  macpro2_clang_10_0_0_no_opt)
+
+for (task in c("sum","norm","dot"))
+{
+  plot_times (macpro2_no_opt[,,task],  
+              paste0("macpro2-no-opt-",task), 
+              cache / c(sum=8,norm=8,dot=16)[task])
+  for (dat in list (macpro2_gcc_9_2_0_no_opt,
+                    macpro2_clang_10_0_0_no_opt))
+  { plot_times(dat[,,task], add=TRUE,
+               col=c("pink","pink","lightblue","lightblue","gray","gray"))
+  }
+  plot_times(macpro2_no_opt[,,task], add=TRUE)
   dev.off()
 }
