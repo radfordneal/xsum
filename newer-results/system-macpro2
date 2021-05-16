@@ -1,0 +1,25 @@
+Mac Pro (Mid 2012)
+
+12 GB 1066 MHz DDR3 RAM
+
+macOS 10.13.6
+
+Output of lstopo:
+
+Machine (12GB total)
+  Package L#0
+    NUMANode L#0 (P#0 12GB)
+    L3 L#0 (8192KB)
+      L2 L#0 (256KB) + L1d L#0 (32KB) + L1i L#0 (32KB) + Core L#0
+        PU L#0 (P#0)
+        PU L#1 (P#1)
+      L2 L#1 (256KB) + L1d L#1 (32KB) + L1i L#1 (32KB) + Core L#1
+        PU L#2 (P#2)
+        PU L#3 (P#3)
+      L2 L#2 (256KB) + L1d L#2 (32KB) + L1i L#2 (32KB) + Core L#2
+        PU L#4 (P#4)
+        PU L#5 (P#5)
+      L2 L#3 (256KB) + L1d L#3 (32KB) + L1i L#3 (32KB) + Core L#3
+        PU L#6 (P#6)
+        PU L#7 (P#7)
+  CoProc(OpenCL) "opencl0d1"

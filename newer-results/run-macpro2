@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Run tests on MacPro2
+
+TOP=`git rev-parse --show-toplevel`
+
+(cd $TOP; git checkout xsum.c)
+
+(cd $TOP; GCC=-9 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-macbookpro2-gcc-9.3.0
+
+(cd $TOP; compile-zhu clang-intel)
+time ../run-tests-zhu >results-macbookpro2-clang-9.0.0
+
+(cd $TOP; ed xsum.c <no-opt-script)
+
+(cd $TOP; GCC=-9 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-macbookpro2-gcc-9.3.0-no-opt
+
+(cd $TOP; compile-zhu clang-intel)
+time ../run-tests-zhu >results-macbookpro2-clang-9.0.0-no-opt
+
+(cd $TOP; git checkout xsum.c)
