@@ -4,3 +4,13 @@ L1 Cache 32KB per core, L2 Cache 256 KB per core.
 16 GBytes RAM, 1600 MHz DDR3 
 macOS 10.13.6
 gcc-10.2.0
+
+Output of lstopo:
+
+Machine (16GB total) + NUMANode L#0 (P#0 16GB) + L3 L#0 (4096KB)
+  L2 L#0 (256KB) + L1d L#0 (32KB) + L1i L#0 (32KB) + Core L#0
+    PU L#0 (P#0)
+    PU L#1 (P#1)
+  L2 L#1 (256KB) + L1d L#1 (32KB) + L1i L#1 (32KB) + Core L#1
+    PU L#2 (P#2)
+    PU L#3 (P#3)
