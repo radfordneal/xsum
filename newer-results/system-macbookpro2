@@ -4,6 +4,7 @@ L1 Cache 32KB per core, L2 Cache 256 KB per core.
 16 GBytes RAM, 1600 MHz DDR3 
 macOS 10.13.6
 gcc-10.2.0
+clang-10.0.0
 
 Output of lstopo:
 

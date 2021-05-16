@@ -2,9 +2,10 @@ Lenovo ThinkStation workstation
 AMD Ryzen Threadripper PRO 3945WX, 12 cores, 4.0-4.3 GHz, launched 2020
 L1 Cache 31KB I & D per core, L2 Cache 512KB per core, 
 L3 Cache 16MB (shared by three cores)
-32 GBytes RAM, DDR4
+32 GBytes RAM, DDR4 (2 DIMMs)
 Ubuntu 20.04.2 LTS (64 bit)
 gcc-10.2.0
+clang-10.0.0
 
 Output of lstopo:
 

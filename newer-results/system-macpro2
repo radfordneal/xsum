@@ -1,8 +1,11 @@
-Mac Pro (Mid 2012)
-
+Mac Pro 5,1 (Mid 2012)
+3.2 (3.46 turbo) GHz Intel Core Xeon W3565 processor, 4 cores, launched 2009
+L1 Cache 32KB I & D per core, L2 Cache 256KB per core
+L3 Cache 8MB shared by all cores
 12 GB 1066 MHz DDR3 RAM
-
 macOS 10.13.6
+gcc-9.3.0
+clang-10.0.0
 
 Output of lstopo:
 
