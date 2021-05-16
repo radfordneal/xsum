@@ -699,6 +699,20 @@ int main (int argc, char **argv)
           printf("    "); pbinary_double(r); printf("\n");
         }
 
+        break;
+      }
+      case 8:  /* add a small/large accumulator to itself */
+      { if (echo) printf("   ANSWER:  %.16le\n",s);
+        double v1[4] = { 3.7e20, 888.8, 42.1e20, s };
+        double v2[4] = { -42.1e20*2, -3.7e20*2, -888.8*2, -s };
+        xsum_small_addv (&sacc, v1, 4);
+        xsum_small_add_accumulator (&sacc, &sacc);
+        xsum_small_addv (&sacc, v2, 4);
+        xsum_large_addv (&lacc, v1, 4);
+        xsum_large_add_accumulator (&lacc, &lacc);
+        xsum_large_addv (&lacc, v2, 4);
+        small_result(&sacc,s,i);
+        large_result(&lacc,s,i);
         done = 1;
       }
     }
@@ -906,6 +920,8 @@ int main (int argc, char **argv)
   }
   
   printf("\nDONE\n\n");
+
+  free(repten);
   
   return 0;
 }

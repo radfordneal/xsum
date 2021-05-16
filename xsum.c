@@ -849,24 +849,32 @@ void xsum_small_add_dot (xsum_small_accumulator *restrict sacc,
 /* ADD A SMALL ACCUMULATOR TO ANOTHER SMALL ACCUMULATOR.  The first argument
    is the destination, which is modified.  The second is the accumulator to
    add, which may also be modified, but should still represent the same
-   number.  Source and destination must be different. */
+   number.  Source and destination may be the same. */
 
-void xsum_small_add_accumulator (xsum_small_accumulator *restrict dst_sacc, 
-                                 xsum_small_accumulator *restrict src_sacc)
+void xsum_small_add_accumulator (xsum_small_accumulator *dst_sacc, 
+                                 xsum_small_accumulator *src_sacc)
 {
   int i;
 
   if (xsum_debug) printf("Adding accumulator to a small accumulator\n");
-  if (dst_sacc == src_sacc) abort();
 
   xsum_carry_propagate (dst_sacc);
-  xsum_carry_propagate (src_sacc);
 
-  if (src_sacc->Inf) xsum_small_add_inf_nan (dst_sacc, src_sacc->Inf);
-  if (src_sacc->NaN) xsum_small_add_inf_nan (dst_sacc, src_sacc->NaN);
+  if (dst_sacc == src_sacc)
+  { for (i = 0; i < XSUM_SCHUNKS; i++)
+    { dst_sacc->chunk[i] += dst_sacc->chunk[i];
+    }
+  }
+  else
+  {
+    xsum_carry_propagate (src_sacc);
+
+    if (src_sacc->Inf) xsum_small_add_inf_nan (dst_sacc, src_sacc->Inf);
+    if (src_sacc->NaN) xsum_small_add_inf_nan (dst_sacc, src_sacc->NaN);
   
-  for (i = 0; i < XSUM_SCHUNKS; i++)
-  { dst_sacc->chunk[i] += src_sacc->chunk[i];
+    for (i = 0; i < XSUM_SCHUNKS; i++)
+    { dst_sacc->chunk[i] += src_sacc->chunk[i];
+    }
   }
 
   dst_sacc->adds_until_propagate = XSUM_SMALL_CARRY_TERMS-2;
@@ -1672,13 +1680,12 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 /* ADD A LARGE ACCUMULATOR TO ANOTHER LARGE ACCUMULATOR.  The first argument
    is the destination, which is modified.  The second is the accumulator to
    add, which may also be modified, but should still represent the same
-   number.  Source and destination must be different. */
+   number.  Source and destination may be the same. */
 
-void xsum_large_add_accumulator (xsum_large_accumulator *restrict dst_lacc, 
-                                 xsum_large_accumulator *restrict src_lacc)
+void xsum_large_add_accumulator (xsum_large_accumulator *dst_lacc, 
+                                 xsum_large_accumulator *src_lacc)
 {
   if (xsum_debug) printf("Adding accumulator to a large accumulator\n");
-  if (dst_lacc == src_lacc) abort();
 
   xsum_large_transfer_to_small (src_lacc);
   xsum_small_add_accumulator (&dst_lacc->sacc, &src_lacc->sacc);

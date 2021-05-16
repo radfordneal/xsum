@@ -3,7 +3,7 @@
 # Takes the version of gcc to use from the GCC environment variable.
 # For example:  GCC=-4.8 make -f Makefile-gcc-intel
 
-SANITIZE=#-fsanitize=undefined -fsanitize=address  # can uncomment for testing
+SANITIZE=-fsanitize=undefined -fsanitize=address  # can uncomment for testing
 
 CFLAGS=-O3 -g -march=native -mtune=native -mfpmath=sse $(SANITIZE) \
      -fno-inline-functions -Wall -Wno-parentheses -DFLOAT128 -DDOUBLE -DPBINARY

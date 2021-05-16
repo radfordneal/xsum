@@ -22,8 +22,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-This is a guide to use of the 'xsum' package for exact summation from
-a C program.
+This is a guide to how to use the 'xsum' package for exact summation
+from a C program.
 
 The 'xsum' package implements exact summation of double-precision
 (IEEE) floating-point numbers, with the exact sum stored in a
@@ -31,8 +31,8 @@ The 'xsum' package implements exact summation of double-precision
 
 Both "small" and "large" superaccumulators are implemented, with the
 large superaccumulator being more efficient when many (more than about
-1000) numbers are being summed, whereas the small superaccumulator is
-more efficient when fewer numbers are summed.
+1000) numbers are being summed at one time, whereas the small
+superaccumulator is more efficient when fewer numbers are summed.
 
 The exact sum in a superaccumulator can be used to produce a
 double-precision rounded result, which is the exactly-correct rounding
@@ -41,15 +41,14 @@ xsum-paper.pdf (also at https://arxiv.org/abs/1505.05571) for more
 details.
 
 
-How to use the xsum package.
+How to build with the xsum package.
 
 Declarations required for use of 'xsum' are in the xsum.h file, which
-should be included in a C module that uses the functions.  The
-functions themselves are in xsum.c, which should be compiled and
-linked with the application program.  There are various options that
-can be set in xsum.c, which may affect performance with a given
-processor and compiler, but the settings in the released version
-should be adequate.
+should be included in C modules that use the functions.  The functions
+themselves are in xsum.c, which should be compiled and linked with the
+application program.  There are various options that can be set in
+xsum.c, which may affect performance with a given processor and
+compiler, but the settings in the released version should be adequate.
 
 
 Superaccumulator declaration and initialization.
@@ -128,7 +127,7 @@ of the same type with the following procedures:
 
 The value in the destination is modified by adding the value in the
 source; the value in the source is not changed.  The source and
-destination must not be the same.
+destination may be the same, in which case it is added to itself.
 
 The value in a large superaccumulator can be stored in a small
 superaccumulator, or vice versa, with the following procedures:
@@ -139,8 +138,9 @@ superaccumulator, or vice versa, with the following procedures:
                                    pointer_to_small_accumulator)
 
 The value in the second accumulator is stored in the first
-accumulator, replacing any value it previously contained.  The value
-in the second accumulator is not changed.
+accumulator, replacing any value it previously contained.  The first
+accumulator need not have been initialized.  The value in the second
+accumulator is not changed.
 
 A small or large superaccumulator can be copied by simply assigning it
 to another variable of the same type.
@@ -165,13 +165,14 @@ produce overflow even when the superaccumulator itself has not
 overflowed.  When overflow of the superaccumulator does not occur, the
 order in which values are summed has no effect on the result - in
 particular, the rounded result of summing a vector will be finite if
-the true sum is finite, even if some intermediate sums would overflow.
+the true sum is finite, even if some intermediate sums would overflow
+with IEEE double-precision arithmetic.
 
-However, overflow of a superaccumulator can occur more easily if a
-superaccumulator is repeatedly copied and then added to itself.  When
-overflow occurs, the value is set to a NaN (with payload of all 1s),
-rather than attempt to produce a +Inf or -Inf value (which could be
-sensitive to the order of summation).  Such overflows are best
+However, overflow of a superaccumulator can occur more easily with
+operations such as adding a superaccumulator repeatedly to itself.
+When overflow occurs, the value is set to a NaN (with payload of all
+1s), rather than attempt to produce a +Inf or -Inf value (which could
+be sensitive to the order of summation).  Such overflows are best
 regarded as errors.
 
 
