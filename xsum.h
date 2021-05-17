@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stddef.h>
 
 
 /* CONSTANTS DEFINING THE FLOATING POINT FORMAT. */
@@ -119,9 +120,11 @@ typedef struct
 } xsum_large_accumulator;
 
 
-/* TYPE FOR LENGTHS OF ARRAYS.  Must be a signed integer type. */
+/* TYPE FOR LENGTHS OF ARRAYS.  Must be a signed integer type.  Set to
+   ptrdiff_t here on the assumption that this will be big enough, but
+   not unnecessarily big, which seems to be true. */
 
-typedef int64_t xsum_length;
+typedef ptrdiff_t xsum_length;
 
 
 /* FUNCTIONS FOR EXACT SUMMATION. */
