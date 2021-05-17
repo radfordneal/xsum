@@ -1,4 +1,4 @@
-Significant changes in version of 2021-05-16 (tagged as stable-version-2):
+Significant changes in version of 2021-05-17 (tagged as stable-version-2):
 
   Added xsum_small_add_accumulator and xsum_large_add_accumulator
   procedures, for adding one superaccumulator to another.
@@ -14,9 +14,9 @@ Significant changes in version of 2021-05-16 (tagged as stable-version-2):
 
   Wrote documentation on the API in api-doc.
 
-  Changed default xsum_length type to int64_t (from int), so array
-  lengths on 64-bit systems will be accomodated.  (Can be changed
-  back to int, or int32_t, on 32-bit systems if desired.)
+  Changed default xsum_length type to ptrdiff_t (from int), so array
+  lengths on 64-bit systems will be accomodated, while still (hopefully)
+  being 32 bits in size on 32-bit systems.
 
   Changed build process so pbinary.c is needed only if asked for
   (used only for debug output).
