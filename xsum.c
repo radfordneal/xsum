@@ -1,6 +1,6 @@
 /* FUNCTIONS FOR EXACT SUMMATION. */
 
-/* Copyright 2015, 2018, 2021 Radford M. Neal
+/* Copyright 2015, 2018, 2021, 2024 Radford M. Neal
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -151,12 +151,13 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 {
   int i, u, uix;
 
-  if (xsum_debug) printf("Carry propagating in small accumulator\n");
+  if (xsum_debug) printf("\nCARRY PROPAGATING IN SMALL ACCUMULATOR\n");
 
   /* Set u to the index of the uppermost non-zero (for now) chunk, or 
      return with value 0 if there is none. */
 
 # if OPT_CARRY
+
   { xsum_schunk c0123;
 
     u = XSUM_SCHUNKS-1;
@@ -199,7 +200,9 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
   found2: ;
   }
-# else
+
+# else  /* Non-optimized search for uppermost non-zero chunk */
+
   { for (u = XSUM_SCHUNKS-1; sacc->chunk[u] == 0; u--)
     { if (u == 0) 
       { if (xsum_debug) printf ("number is zero (1)\n");
@@ -208,6 +211,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
       }
     }
   }
+
 # endif
 
   if (xsum_debug) printf("u: %d",u);
@@ -217,7 +221,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
   uix = -1;  /* indicates that a non-zero chunk has not been found yet */
 
-  i = 0;
+  i = 0;     /* set to the index of the next non-zero chunck, from bottom */
 
 # if OPT_CARRY
   { 
@@ -226,7 +230,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
        justifying some overhead to begin, but later stretches of unused
        chunks may not be as large. */
 
-    int e = u-3;
+    int e = u-3;  /* end three before so we won't access beyond chunk array */
     do
     { if ((sacc->chunk[i] | sacc->chunk[i+1])
             | (sacc->chunk[i+2] | sacc->chunk[i+3])) break;
@@ -236,9 +240,14 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 # endif
 
   do
-  { xsum_schunk c, clow, chigh;
+  { xsum_schunk c;       /* Set to the chunk at index i (next non-zero one) */
+    xsum_schunk clow;    /* Low-order bits of c */
+    xsum_schunk chigh;   /* High-order bits of c */
 
-    /* Find the next non-zero chunk, or break out of loop if there is none. */
+    /* Find the next non-zero chunk, setting i to its index, or break out 
+       of loop if there is none.  Note that the chunk at index u is not
+       necessarily non-zero - it was initially, but u or the chunk at u
+       may have changed. */
 
 #   if OPT_CARRY
     { do
@@ -417,8 +426,9 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
     chunk = lacc->chunk[ix];
 
     if (xsum_debug)
-    { printf("Adding chunk %d to small accumulator (count %d, chunk %016llx)\n",
-              (int) ix, (int) count, (long long) chunk);
+    { printf(
+        "\nADDING CHUNK %d TO SMALL ACCUMULATOR (COUNT %d, CHUNK %016llx)\n",
+        (int) ix, (int) count, (long long) chunk);
     }
 
     /* If we added the maximum number of values to 'chunk', the sum of
@@ -545,7 +555,7 @@ static void xsum_large_add_value_inf_nan (xsum_large_accumulator *restrict lacc,
 
 static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
 {
-  if (xsum_debug) printf("Transferring chunks in large accumulator\n");
+  if (xsum_debug) printf("\nTRANSFERRING CHUNKS IN LARGE ACCUMULATOR\n");
 
 # if USE_USED_LARGE
   { 
@@ -856,7 +866,7 @@ void xsum_small_add_accumulator (xsum_small_accumulator *dst_sacc,
 {
   int i;
 
-  if (xsum_debug) printf("Adding accumulator to a small accumulator\n");
+  if (xsum_debug) printf("\nADDING ACCUMULATOR TO A SMALL ACCUMULATOR\n");
 
   xsum_carry_propagate (dst_sacc);
 
@@ -887,7 +897,7 @@ void xsum_small_negate (xsum_small_accumulator *restrict sacc)
 {
   int i;
 
-  if (xsum_debug) printf("Negating a small accumulator\n");
+  if (xsum_debug) printf("\nNEGATING A SMALL ACCUMULATOR\n");
 
   for (i = 0; i < XSUM_SCHUNKS; i++)
   { sacc->chunk[i] = -sacc->chunk[i];
@@ -911,7 +921,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   union fpunion u;
   int i, j, e, more;
 
-  if (xsum_debug) printf("Rounding small accumulator\n");
+  if (xsum_debug) printf("\nROUNDING SMALL ACCUMULATOR\n");
 
   /* See if we have a NaN from one of the numbers being a NaN, in which
      case we return the NaN with largest payload. */
@@ -972,6 +982,10 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       if (ivalue < 0) 
       { u.intv |= XSUM_SIGN_MASK;
       }
+      if (xsum_debug)
+      { printf("denormalized with i==0: u.intv %016llx\n", 
+                (long long)u.intv);
+      }
       return u.fltv;
     }
     else
@@ -982,12 +996,20 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       if (u.intv < 0)
       { if (u.intv > - ((xsum_int)1 << XSUM_MANTISSA_BITS))
         { u.intv = (-u.intv) | XSUM_SIGN_MASK;
+          if (xsum_debug)
+          { printf("denormalized with i==1: u.intv %016llx\n", 
+                    (long long)u.intv);
+          }
           return u.fltv;
         }
       }
-      else
+      else /* non-negative */
       { if (u.uintv < (xsum_uint)1 << XSUM_MANTISSA_BITS)
-        { return u.fltv;
+        { if (xsum_debug)
+          { printf("denormalized with i==1: u.intv %016llx\n", 
+                    (long long)u.intv);
+          }
+          return u.fltv;
         }
       }
       /* otherwise, it's not actually denormalized, so fall through to below */
@@ -1000,15 +1022,17 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      bits from the lower chunk (and maybe the next lower) that are needed 
      to fill out the mantissa of the result, plus an extra bit to help decide 
      on rounding.  For negative numbers, it may turn out later that we need 
-     another bit because negating a negative value may carry out of the top 
-     here, but not once more bits are shifted into the bottom later on. */
+     another bit, because negating a negative value may carry out of the top 
+     here, but not carry out of the top once more bits are shifted into the 
+     bottom later on. */
 
   u.fltv = (xsum_flt) ivalue;
   e = (u.uintv >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK;
   more = 1 + XSUM_MANTISSA_BITS + XSUM_EXP_BIAS - e;
 
   if (xsum_debug)
-  { printf("e: %d, more: %d, ivalue: %016llx\n",e,more,(long long)ivalue);
+  { printf("e: %d, more: %d,             ivalue: %016llx\n",
+            e,more,(long long)ivalue);
   }
 
   /* Change 'ivalue' to put in 'more' bits from lower chunks into the bottom.
@@ -1020,7 +1044,8 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
 
   ivalue *= (xsum_int)1 << more;  /* multiply, since << of negative undefined */
   if (xsum_debug) 
-  { printf("after ivalue <<= more, ivalue: %016llx\n",(long long)ivalue);
+  { printf("after ivalue <<= more,         ivalue: %016llx\n",
+            (long long)ivalue);
   }
   j = i-1;
   lower = sacc->chunk[j];  /* must exist, since denormalized if i==0 */
@@ -1038,16 +1063,16 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   lower &= ((xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - more)) - 1;
 
   if (xsum_debug)
-  { printf("j: %d, new e: %d, new |ivalue|: %016llx, lower: %016llx\n",
-            j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
+  { printf("after final add to ivalue,     ivalue: %016llx\n",
+            (long long)ivalue);
+    printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx\n",
+           j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
     
   }
 
   /* Check for a negative 'ivalue' that when negated doesn't contain a full
      mantissa's worth of bits, plus one to help rounding.  If so, move one
-     more bit into 'ivalue' from 'lower' (and remove it from 'lower'). 
-     Note that more than one additional bit will not be required because
-     xsum_carry_propagate ensures the uppermost non-zero chunk is not -1. */
+     more bit into 'ivalue' from 'lower' (and remove it from 'lower'). */
 
   if (ivalue < 0 && ((-ivalue) & ((xsum_int)1 << (XSUM_MANTISSA_BITS+1))) == 0)
   { int pos = (xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - 1 - more);
@@ -1056,13 +1081,16 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
     { ivalue |= 1;
       lower &= ~pos;
     }
-    e -= 1;
+    e -= 1; more += 1;  /* only affects debug output below */
+    if (xsum_debug)
+    { printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx\n",
+             j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
+    }
   }
 
   if (xsum_debug)
-  { printf("j: %d, new e: %d, new |ivalue|: %016llx, lower: %016llx\n",
-            j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
-    
+  { printf("   mask of low 54 bits:   003fffffffffffff,  mask: %016llx\n",
+            (long long)((xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - more)) - 1);
   }
 
   /* Set u.intv to have just the correct sign bit (rest zeros), and 'ivalue'
@@ -1088,6 +1116,11 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      This code goes to done_rounding if it finds that just discarding lower
      order bits is correct, and to round_away_from_zero if instead the 
      magnitude should be increased by one in the lowest bit. */
+
+  if (xsum_debug)
+  { printf("Rounding: sign %c, ivalue %016llx, lower %016llx, j %d, e %d\n",
+            u.intv==0?'+':'-', (long long)ivalue, (long long)lower, j, e);
+  }
 
   if ((ivalue & 1) == 0)  /* extra bit is 0 */
   { if (xsum_debug) 
@@ -1230,7 +1263,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
                       const xsum_flt *restrict vec, 
                       xsum_length n)
 {
-  if (xsum_debug) printf("LARGE ADDV OF %ld VALUES\n",(long)n);
+  if (xsum_debug) printf("\nLARGE ADDV OF %ld VALUES\n",(long)n);
 
   if (n == 0) return;
 
@@ -1385,7 +1418,7 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
                             const xsum_flt *restrict vec, 
                             xsum_length n)
 { 
-  if (xsum_debug) printf("LARGE ADD_SQNORM OF %ld VALUES\n",(long)n);
+  if (xsum_debug) printf("\nLARGE ADD_SQNORM OF %ld VALUES\n",(long)n);
 
   if (n == 0) return;
 
@@ -1534,7 +1567,7 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
                          const xsum_flt *vec2, 
                          xsum_length n)
 {
-  if (xsum_debug) printf("LARGE ADD_DOT OF %ld VALUES\n",(long)n);
+  if (xsum_debug) printf("\nLARGE ADD_DOT OF %ld VALUES\n",(long)n);
 
   if (n == 0) return;
 
@@ -1685,7 +1718,7 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 void xsum_large_add_accumulator (xsum_large_accumulator *dst_lacc, 
                                  xsum_large_accumulator *src_lacc)
 {
-  if (xsum_debug) printf("Adding accumulator to a large accumulator\n");
+  if (xsum_debug) printf("\nADDING ACCUMULATOR TO A LARGE ACCUMULATOR\n");
 
   xsum_large_transfer_to_small (src_lacc);
   xsum_small_add_accumulator (&dst_lacc->sacc, &src_lacc->sacc);
@@ -1696,7 +1729,7 @@ void xsum_large_add_accumulator (xsum_large_accumulator *dst_lacc,
 
 void xsum_large_negate (xsum_large_accumulator *restrict lacc)
 {
-  if (xsum_debug) printf("Negating a large accumulator\n");
+  if (xsum_debug) printf("\nNEGATING A LARGE ACCUMULATOR\n");
 
   xsum_large_transfer_to_small (lacc);
   xsum_small_negate (&lacc->sacc);
@@ -1712,7 +1745,7 @@ void xsum_large_negate (xsum_large_accumulator *restrict lacc)
 
 xsum_flt xsum_large_round (xsum_large_accumulator *restrict lacc)
 {
-  if (xsum_debug) printf("Rounding large accumulator\n");
+  if (xsum_debug) printf("\nROUNDING LARGE ACCUMULATOR\n");
 
   xsum_large_transfer_to_small (lacc);
 
@@ -1725,7 +1758,7 @@ xsum_flt xsum_large_round (xsum_large_accumulator *restrict lacc)
 void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict sacc, 
                                       xsum_large_accumulator *restrict lacc)
 {
-  if (xsum_debug) printf("Transferring from large to small accumulator\n");
+  if (xsum_debug) printf("\nTRANSFERRING FROM LARGE TO SMALL ACCUMULATOR\n");
   xsum_large_transfer_to_small (lacc);
   *sacc = lacc->sacc;
 }
@@ -1736,7 +1769,7 @@ void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict sacc,
 void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc, 
                                       xsum_small_accumulator *restrict sacc)
 {
-  if (xsum_debug) printf("Transferring from small to large accumulator\n");
+  if (xsum_debug) printf("\nTRANSFERRING FROM SMALL TO LARGE ACCUMULATOR\n");
   xsum_large_init_chunks (lacc);
   lacc->sacc = *sacc;
 }

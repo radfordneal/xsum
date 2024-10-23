@@ -1,6 +1,6 @@
 APPLICATION PROGRAM INTERFACE TO EXACT SUMMATION FUNCTIONS.
 
-Copyright 2015, 2018, 2021 Radford M. Neal
+Copyright 2015, 2018, 2021, 2024 Radford M. Neal
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
@@ -61,7 +61,7 @@ structure types:
 
 Space for values of these types may be allocated by just declaring
 variables of one of these types, or by using 'calloc'.  No special
-action is required to free space used by an superaccumulator - the
+action is required to free space used by a superaccumulator - the
 space is freed when the variable's scope is left, or when 'free' is
 called on a pointer obtained from 'calloc'.
 
@@ -97,8 +97,8 @@ calling '...add1' repeatedly.
 The dot product of two vectors can be added to a superaccumulator
 with one of the following procedures:
 
-  xsum_small_add_dot (pointer_to_small_accmulator, array1, arry2, length)
-  xsum_large_add_dot (pointer_to_large_accmulator, array1, arry2, length)
+  xsum_small_add_dot (pointer_to_small_accmulator, array1, array2, length)
+  xsum_large_add_dot (pointer_to_large_accmulator, array1, array2, length)
 
 Here, 'array1' and 'array2' are pointers to double arrays, which must
 both have at least 'length' elements.  The products of corresponding
@@ -182,7 +182,7 @@ The superaccumulators can represent numbers of larger size than IEEE
 double-precision values.  Adding finite double-precision values to a
 superaccumulator can result in it overflowing only if at least 2^45
 values are added - so a vector of double-precision values whose sum
-overflows a superaccumulator would occupy at least 256 Terabytes of
+overflows a superaccumulator would occupy at least 256 Tebibytes of
 memory.  
 
 Rounding a superaccumulator value to a double-precision value can

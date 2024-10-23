@@ -1,11 +1,13 @@
 #!/bin/bash
 
-cp xsum.c xsum.c-opt
 compile clang-intel; cp xsum-time xsum-time-clang
-GCC=-10 compile gcc-intel; cp xsum-time xsum-time-gcc
+compile gcc-intel; cp xsum-time xsum-time-gcc
 
+cp xsum.c xsum.c-opt
 ed xsum.c <no-opt-script
+
 compile clang-intel; cp xsum-time xsum-time-clang-no-opt
-GCC=-10 compile gcc-intel; cp xsum-time xsum-time-gcc-no-opt
+compile gcc-intel; cp xsum-time xsum-time-gcc-no-opt
 
 cp xsum.c-opt xsum.c
+rm xsum.c-opt

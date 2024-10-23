@@ -1,6 +1,6 @@
 /* TIME MEASUREMENT PROGRAM FOR FUNCTIONS FOR EXACT SUMMATION. */
 
-/* Copyright 2015, 2018, 2021 Radford M. Neal
+/* Copyright 2015, 2018, 2021, 2024 Radford M. Neal
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -35,14 +35,12 @@
    size N are summed, by each method.  All tasks are done, unless a
    task is specified, in which case only it is run.  All available
    methods are run, unless a method is specified, in which case only
-   it is run.  The three tasks are "sum", "norm", and "dot".  Possible
+   it is run.  The three tasks are "sum", "norm", and "dot", for
+   simple summation, summation of squared values, and summation of
+   products of corresponding elements of two vectors.  Possible
    methods are "sacc", "lacc", "iFast", "OnlineExact", "float128",
    "double", and "udouble", some of which may not be available
    depending on how xsum-time was compiled.
-
-   After running these tests for summing vector elements, the sum of the
-   squares is also computed, and then the dot product of each vector
-   with a corresponding vector in a different set of M vectors.
 
    The data in each of the vectors is as specified after R, with any
    remaining elements filled in randomly, differently for each of the
@@ -55,6 +53,10 @@
    follows the first, with mirroring.  If "perm" is specified, the
    order of all elements is randomized.
 
+   The "warm" option causes the program to first do some warm-up
+   computations, in order to (perhaps) get the processor into its
+   highest-performance state.
+
    This program can be compiled to compare with Zhu & Hayes' iFastSum
    and ExactSum methods, if the source for those is present.  The -DZHU
    option must be given to the compiler for this to happend.
@@ -62,7 +64,7 @@
    This program can be compiled to compare with 128-bit floating point
    arithmetic using the gcc __float128 type.  The -DFLOAT128 option
    must be given to the compiler for this to happen.
-*/
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
