@@ -1,6 +1,6 @@
 /* AUTOMATIC CORRECTNESS CHECKS FOR FUNCTIONS FOR EXACT SUMMATION. */
 
-/* Copyright 2015, 2018, 2021 Radford M. Neal
+/* Copyright 2015, 2018, 2021, 2024 Radford M. Neal
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -72,8 +72,10 @@ xsum_flt one_term[] = {
   -123e123,
   54.11e-150,
   -54.11e-150,
-  2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
+  2*((.5/pow2_128)+(.25/pow2_128)*pow2_52),
   -2*((.5/pow2_128)+(.25/pow2_128)*pow2_52),
+  2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
+  -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
   Lnormal,                                /* Largest normal number */
   -Lnormal,
   Snormal,                                /* Smallest normal number */
@@ -131,6 +133,18 @@ xsum_flt two_term[] = {
 1 + pow2_52, pow2_52/2 - pow2_52*pow2_52,
 -(1 + pow2_52), -pow2_52/2,
 -(1 + pow2_52), -(pow2_52/2 - pow2_52*pow2_52),
+pow2_256, 2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
+-pow2_256, -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
+pow2_256, -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
+-pow2_256, 2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
+1.7976931348623157e+308, 1,
+1.7976931348623157e+308, -1,
+-1.7976931348623157e+308, -1,
+-1.7976931348623157e+308, 1,
+0.99999999999999989, 8.6736173798840355e-19,
+0.99999999999999989, -8.6736173798840355e-19,
+-0.99999999999999989, -8.6736173798840355e-19,
+-0.99999999999999989, 8.6736173798840355e-19,
 Sdenorm, 7.1,              /* Adds with denormalized numbers */
 Sdenorm, -7.1,
 -Sdenorm, -7.1,
