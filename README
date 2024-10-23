@@ -31,9 +31,12 @@ See the documentation at the start of the Makefile-xxx files for more
 details.  For some systems, another Makefile may need to be created.
 Performance on a particular system may be improved by tuning compiler
 options, and perhaps the settings of the flags defined at the
-beginning of the xsum.c file.  It may be best to make the programs
-using the "compile" script described below, rather than use "make"
-directly.
+beginning of the xsum.c file.  A Makefile-generic is supplied for
+using a generic 'cc' compiler on any system, but may not give the best
+performance.
+
+It may be best to make the programs using the "compile" script
+described below, rather than use "make" directly.
 
 The xsum-check program does automatic correctness checks.  The
 xsum-test program can be used to test the functions manually.  The
