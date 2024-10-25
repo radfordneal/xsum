@@ -1,6 +1,6 @@
 /* TEST PROGRAM FOR FUNCTIONS FOR EXACT SUMMATION. */
 
-/* Copyright 2015, 2018 Radford M. Neal
+/* Copyright 2015, 2018, 2024 Radford M. Neal
 
    Permission is hereby granted, free of charge, to any person obtaining
    a copy of this software and associated documentation files (the
@@ -34,6 +34,8 @@
 #include "xsum.h"
 #include "pbinary.h"
 
+#define MAXLINE 10000
+
 int main (int argc, char **argv)
 {
   xsum_small_accumulator sacc;
@@ -42,7 +44,7 @@ int main (int argc, char **argv)
   long double ls;
   double s;
   double v;
-  char in[10000];
+  char in[MAXLINE+1];
   char *inp;
   int c, p, r, N;
  
@@ -52,8 +54,19 @@ int main (int argc, char **argv)
   { 
     printf("\n> ");
     inp = in;
-    while ((c = getchar()) != EOF && c != '\n') *inp++ = c;
-    if (c == EOF) { printf("\n"); return 0; }
+    while ((c = getchar()) != EOF && c != '\n')
+    { *inp++ = c;
+      if (inp==in+MAXLINE)
+      { printf("\nLine too long - ignored\n");
+        break;
+      }
+    }
+    if (c == EOF && inp==in) 
+    { printf("\n"); return 0;
+    }
+    if (inp==in+MAXLINE)
+    { continue;
+    }
     *inp = 0;
     inp = in; p = 0;
 
