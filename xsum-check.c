@@ -54,130 +54,76 @@
 
 double zero = 0.0;
 
-/* Tests with one term.  Answer should be the same as the term. */
+/* Tests with one term.  Answer should be the same as the term. 
+   All are also done with negation of value here. */
 
 xsum_flt one_term[] = {
 
   1.0,             /* Some unexceptional examples of normal numbers */
-  -1.0,
   0.1,
-  -0.1,
   3.1,
-  -3.1,
   2.3e10,
-  -2.3e10,
   3.2e-10,
-  -3.2e-10,
   123e123,
-  -123e123,
   54.11e-150,
-  -54.11e-150,
   2*((.5/pow2_128)+(.25/pow2_128)*pow2_52),
-  -2*((.5/pow2_128)+(.25/pow2_128)*pow2_52),
   2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
-  -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
   Lnormal,                                /* Largest normal number */
-  -Lnormal,
   Snormal,                                /* Smallest normal number */
-  -Snormal,
   Ldenorm,                                /* Largest denormalized number */
-  -Ldenorm,
   Sdenorm,                                /* Smallest denormalized number > 0 */
-  -Sdenorm,
   1.23e-309,                              /* Other denormalized numbers */
-  -1.23e-309,
   4.57e-314,
-  -4.57e-314,
   9.7e-322,
-  -9.7e-322,
   Sdenorm/pow2_64/2,
-  -Sdenorm/pow2_64/2,
-
 0 };
 
-/* Tests with two terms.  Answer should match ordinary floating point add. */
+/* Tests with two terms.  Answer should match ordinary floating point add. 
+   All are also done with negation of the values here. */
 
 xsum_flt two_term[] = {
 
 1.0, 2.0,         /* Unexceptional adds of normal numbers */
--1.0, -2.0,
 0.1, 12.2,
--0.1, -12.2,
 12.1, -11.3,
--12.1, 11.3,
 11.3, -12.1,
--11.3, 12.1,
 1.234567e14, 9.87654321,
--1.234567e14, -9.87654321,
 1.234567e14, -9.87654321,
--1.234567e14, 9.87654321,
 3.1e200, 1.7e-100,  /* Smaller term should disappear */
 3.1e200, -1.7e-100,
--3.1e200, 1.7e-100,
--3.1e200, -1.7e-100,
 1.7e-100, 3.1e200,
 1.7e-100, -3.1e200,
--1.7e-100, 3.1e200,
--1.7e-100, -3.1e200,
 1, pow2_52,       /* Test rounding */
--1, -pow2_52,
 1, pow2_52/2,
--1, -pow2_52/2,
 1, pow2_52/2+pow2_52/4096,
--1, -pow2_52/2-pow2_52/4096,
 1, pow2_52/2+pow2_52/(1<<30)/(1<<10),
--1, -pow2_52/2-pow2_52/(1<<30)/(1<<10),
 1, pow2_52/2-pow2_52/4096,
--1, -pow2_52/2+pow2_52/4096,
 1 + pow2_52, pow2_52/2,
 1 + pow2_52, pow2_52/2 - pow2_52*pow2_52,
--(1 + pow2_52), -pow2_52/2,
--(1 + pow2_52), -(pow2_52/2 - pow2_52*pow2_52),
 pow2_256, 2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
 -pow2_256, -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
 pow2_256, -2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
--pow2_256, 2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),
 1.7976931348623157e+308, 1,
 1.7976931348623157e+308, -1,
--1.7976931348623157e+308, -1,
--1.7976931348623157e+308, 1,
 0.99999999999999989, 8.6736173798840355e-19,
 0.99999999999999989, -8.6736173798840355e-19,
--0.99999999999999989, -8.6736173798840355e-19,
--0.99999999999999989, 8.6736173798840355e-19,
 Sdenorm, 7.1,              /* Adds with denormalized numbers */
 Sdenorm, -7.1,
--Sdenorm, -7.1,
--Sdenorm, 7.1,
 7.1, Sdenorm,
 -7.1, Sdenorm,
--7.1, -Sdenorm,
-7.1, -Sdenorm,
 Ldenorm, Sdenorm,
 Ldenorm, -Sdenorm,
--Ldenorm, Sdenorm,
--Ldenorm, -Sdenorm,
 Sdenorm, Sdenorm,
 Sdenorm, -Sdenorm,
--Sdenorm, Sdenorm,
--Sdenorm, -Sdenorm,
 Ldenorm, Snormal,
 Snormal, Ldenorm,
--Ldenorm, -Snormal,
--Snormal, -Ldenorm,
 4.57e-314, 9.7e-322,
 -4.57e-314, 9.7e-322,
-4.57e-314, -9.7e-322,
--4.57e-314, -9.7e-322,
 4.57e-321, 9.7e-322,
 -4.57e-321, 9.7e-322,
-4.57e-321, -9.7e-322,
--4.57e-321, -9.7e-322,
 2.0, -2.0*(1+pow2_52),
 Lnormal, Lnormal,              /* Overflow */
--Lnormal, -Lnormal,
 Lnormal, Lnormal*pow2_52/2,
--Lnormal, -Lnormal*pow2_52/2,
 1.0/0.0, 123,                  /* Infinity / NaN */
 -1.0/0.0, 123,
 1.0/0.0, -1.0/0.0,
@@ -186,15 +132,13 @@ Lnormal, Lnormal*pow2_52/2,
 0 };
 
 /* Tests with three terms.  Answers are given here as a fourth number,
-   some computed/verified using Rmpfr in check.r. */
+   some computed/verified using Rmpfr in check.r.  All are also done 
+   with negation of the values here. */
 
 xsum_flt three_term[] = {
 Lnormal, Sdenorm, -Lnormal, Sdenorm,
 -Lnormal, Sdenorm, Lnormal, Sdenorm,
-Lnormal, -Sdenorm, -Lnormal, -Sdenorm,
--Lnormal, -Sdenorm, Lnormal, -Sdenorm,
 Sdenorm, Snormal, -Sdenorm, Snormal,
--Sdenorm, -Snormal, Sdenorm, -Snormal,
 12345.6, Snormal, -12345.6, Snormal,
 12345.6, -Snormal, -12345.6, -Snormal,
 12345.6, Ldenorm, -12345.6, Ldenorm,
@@ -211,11 +155,9 @@ Sdenorm, Snormal, -Sdenorm, Snormal,
 
 xsum_flt ten_term[] = {
 Lnormal, Lnormal, Lnormal, Lnormal, Lnormal, Lnormal, -Lnormal, -Lnormal, -Lnormal, -Lnormal, 1.0/0.0,
--Lnormal, -Lnormal, -Lnormal, -Lnormal, -Lnormal, -Lnormal, Lnormal, Lnormal, Lnormal, Lnormal, -1.0/0.0,
 Lnormal, Lnormal, Lnormal, Lnormal, 0.125, 0.125, -Lnormal, -Lnormal, -Lnormal, -Lnormal, 0.25,
 2.0*(1+pow2_52), -2.0, -pow2_52, -pow2_52, 0, 0, 0, 0, 0, 0, 0,
 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1111111111e0,
--1e0, -1e1, -1e2, -1e3, -1e4, -1e5, -1e6, -1e7, -1e8, -1e9, -1111111111e0,
 1.234e88, -93.3e-23, 994.33, 1334.3, 457.34, -1.234e88, 93.3e-23, -994.33, -1334.3, -457.34, 0,
 1., -23., 456., -78910., 1112131415., -161718192021., 22232425262728., -2930313233343536., 373839404142434445., -46474849505152535455., -46103918342424313856.,
 2342423.3423, 34234.450, 945543.4, 34345.34343, 1232.343, 0.00004343, 43423.0, -342344.8343, -89544.3435, -34334.3, 2934978.4009734304,
@@ -283,6 +225,7 @@ int main (int argc, char **argv)
   xsum_large_accumulator lacc, lacc2;
   int tstno;
   double s;
+  char section;
   int done;
   int i, j;
 
@@ -313,16 +256,31 @@ int main (int argc, char **argv)
   }
 # endif
 
+  /* Check that the 'different' function works. */
+
+  if (different(3.1,3.1) 
+   || different(1.0/0.0,2.0/0.0) 
+   || different(-1.0/0.0,-2.0/0.0)
+   || different(0.0/0.0,0.0/0.0)
+   || different(0.0,-0.0)
+   || !different(3.1,3.2)
+   || !different(-1.0/0.0,1.0/0.0)
+   || !different(1.0/0.0,0.0/0.0))
+  { printf("!! 'different' function not working !!\n");
+  }
+
   xsum_flt *repten = (xsum_flt*) calloc (10*REP10, sizeof *repten);
 
   printf("\nCORRECTNESS TESTS\n");
 
-  printf("\nA: ZERO TERM TEST\n");
+  section = 'A';
+
+  printf("\n%c: ZERO TERM TEST\n",section);
 
   if (echo) printf(" \n-- TEST 0: \n");
   if (echo) printf("   ANSWER:  %.16le\n",0.0);
 
-  xsum_debug = debug_all || debug_letter=='A';
+  xsum_debug = debug_all || debug_letter==section;
 
   xsum_small_init (&sacc);
   small_result(&sacc,0,0);
@@ -330,7 +288,7 @@ int main (int argc, char **argv)
   xsum_large_init (&lacc);
   large_result(&lacc,0,0);
 
-  printf("\nB: ONE TERM TESTS\n");
+  printf("\n%c: ONE TERM TESTS\n",++section);
 
   for (i = 0; one_term[i] != 0; i += 1)
   { 
@@ -338,113 +296,232 @@ int main (int argc, char **argv)
     s = one_term[i];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='B' && debug_number==i;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
 
     xsum_small_init (&sacc);
-    xsum_small_add1 (&sacc, one_term[i]);
+    xsum_small_add1 (&sacc, s);
     small_result(&sacc,s,i);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, one_term+i, 1);
+    xsum_large_addv (&lacc, &s, 1);
     large_result(&lacc,s,i);
   }
 
-  printf("\nC: ONE TERM TESTS TIMES %d\n",REP1);
+  printf("\n%c: ONE TERM TESTS, NEGATED\n",++section);
 
   for (i = 0; one_term[i] != 0; i += 1)
   { 
-    if (echo) printf(" \n-- TEST %2d: %.16le\n",i,one_term[i]);
-    s = one_term[i] * REP1;
+    if (echo) printf(" \n-- TEST %2d: %.16le\n",i,-one_term[i]);
+    s = -one_term[i];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='C' && debug_number==i;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
 
     xsum_small_init (&sacc);
-    for (j = 0; j < REP1; j++) xsum_small_add1 (&sacc, one_term[i]);
+    xsum_small_add1 (&sacc, s);
     small_result(&sacc,s,i);
 
     xsum_large_init (&lacc);
-    for (j = 0; j < REP1; j++) xsum_large_addv (&lacc, one_term+i, 1);
+    xsum_large_addv (&lacc, &s, 1);
     large_result(&lacc,s,i);
   }
 
-  printf("\nD: TWO TERM TESTS\n");
+  printf("\n%c: ONE TERM TESTS TIMES %d\n",++section,REP1);
+
+  for (i = 0; one_term[i] != 0; i += 1)
+  { 
+    double v = one_term[i];
+    if (echo) printf(" \n-- TEST %2d: %.16le\n",i,v);
+    s = v * REP1;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
+
+    xsum_small_init (&sacc);
+    for (j = 0; j < REP1; j++) xsum_small_add1 (&sacc, v);
+    small_result(&sacc,s,i);
+
+    xsum_large_init (&lacc);
+    for (j = 0; j < REP1; j++) xsum_large_addv (&lacc, &v, 1);
+    large_result(&lacc,s,i);
+  }
+
+  printf("\n%c: ONE TERM TESTS TIMES %d, NEGATED\n",++section,REP1);
+
+  for (i = 0; one_term[i] != 0; i += 1)
+  { 
+    double v = -one_term[i];
+    if (echo) printf(" \n-- TEST %2d: %.16le\n",i,v);
+    s = v * REP1;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
+
+    xsum_small_init (&sacc);
+    for (j = 0; j < REP1; j++) xsum_small_add1 (&sacc, v);
+    small_result(&sacc,s,i);
+
+    xsum_large_init (&lacc);
+    for (j = 0; j < REP1; j++) xsum_large_addv (&lacc, &v, 1);
+    large_result(&lacc,s,i);
+  }
+
+  printf("\n%c: TWO TERM TESTS\n",++section);
 
   for (i = 0; two_term[i] != 0; i += 2)
   { 
-    if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",
-                      i/2,two_term[i],two_term[i+1]);
-    s = two_term[i] + two_term[i+1];
+    double v[2] = { two_term[i], two_term[i+1] };
+    if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",i/2,v[0],v[1]);
+    s = v[0]+v[1];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='D' && debug_number==i/2;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/2;
 
     xsum_small_init (&sacc);
-    xsum_small_addv (&sacc, two_term+i, 2);
+    xsum_small_addv (&sacc, v, 2);
     small_result(&sacc,s,i/2);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, two_term+i, 2);
+    xsum_large_addv (&lacc, v, 2);
     large_result(&lacc,s,i/2);
   }
 
-  printf("\nE: THREE TERM TESTS\n");
+  printf("\n%c: TWO TERM TESTS, NEGATED\n",++section);
+
+  for (i = 0; two_term[i] != 0; i += 2)
+  { 
+    double v[2] = { -two_term[i], -two_term[i+1] };
+    if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",i/2,v[0],v[1]);
+    s = v[0]+v[1];
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/2;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, v, 2);
+    small_result(&sacc,s,i/2);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, v, 2);
+    large_result(&lacc,s,i/2);
+  }
+
+  printf("\n%c: THREE TERM TESTS\n",++section);
 
   for (i = 0; three_term[i] != 0; i += 4)
   { 
+    double v[3] = { three_term[i], three_term[i+1], three_term[i+2] };
     if (echo) printf(" \n-- TEST %2d: %.16le %.16le %.16le\n",
-                      i/4,three_term[i],three_term[i+1],three_term[i+2]);
+                      i/4,v[0],v[1],v[2]);
     s = three_term[i+3];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='E' && debug_number==i/4;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/4;
 
     xsum_small_init (&sacc);
-    xsum_small_addv (&sacc, three_term+i, 3);
+    xsum_small_addv (&sacc, v, 3);
     small_result(&sacc,s,i/4);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, three_term+i, 3);
+    xsum_large_addv (&lacc, v, 3);
     large_result(&lacc,s,i/4);
   }
 
-  printf("\nF: TEN TERM TESTS\n");
+  printf("\n%c: THREE TERM TESTS, NEGATED\n",++section);
+
+  for (i = 0; three_term[i] != 0; i += 4)
+  { 
+    double v[3] = { -three_term[i], -three_term[i+1], -three_term[i+2] };
+    if (echo) printf(" \n-- TEST %2d: %.16le %.16le %.16le\n",
+                      i/4,v[0],v[1],v[2]);
+    s = -three_term[i+3];
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/4;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, v, 3);
+    small_result(&sacc,s,i/4);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, v, 3);
+    large_result(&lacc,s,i/4);
+  }
+
+  printf("\n%c: TEN TERM TESTS\n",++section);
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",i/11);
     s = ten_term[i+10];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='F' && debug_number==i/11;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/11;
 
     xsum_small_init (&sacc);
-    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_addv (&sacc, v, 10);
     small_result(&sacc,s,i/11);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_addv (&lacc, v, 10);
     large_result(&lacc,s,i/11);
   }
 
-  printf("\nG: TEN TERM TESTS TIMES %d\n",REP10);
+  printf("\n%c: TEN TERM TESTS, NEGATED\n",++section);
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",i/11);
+    s = -ten_term[i+10];
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/11;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, v, 10);
+    small_result(&sacc,s,i/11);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, v, 10);
+    large_result(&lacc,s,i/11);
+  }
+
+  printf("\n%c: TEN TERM TESTS TIMES %d\n",++section,REP10);
 
   tstno = 0;
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",tstno);
     s = ten_term[i+10] * REP10;
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='G' && debug_number==tstno;
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
     xsum_small_init (&sacc);
-    for (j = 0; j < REP10; j++) xsum_small_addv (&sacc, ten_term+i, 10);
+    for (j = 0; j < REP10; j++) xsum_small_addv (&sacc, v, 10);
     small_result(&sacc,s,tstno);
 
     xsum_large_init (&lacc);
-    for (j = 0; j < REP10; j++) xsum_large_addv (&lacc, ten_term+i, 10);
+    for (j = 0; j < REP10; j++) xsum_large_addv (&lacc, v, 10);
     large_result(&lacc,s,tstno);
 
     tstno += 1;
@@ -452,14 +529,20 @@ int main (int argc, char **argv)
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",tstno);
     s = ten_term[i+10] * REP10;
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='G' && debug_number==tstno;
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
     for (j = 0; j < 10*REP10; j++)
-    { repten[j] = (ten_term+i)[j%10];
+    { repten[j] = v[j%10];
     }
 
     xsum_small_init (&sacc);
@@ -473,12 +556,70 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  printf("\nH: TESTS OF ADDING TOGETHER ACCUMULATORS\n");
+  printf("\n%c: TEN TERM TESTS TIMES %d, NEGATED\n",++section,REP10);
+
+  tstno = 0;
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = -ten_term[i+10] * REP10;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+    xsum_small_init (&sacc);
+    for (j = 0; j < REP10; j++) xsum_small_addv (&sacc, v, 10);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    for (j = 0; j < REP10; j++) xsum_large_addv (&lacc, v, 10);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = -ten_term[i+10] * REP10;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+    for (j = 0; j < 10*REP10; j++)
+    { repten[j] = v[j%10];
+    }
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, repten, 10*REP10);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, repten, 10*REP10);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  printf("\n%c: TESTS OF ADDING TOGETHER ACCUMULATORS\n",++section);
 
   done = 0;
   for (i = 0; !done; i += 1)
   { 
-    xsum_debug = debug_all || debug_letter=='H' && debug_number==i;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
     if (echo) printf(" \n-- TEST %2d\n",i);
     s = 1234.5;
 
@@ -732,23 +873,23 @@ int main (int argc, char **argv)
     }
   }
 
-  printf("\nI: TESTS INVOLVING NEGATION\n");
+  printf("\n%c: TESTS INVOLVING NEGATION\n",++section);
 
   tstno = 0;
 
   if (echo) printf(" \n-- TEST %2d\n",tstno);
-  s = -1.0/0;
+  s = -1.0/0.0;
   if (echo) printf("   ANSWER:  %.16le\n",s);
 
-  xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
   xsum_small_init (&sacc);
-  xsum_small_add1 (&sacc, 1.0/0);
+  xsum_small_add1 (&sacc, 1.0/0.0);
   xsum_small_negate (&sacc);
   small_result(&sacc,s,tstno);
 
   xsum_large_init (&lacc);
-  xsum_large_add1 (&lacc, 1.0/0);
+  xsum_large_add1 (&lacc, 1.0/0.0);
   xsum_large_negate (&lacc);
   large_result(&lacc,s,tstno);
 
@@ -756,19 +897,25 @@ int main (int argc, char **argv)
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",tstno);
     s = -ten_term[i+10];
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
     xsum_small_init (&sacc);
-    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_addv (&sacc, v, 10);
     xsum_small_negate (&sacc);
     small_result(&sacc,s,tstno);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_addv (&lacc, v, 10);
     xsum_large_negate (&lacc);
     large_result(&lacc,s,tstno);
 
@@ -777,43 +924,114 @@ int main (int argc, char **argv)
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",tstno);
     s = 123456789;
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='I' && debug_number==tstno;
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
     xsum_small_init (&sacc);
-    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_addv (&sacc, v, 10);
     xsum_small_negate (&sacc);
     xsum_small_add1 (&sacc, s);
-    xsum_small_addv (&sacc, ten_term+i, 10);
+    xsum_small_addv (&sacc, v, 10);
     small_result(&sacc,s,tstno);
 
     xsum_large_init (&lacc);
-    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_addv (&lacc, v, 10);
     xsum_large_negate (&lacc);
     xsum_large_add1 (&lacc, s);
-    xsum_large_addv (&lacc, ten_term+i, 10);
+    xsum_large_addv (&lacc, v, 10);
     large_result(&lacc,s,tstno);
 
     tstno += 1;
   }
 
-  printf("\nJ: TESTS ON TEN TERMS WITH ACCUMULATOR ADDITION AND TRANSFER\n");
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = ten_term[i+10];
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, v, 10);
+    xsum_small_negate (&sacc);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, v, 10);
+    xsum_large_negate (&lacc);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = 123456789;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, v, 10);
+    xsum_small_negate (&sacc);
+    xsum_small_add1 (&sacc, s);
+    xsum_small_addv (&sacc, v, 10);
+    small_result(&sacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, v, 10);
+    xsum_large_negate (&lacc);
+    xsum_large_add1 (&lacc, s);
+    xsum_large_addv (&lacc, v, 10);
+    large_result(&lacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  printf("\n%c: TESTS ON TEN TERMS WITH ACCUMULATOR ADDITION AND TRANSFER\n",
+         ++section);
 
   tstno = 0;
 
   for (i = 0; ten_term[i] != 0; i += 11)
   { 
+    double v[10] = 
+    { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
+      ten_term[i+3], ten_term[i+4], ten_term[i+5], 
+      ten_term[i+6], ten_term[i+7], ten_term[i+8],
+      ten_term[i+9]
+    };
     if (echo) printf(" \n-- TEST %2d\n",tstno);
     s = ten_term[i+10] * REP10;
     if (echo) printf("   ANSWER:  %.16le\n",s);
 
-    xsum_debug = debug_all || debug_letter=='J' && debug_number==tstno;
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
 
     for (j = 0; j < 10*REP10; j++)
-    { repten[j] = (ten_term+i)[j%10];
+    { repten[j] = v[j%10];
     }
 
     xsum_small_init (&sacc);
@@ -839,12 +1057,53 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  printf("\nK: SPECIAL TESTS\n");
+  for (i = 0; ten_term[i] != 0; i += 11)
+  { 
+    double v[10] = 
+    { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
+      -ten_term[i+3], -ten_term[i+4], -ten_term[i+5], 
+      -ten_term[i+6], -ten_term[i+7], -ten_term[i+8],
+      -ten_term[i+9]
+    };
+    if (echo) printf(" \n-- TEST %2d\n",tstno);
+    s = -ten_term[i+10] * REP10;
+    if (echo) printf("   ANSWER:  %.16le\n",s);
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+    for (j = 0; j < 10*REP10; j++)
+    { repten[j] = v[j%10];
+    }
+
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, repten, 9);
+    xsum_small_accumulator sacc2 = sacc;
+    xsum_small_init (&sacc);
+    xsum_small_addv (&sacc, repten+9, 10*REP10-9);
+    xsum_small_add_accumulator (&sacc, &sacc2);
+    small_result(&sacc,s,tstno);
+    xsum_small_to_large_accumulator (&lacc, &sacc);
+    large_result(&lacc,s,tstno);
+
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, repten, 9);
+    xsum_large_accumulator lacc2 = lacc;
+    xsum_large_init (&lacc);
+    xsum_large_addv (&lacc, repten+9, 10*REP10-9);
+    xsum_large_add_accumulator (&lacc, &lacc2);
+    large_result(&lacc,s,tstno);
+    xsum_large_to_small_accumulator (&sacc, &lacc);
+    small_result(&sacc,s,tstno);
+
+    tstno += 1;
+  }
+
+  printf("\n%c: SPECIAL TESTS\n",++section);
 
   done = 0;
   for (i = 0; !done; i += 1)
   { 
-    xsum_debug = debug_all || debug_letter=='K' && debug_number==i;
+    xsum_debug = debug_all || debug_letter==section && debug_number==i;
     if (echo) printf(" \n-- TEST %2d\n",i);
     s = 1234.5;
     if (echo) printf("   ANSWER:  %.16le\n",s);
