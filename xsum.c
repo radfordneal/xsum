@@ -1016,19 +1016,20 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
     }
   }
 
-  /* Find the location of the uppermost 1 bit in the absolute value of the
-     upper chunk by converting it (as a signed integer) to a floating point 
-     value, and looking at the exponent.  Then set 'more' to the number of
-     bits from the lower chunk (and maybe the next lower) that are needed 
-     to fill out the mantissa of the result, plus an extra bit to help decide 
-     on rounding.  For negative numbers, it may turn out later that we need 
-     another bit, because negating a negative value may carry out of the top 
-     here, but not carry out of the top once more bits are shifted into the 
-     bottom later on. */
+  /* Find the location of the uppermost 1 bit in the absolute value of
+     the upper chunk by converting it (as a signed integer) to a
+     floating point value, and looking at the exponent.  Then set
+     'more' to the number of bits from the lower chunk (and maybe the
+     next lower) that are needed to fill out the mantissa of the
+     result (including the top implicit 1 bit), plus two extra bits to
+     help decide on rounding.  For negative numbers, it may turn out
+     later that we need another bit, because negating a negative value
+     may carry out of the top here, but not carry out of the top once
+     more bits are shifted into the bottom later on. */
 
-  u.fltv = (xsum_flt) ivalue;
-  e = (u.uintv >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK;
-  more = 1 + XSUM_MANTISSA_BITS + XSUM_EXP_BIAS - e;
+  u.fltv = (xsum_flt) ivalue;  /* finds position of topmost 1 bit of |ivalue| */
+  e = (u.uintv >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK; /* e-bias is in 0..32 */
+  more = 2 + XSUM_MANTISSA_BITS + XSUM_EXP_BIAS - e;
 
   if (xsum_debug)
   { printf("e: %d, more: %d,             ivalue: %016llx\n",
@@ -1038,9 +1039,8 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   /* Change 'ivalue' to put in 'more' bits from lower chunks into the bottom.
      Also set 'j' to the index of the lowest chunk from which these bits came,
      and 'lower' to the remaining bits of that chunk not now in 'ivalue'.
-     We make sure that 'lower' initially has at least one bit in it, which
-     we can later move into 'ivalue' if it turns out that one more bit is 
-     needed. */
+     Note that 'lower' initially has at least one bit in it, which we can
+     later move into 'ivalue' if it turns out that one more bit is needed. */
 
   ivalue *= (xsum_int)1 << more;  /* multiply, since << of negative undefined */
   if (xsum_debug) 
@@ -1065,137 +1065,145 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   if (xsum_debug)
   { printf("after final add to ivalue,     ivalue: %016llx\n",
             (long long)ivalue);
-    printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx\n",
+    printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx (a)\n",
            j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
-    
-  }
-
-  /* Check for a negative 'ivalue' that when negated doesn't contain a full
-     mantissa's worth of bits, plus one to help rounding.  If so, move one
-     more bit into 'ivalue' from 'lower' (and remove it from 'lower'). */
-
-  if (ivalue < 0 && ((-ivalue) & ((xsum_int)1 << (XSUM_MANTISSA_BITS+1))) == 0)
-  { int pos = (xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - 1 - more);
-    ivalue *= 2;  /* note that left shift undefined if ivalue is negative */
-    if (lower & pos)
-    { ivalue |= 1;
-      lower &= ~pos;
-    }
-    e -= 1; more += 1;  /* only affects debug output below */
-    if (xsum_debug)
-    { printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx\n",
-             j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
-    }
-  }
-
-  if (xsum_debug)
-  { printf("   mask of low 54 bits:   003fffffffffffff,  mask: %016llx\n",
+    printf("   mask of low 55 bits:   007fffffffffffff,  mask: %016llx\n",
             (long long)((xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - more)) - 1);
   }
 
-  /* Set u.intv to have just the correct sign bit (rest zeros), and 'ivalue'
-     to now have the absolute value of the mantissa. */
+  /* Decide on rounding, with separate code for positive and negative values.
 
-  if (ivalue >= 0)
-  { u.intv = 0;
-  }
-  else
-  { ivalue = -ivalue;
-    u.intv = XSUM_SIGN_MASK;
-  }
+     At this point, 'ivalue' has the signed mantissa bits, plus two extra
+     bits, with 'e' recording the exponent position for these within their
+     top chunk.  For positive 'ivalue', the bits in 'lower' and chunks
+     below 'j' add to the absolute value; for negative 'ivalue' they
+     subtract.
 
-  if (xsum_debug && (ivalue >> (XSUM_MANTISSA_BITS+1)) != 1) abort();
+     After setting 'ivalue' to the tentative unsigned mantissa
+     (shifted left 2), and 'u.intv' to have the correct sign, this
+     code goes to done_rounding if it finds that just discarding lower
+     order bits is correct, and to round_away_from_zero if instead the
+     magnitude should be increased by one in the lowest mantissa bit. */
 
-  /* Round to nearest, with ties to even. At this point, 'ivalue' has the
-     absolute value of the number to be rounded, including an extra bit at 
-     the bottom.  Bits below that are in 'lower' and in the chunks
-     indexed by 'j' and below.  Note that the bits in 'lower' and the chunks 
-     below add to the magnitude of the remainder if the number is positive, 
-     but subtract from this magnitude if the number is negative. 
+  if (ivalue >= 0)  /* number is positive, lower bits are added to magnitude */
+  { 
+    u.intv = 0;  /* positive sign */
 
-     This code goes to done_rounding if it finds that just discarding lower
-     order bits is correct, and to round_away_from_zero if instead the 
-     magnitude should be increased by one in the lowest bit. */
-
-  if (xsum_debug)
-  { printf("Rounding: sign %c, ivalue %016llx, lower %016llx, j %d, e %d\n",
-            u.intv==0?'+':'-', (long long)ivalue, (long long)lower, j, e);
-  }
-
-  if ((ivalue & 1) == 0)  /* extra bit is 0 */
-  { if (xsum_debug) 
-    { printf("round toward zero, since remainder magnitude is < 1/2\n");
-    }
-    goto done_rounding;
-  }
-
-  if (u.intv == 0)  /* number is positive */
-  { if ((ivalue & 2) != 0)  /* low bit 1 (odd) */
-    { if (xsum_debug) 
-      { printf("round away from zero, since magnitude >= 1/2, goes to even\n");
-      }
-      goto round_away_from_zero;
-    }
-    if (lower != 0)
-    { if (xsum_debug) 
-      { printf("round away from zero, since magnitude > 1/2 (from 'lower')\n");
-      }
-      goto round_away_from_zero;
-    }
-  }
-  else  /* number is negative */
-  { if ((ivalue & 2) == 0)  /* low bit 0 (even) */
-    { if (xsum_debug) 
-      { printf("round toward zero, since magnitude <= 1/2, goes to even\n");
+    if ((ivalue & 2) == 0)  /* extra bits are 0x */
+    { if (xsum_debug)
+      { printf("+, no adjustment, since remainder adds <1/2\n");
       }
       goto done_rounding;
     }
-    if (lower != 0)
+
+    if ((ivalue & 1) != 0)  /* extra bits are 11 */
     { if (xsum_debug) 
-      { printf("round toward zero, since magnitude < 1/2 (from 'lower')\n");
-      }
-      goto done_rounding;
-    }
-  }
-
-  /* If we get here, 'lower' is zero.  We need to look at chunks lower down 
-     to see if any are non-zero. */
-
-  while (j > 0)
-  { j -= 1;
-    if (sacc->chunk[j] != 0)
-    { lower = 1;
-      break;
-    }
-  }
-
-  if (u.intv == 0)  /* number is positive, low bit 0 (even) */
-  { if (lower != 0)
-    { if (xsum_debug) 
-      { printf("round away from zero, since magnitude > 1/2 (low chunks)\n");
+      { printf("+, round away from 0, since remainder adds >1/2\n");
       }
       goto round_away_from_zero;
     }
-    else
+
+    if ((ivalue & 4) != 0)  /* low bit is 1 (odd), extra bits are 10 */
     { if (xsum_debug) 
-      { printf("round toward zero, magnitude == 1/2 (low chunks)\n");
+      { printf("+odd, round away from 0, since remainder adds >=1/2\n");
+      }
+      goto round_away_from_zero;
+    }
+
+    if (lower == 0)  /* see if any lower bits are non-zero */
+    { while (j > 0)
+      { j -= 1;
+        if (sacc->chunk[j] != 0)
+        { lower = 1;
+          break;
+        }
+      }
+    }
+
+    if (lower != 0)  /* low bit 0 (even), extra bits 10, non-zero lower bits */
+    { if (xsum_debug) 
+      { printf("+even, round away from 0, since remainder adds >1/2\n");
+      }
+      goto round_away_from_zero;
+    }
+    else  /* low bit 0 (even), extra bits 10, all lower bits 0 */
+    { if (xsum_debug)
+      { printf("+even, no adjustment, since reaminder adds exactly 1/2\n");
       }
       goto done_rounding;
     }
   }
-  else  /* number is negative, low bit 1 (odd) */
-  { if (lower != 0)
-    { if (xsum_debug) 
-      { printf("round toward zero, since magnitude < 1/2 (low chunks)\n");
+
+  else  /* number is negative, lower bits are subtracted from magnitude */
+  { 
+    /* Check for a negative 'ivalue' that when negated doesn't contain a full
+       mantissa's worth of bits, plus one to help rounding.  If so, move one
+       more bit into 'ivalue' from 'lower' (and remove it from 'lower'). 
+       This happens when the negation of the upper part of 'ivalue' has the 
+       form 10000... but the negation of the full 'ivalue' is not 10000... */
+
+    if (((-ivalue) & ((xsum_int)1 << (XSUM_MANTISSA_BITS+2))) == 0)
+    { int pos = (xsum_schunk)1 << (XSUM_LOW_MANTISSA_BITS - 1 - more);
+      ivalue *= 2;  /* note that left shift undefined if ivalue is negative */
+      if (lower & pos)
+      { ivalue += 1;
+        lower &= ~pos;
       }
-      goto done_rounding;
+      e -= 1; 
+      if (xsum_debug)
+      { printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx (b)\n",
+             j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
+      }
     }
-    else
-    { if (xsum_debug) 
-      { printf("round away from zero, magnitude == 1/2 (low chunks)\n");
+
+    u.intv = XSUM_SIGN_MASK;  /* negative sign */
+    ivalue = -ivalue;         /* ivalue now contains the absolute value */
+
+    if ((ivalue & 3) == 3)  /* extra bits are 11 */
+    { if (xsum_debug)
+      { printf("-, round away from 0, since remainder adds >1/2\n");
       }
       goto round_away_from_zero;
     }
+
+    if ((ivalue & 3) <= 1)  /* extra bits are 00 or 01 */
+    { if (xsum_debug)
+      { printf(
+         "-, no adjustment, since remainder adds <=1/4 or subtracts <1/4\n");
+      }
+      goto done_rounding;
+    }
+
+    if ((ivalue & 4) == 0)  /* low bit is 0 (even), extra bits are 10 */
+    { if (xsum_debug)
+      { printf("-even, no adjustment, since remainder adds <=1/2\n");
+      }
+      goto done_rounding;
+    }
+
+    if (lower == 0)  /* see if any lower bits are non-zero */
+    { while (j > 0)
+      { j -= 1;
+        if (sacc->chunk[j] != 0)
+        { lower = 1;
+          break;
+        }
+      }
+    }
+
+    if (lower != 0)  /* low bit 1 (odd), extra bits 10, non-zero lower bits */
+    { if (xsum_debug)
+      { printf("-odd, no adjustment, since remainder adds <1/2\n");
+      }
+      goto done_rounding;
+    }
+    else  /* low bit 1 (odd), extra bits are 10, lower bits are all 0 */
+    { if (xsum_debug)
+      { printf("-odd, round away from 0, since remainder adds exactly 1/2\n");
+      }
+      goto round_away_from_zero;
+    }
+
   }
 
 round_away_from_zero:
@@ -1203,17 +1211,17 @@ round_away_from_zero:
   /* Round away from zero, then check for carry having propagated out the 
      top, and shift if so. */
 
-  ivalue += 2;
-  if (ivalue & ((xsum_int)1 << (XSUM_MANTISSA_BITS+2)))
+  ivalue += 4;  /* add 1 to low-order mantissa bit */
+  if (ivalue & ((xsum_int)1 << (XSUM_MANTISSA_BITS+3)))
   { ivalue >>= 1;
     e += 1;
   }
 
 done_rounding: ;
 
-  /* Get rid of the bottom bit that was used to decide on rounding. */
+  /* Get rid of the bottom 2 bits that were used to decide on rounding. */
 
-  ivalue >>= 1;
+  ivalue >>= 2;
 
   /* Adjust to the true exponent, accounting for where this chunk is. */
 
@@ -1238,10 +1246,10 @@ done_rounding: ;
   u.intv += ivalue & XSUM_MANTISSA_MASK;  /* mask out the implicit 1 bit */
 
   if (xsum_debug)
-  { if ((ivalue >> XSUM_MANTISSA_BITS) != 1) abort();
-    printf ("Final rounded result: %.17le\n  ", u.fltv);
+  { printf ("Final rounded result: %.17le\n  ", u.fltv);
     pbinary_double(u.fltv);
     printf("\n");
+    if ((ivalue >> XSUM_MANTISSA_BITS) != 1) abort();
   }
 
   return u.fltv;
