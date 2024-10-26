@@ -166,12 +166,28 @@ Lnormal, Lnormal, Lnormal, Lnormal, 0.125, 0.125, -Lnormal, -Lnormal, -Lnormal, 
 1.1e-322, 5.3443e-321, -9.343e-320, 3.33e-314, 4.41e-322, -8.8e-318, 3.1e-310, 4.1e-300, -4e-300, 7e-307, 1.0000070031003328e-301,
 0 };
 
+/* Vectors of length two for testing dot product and squared norm.  These a
+   of 'float' type so that casting to double and multiplying will give the
+   exact product.  Adding the two terms will then give the correctly-rounded
+   result to check against. */
+
+float dot_term[] = {
+  1.0f, 1.0f,
+  -1.0f, 1.0f,
+  0.3f, 1.4f,
+  313.5f, -14.33f,
+  12.2f, 1.1e-20f,
+  5.5e15f, -4.1,
+0 };
+
 #if 1
 #define REP1 (1 << 23) /* Repeat factor for second set of one term tests */
 #define REP10 (1 << 13) /* Repeat factor for second set of ten term tests */
+#define REPDOT (1 << 13) /* Repeat factor for dot product / sqnorm tests */
 #else
 #define REP1 2 /* Small repetition count maybe sometimes useful for debugging */
 #define REP10 2
+#define REPDOT 2
 #endif
 
 int echo, debug_all, debug_letter, debug_number;
@@ -1190,6 +1206,125 @@ int main (int argc, char **argv)
 
     small_result(&sacc,s,i);
     large_result(&lacc,s,i);
+  }
+
+  printf("\n%c: TESTS OF SQUARED NORM\n",++section);
+
+  tstno = 0;
+  for (i = 0; dot_term[i] != 0; i += 2)
+  { int si, k;
+    for (si = -1; si <= 1; si+=2)
+    { double vi[3] = { 0.0, (double)si*dot_term[i], (double)si*dot_term[i+1] };
+      if (echo) printf(" \n-- TEST %2d\n",tstno);
+      s = (double)vi[1]*vi[1] + (double)vi[2]*vi[2];
+      if (echo) printf("   ANSWER:  %.16le\n",s);
+
+      xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+      xsum_small_init (&sacc);
+      xsum_small_add_sqnorm (&sacc, vi+1, 2);
+      small_result(&sacc,s,tstno);
+
+      xsum_large_init (&lacc);
+      xsum_large_add_sqnorm (&lacc, vi+1, 2);
+      large_result(&lacc,s,tstno);
+
+      tstno += 1;
+
+      if (echo) printf(" \n-- TEST %2d\n",tstno);
+      s = (double)vi[1]*vi[1] + (double)vi[2]*vi[2];
+      if (echo) printf("   ANSWER:  %.16le\n",s);
+
+      xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+      xsum_small_init (&sacc);
+      xsum_small_add_sqnorm (&sacc, vi, 3);
+      small_result(&sacc,s,tstno);
+
+      xsum_large_init (&lacc);
+      xsum_large_add_sqnorm (&lacc, vi, 3);
+      large_result(&lacc,s,tstno);
+
+      tstno += 1;
+
+      if (echo) printf(" \n-- TEST %2d\n",tstno);
+      s = REPDOT * ((double)vi[1]*vi[1] + (double)vi[2]*vi[2]);
+      if (echo) printf("   ANSWER:  %.16le\n",s);
+
+      xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+      xsum_small_init (&sacc);
+      for (k = 0; k < REPDOT; k++) xsum_small_add_sqnorm (&sacc, vi+1, 2);
+      small_result(&sacc,s,tstno);
+
+      xsum_large_init (&lacc);
+      for (k = 0; k < REPDOT; k++) xsum_large_add_sqnorm (&lacc, vi+1, 2);
+      large_result(&lacc,s,tstno);
+
+      tstno += 1;
+    }
+  }
+
+  printf("\n%c: TESTS OF DOT PRODUCT\n",++section);
+
+  tstno = 0;
+  for (i = 0; dot_term[i] != 0; i += 2)
+  { int si, sj, k;
+    for (si = -1; si <= 1; si+=2)
+    { double vi[3] = { 0.0, (double)si*dot_term[i], (double)si*dot_term[i+1] };
+      for (j = 0; dot_term[j] != 0; j += 2)
+      { for (sj = -1; sj <= 1; sj += 2)
+        { double vj[3] = {0.0,(double)sj*dot_term[j],(double)sj*dot_term[j+1] };
+          if (echo) printf(" \n-- TEST %2d\n",tstno);
+          s = (double)vi[1]*vj[1] + (double)vi[2]*vj[2];
+          if (echo) printf("   ANSWER:  %.16le\n",s);
+
+          xsum_debug = debug_all || debug_letter==section&&debug_number==tstno;
+
+          xsum_small_init (&sacc);
+          xsum_small_add_dot (&sacc, vi+1, vj+1, 2);
+          small_result(&sacc,s,tstno);
+
+          xsum_large_init (&lacc);
+          xsum_large_add_dot (&lacc, vi+1, vj+1, 2);
+          large_result(&lacc,s,tstno);
+
+          tstno += 1;
+
+          if (echo) printf(" \n-- TEST %2d\n",tstno);
+          s = (double)vi[1]*vj[1] + (double)vi[2]*vj[2];
+          if (echo) printf("   ANSWER:  %.16le\n",s);
+
+          xsum_debug = debug_all || debug_letter==section&&debug_number==tstno;
+
+          xsum_small_init (&sacc);
+          xsum_small_add_dot (&sacc, vi, vj, 3);
+          small_result(&sacc,s,tstno);
+
+          xsum_large_init (&lacc);
+          xsum_large_add_dot (&lacc, vi, vj, 3);
+          large_result(&lacc,s,tstno);
+
+          tstno += 1;
+
+          if (echo) printf(" \n-- TEST %2d\n",tstno);
+          s = REPDOT * ((double)vi[1]*vj[1] + (double)vi[2]*vj[2]);
+          if (echo) printf("   ANSWER:  %.16le\n",s);
+
+          xsum_debug = debug_all || debug_letter==section&&debug_number==tstno;
+
+          xsum_small_init (&sacc);
+          for (k = 0; k < REPDOT; k++) xsum_small_add_dot(&sacc, vi+1, vj+1, 2);
+          small_result(&sacc,s,tstno);
+
+          xsum_large_init (&lacc);
+          for (k = 0; k < REPDOT; k++) xsum_large_add_dot(&lacc, vi+1, vj+1, 2);
+          large_result(&lacc,s,tstno);
+
+          tstno += 1;
+        }
+      }
+    }
   }
   
   printf("\nDONE\n\n");
