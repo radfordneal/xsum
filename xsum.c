@@ -857,7 +857,7 @@ void xsum_small_add_dot (xsum_small_accumulator *restrict sacc,
                          xsum_length n)
 { xsum_length m, i;
 
-  while (n > 1)
+  while (n > 0)
   { if (sacc->adds_until_propagate == 0)
     { (void) xsum_carry_propagate(sacc);
     }
