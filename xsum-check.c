@@ -129,6 +129,102 @@ Lnormal, Lnormal*pow2_52/2,
 1.0/0.0, -1.0/0.0,
 0.0/0.0, 123,
 123, 0.0/0.0,
+(double)(1L<<55), 0.0,         /* Tests of rounding */
+(double)(1L<<55), 1.0,
+(double)(1L<<55), 2.0,
+(double)(1L<<55), 3.0,
+(double)(1L<<55), 4.0,
+(double)(1L<<55), 5.0,
+(double)(1L<<55), 6.0,
+(double)(1L<<55), 7.0,
+(double)(1L<<55)+8.0, 0.0,
+(double)(1L<<55)+8.0, 1.0,
+(double)(1L<<55)+8.0, 2.0,
+(double)(1L<<55)+8.0, 3.0,
+(double)(1L<<55)+8.0, 4.0,
+(double)(1L<<55)+8.0, 5.0,
+(double)(1L<<55)+8.0, 6.0,
+(double)(1L<<55)+8.0, 7.0,
+(double)(1L<<55)+16.0, 0.0,
+(double)(1L<<55)+16.0, 1.0,
+(double)(1L<<55)+16.0, 2.0,
+(double)(1L<<55)+16.0, 3.0,
+(double)(1L<<55)+16.0, 4.0,
+(double)(1L<<55)+16.0, 5.0,
+(double)(1L<<55)+16.0, 6.0,
+(double)(1L<<55)+24.0, 7.0,
+(double)(1L<<55)+24.0, 0.0,
+(double)(1L<<55)+24.0, 1.0,
+(double)(1L<<55)+24.0, 2.0,
+(double)(1L<<55)+24.0, 3.0,
+(double)(1L<<55)+24.0, 4.0,
+(double)(1L<<55)+24.0, 5.0,
+(double)(1L<<55)+24.0, 6.0,
+(double)(1L<<55)+24.0, 7.0,
+(double)(1L<<55), 0.0+1e-45,
+(double)(1L<<55), 1.0+1e-45,
+(double)(1L<<55), 2.0+1e-45,
+(double)(1L<<55), 3.0+1e-45,
+(double)(1L<<55), 4.0+1e-45,
+(double)(1L<<55), 5.0+1e-45,
+(double)(1L<<55), 6.0+1e-45,
+(double)(1L<<55), 7.0+1e-45,
+(double)(1L<<55)+8.0, 0.0+1e-45,
+(double)(1L<<55)+8.0, 1.0+1e-45,
+(double)(1L<<55)+8.0, 2.0+1e-45,
+(double)(1L<<55)+8.0, 3.0+1e-45,
+(double)(1L<<55)+8.0, 4.0+1e-45,
+(double)(1L<<55)+8.0, 5.0+1e-45,
+(double)(1L<<55)+8.0, 6.0+1e-45,
+(double)(1L<<55)+8.0, 7.0+1e-45,
+(double)(1L<<55)+16.0, 0.0+1e-45,
+(double)(1L<<55)+16.0, 1.0+1e-45,
+(double)(1L<<55)+16.0, 2.0+1e-45,
+(double)(1L<<55)+16.0, 3.0+1e-45,
+(double)(1L<<55)+16.0, 4.0+1e-45,
+(double)(1L<<55)+16.0, 5.0+1e-45,
+(double)(1L<<55)+16.0, 6.0+1e-45,
+(double)(1L<<55)+24.0, 7.0+1e-45,
+(double)(1L<<55)+24.0, 0.0+1e-45,
+(double)(1L<<55)+24.0, 1.0+1e-45,
+(double)(1L<<55)+24.0, 2.0+1e-45,
+(double)(1L<<55)+24.0, 3.0+1e-45,
+(double)(1L<<55)+24.0, 4.0+1e-45,
+(double)(1L<<55)+24.0, 5.0+1e-45,
+(double)(1L<<55)+24.0, 6.0+1e-45,
+(double)(1L<<55)+24.0, 7.0+1e-45,
+(double)(1L<<55), 0.0-1e-45,
+(double)(1L<<55), 1.0-1e-45,
+(double)(1L<<55), 2.0-1e-45,
+(double)(1L<<55), 3.0-1e-45,
+(double)(1L<<55), 4.0-1e-45,
+(double)(1L<<55), 5.0-1e-45,
+(double)(1L<<55), 6.0-1e-45,
+(double)(1L<<55), 7.0-1e-45,
+(double)(1L<<55)+8.0, 0.0-1e-45,
+(double)(1L<<55)+8.0, 1.0-1e-45,
+(double)(1L<<55)+8.0, 2.0-1e-45,
+(double)(1L<<55)+8.0, 3.0-1e-45,
+(double)(1L<<55)+8.0, 4.0-1e-45,
+(double)(1L<<55)+8.0, 5.0-1e-45,
+(double)(1L<<55)+8.0, 6.0-1e-45,
+(double)(1L<<55)+8.0, 7.0-1e-45,
+(double)(1L<<55)+16.0, 0.0-1e-45,
+(double)(1L<<55)+16.0, 1.0-1e-45,
+(double)(1L<<55)+16.0, 2.0-1e-45,
+(double)(1L<<55)+16.0, 3.0-1e-45,
+(double)(1L<<55)+16.0, 4.0-1e-45,
+(double)(1L<<55)+16.0, 5.0-1e-45,
+(double)(1L<<55)+16.0, 6.0-1e-45,
+(double)(1L<<55)+24.0, 7.0-1e-45,
+(double)(1L<<55)+24.0, 0.0-1e-45,
+(double)(1L<<55)+24.0, 1.0-1e-45,
+(double)(1L<<55)+24.0, 2.0-1e-45,
+(double)(1L<<55)+24.0, 3.0-1e-45,
+(double)(1L<<55)+24.0, 4.0-1e-45,
+(double)(1L<<55)+24.0, 5.0-1e-45,
+(double)(1L<<55)+24.0, 6.0-1e-45,
+(double)(1L<<55)+24.0, 7.0-1e-45,
 0 };
 
 /* Tests with three terms.  Answers are given here as a fourth number,
@@ -259,6 +355,23 @@ int main (int argc, char **argv)
     { debug_letter = argv[1][2];
       debug_number = atoi(argv[1]+3);
     }
+  }
+
+  /* Print out special values in binary, if enabled, to check that they are
+     as intended. */
+
+  if (0)
+  { printf("1:\n  "); pbinary_double(1.0); printf("\n");
+    printf("pow2_16:\n  "); pbinary_double(pow2_16); printf("\n");
+    printf("pow2_52:\n  "); pbinary_double(pow2_52); printf("\n");
+    printf("1/pow2_52:\n  "); pbinary_double(1/pow2_52); printf("\n");
+    printf("pow2_1024:\n  "); pbinary_double(pow2_1024); printf("\n");
+    printf("Lnormal:\n  "); pbinary_double(Lnormal); printf("\n");
+    printf("Snormal:\n  "); pbinary_double(Snormal); printf("\n");
+    printf("Ldenorm:\n  "); pbinary_double(Ldenorm); printf("\n");
+    printf("Sdenorm:\n  "); pbinary_double(Sdenorm); printf("\n");
+    printf("(1L<<55)+8.0:\n  "); pbinary_double((1L<<55)+8.0); printf("\n");
+    printf("\n");
   }
 
   /* On an Intel machine, set the 387 FPU to do double rounding, in order
@@ -420,6 +533,70 @@ int main (int argc, char **argv)
     xsum_large_init (&lacc);
     xsum_large_addv (&lacc, v, 2);
     large_result(&lacc,s,i/2);
+  }
+
+  printf("\n%c: TWO TERM TESTS, WITH MULTIPLYING FACTORS\n",++section);
+
+  static int factors[] = { /* should be powers of two, so multiply is exact */
+    2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
+    -2, -4, -8, -16, -32, -64, -128, -256, -512, -1024, -2048, -4096, -8192,
+  0 };
+
+  tstno = 0;
+  for (i = 0; two_term[i] != 0; i += 2)
+  { for (j = 0; factors[j] != 0; j++)
+    { 
+      double v[2] = { factors[j]*two_term[i], factors[j]*two_term[i+1] };
+      if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",tstno,v[0],v[1]);
+      s = v[0]+v[1];
+      if (echo) printf("   ANSWER:  %.16le\n",s);
+
+      xsum_debug = debug_all || debug_letter==section && debug_number==i/2;
+
+      xsum_small_init (&sacc);
+      xsum_small_addv (&sacc, v, 2);
+      small_result(&sacc,s,i/2);
+
+      xsum_large_init (&lacc);
+      xsum_large_addv (&lacc, v, 2);
+      large_result(&lacc,s,i/2);
+
+      tstno += 1;
+    }
+  }
+
+  printf("\n%c: TWO TERM TESTS, WITH MULTIPLYING FACTORS, AND +-EXTRAS\n",
+          ++section);
+
+  tstno = 0;
+  for (i = 0; two_term[i] != 0; i += 2)
+  { for (j = 0; factors[j] != 0; j++)
+    { 
+      double v[2] = { factors[j]*two_term[i], factors[j]*two_term[i+1] };
+      if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",tstno,v[0],v[1]);
+      s = v[0]+v[1];
+      if (echo) printf("   ANSWER:  %.16le\n",s);
+
+      xsum_debug = debug_all || debug_letter==section && debug_number==i/2;
+
+      xsum_small_init (&sacc);
+      xsum_small_add1 (&sacc, 123.4e200);
+      xsum_small_add1 (&sacc, -543.2e-200);
+      xsum_small_addv (&sacc, v, 2);
+      xsum_small_add1 (&sacc, -123.4e200);
+      xsum_small_add1 (&sacc, 543.2e-200);
+      small_result(&sacc,s,i/2);
+
+      xsum_large_init (&lacc);
+      xsum_large_add1 (&lacc, 123.4e200);
+      xsum_large_add1 (&lacc, -543.2e-200);
+      xsum_large_addv (&lacc, v, 2);
+      xsum_large_add1 (&lacc, -123.4e200);
+      xsum_large_add1 (&lacc, 543.2e-200);
+      large_result(&lacc,s,i/2);
+
+      tstno += 1;
+    }
   }
 
   printf("\n%c: THREE TERM TESTS\n",++section);
