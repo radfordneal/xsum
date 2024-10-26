@@ -90,7 +90,7 @@ int xsum_debug = 0;
 # define INLINE inline __attribute__ ((always_inline))
 # define NOINLINE __attribute__ ((noinline))
 #else
-# define INLINE inline 
+# define INLINE inline
 # define NOINLINE
 #endif
 
@@ -98,24 +98,24 @@ int xsum_debug = 0;
 /* ------------------------ INTERNAL ROUTINES ------------------------------- */
 
 
-/* ADD AN INF OR NAN TO A SMALL ACCUMULATOR.  This only changes the flags, 
-   not the chunks in the accumulator, which retains the sum of the finite 
-   terms (which is perhaps sometimes useful to access, though no function 
-   to do so is defined at present).  A NaN with larger payload (seen as a 
+/* ADD AN INF OR NAN TO A SMALL ACCUMULATOR.  This only changes the flags,
+   not the chunks in the accumulator, which retains the sum of the finite
+   terms (which is perhaps sometimes useful to access, though no function
+   to do so is defined at present).  A NaN with larger payload (seen as a
    52-bit unsigned integer) takes precedence, with the sign of the NaN always
    being positive.  This ensures that the order of summing NaN values doesn't
    matter. */
 
-static NOINLINE void xsum_small_add_inf_nan 
+static NOINLINE void xsum_small_add_inf_nan
                        (xsum_small_accumulator *restrict sacc, xsum_int ivalue)
-{ 
+{
   xsum_int mantissa;
   union fpunion u;
- 
-  mantissa = ivalue & XSUM_MANTISSA_MASK;  
+
+  mantissa = ivalue & XSUM_MANTISSA_MASK;
 
   if (mantissa == 0) /* Inf */
-  { if (sacc->Inf == 0)   
+  { if (sacc->Inf == 0)
     { /* no previous Inf */
       sacc->Inf = ivalue;
     }
@@ -137,14 +137,14 @@ static NOINLINE void xsum_small_add_inf_nan
 
 
 /* PROPAGATE CARRIES TO NEXT CHUNK IN A SMALL ACCUMULATOR.  Needs to
-   be called often enough that accumulated carries don't overflow out 
-   the top, as indicated by sacc->adds_until_propagate.  Returns the 
-   index of the uppermost non-zero chunk (0 if number is zero).  
+   be called often enough that accumulated carries don't overflow out
+   the top, as indicated by sacc->adds_until_propagate.  Returns the
+   index of the uppermost non-zero chunk (0 if number is zero).
 
    After carry propagation, the uppermost non-zero chunk will indicate
    the sign of the number, and will not be -1 (all 1s).  It will be in
-   the range -2^XSUM_LOW_MANTISSA_BITS to 2^XSUM_LOW_MANTISSA_BITS - 1. 
-   Lower chunks will be non-negative, and in the range from 0 up to 
+   the range -2^XSUM_LOW_MANTISSA_BITS to 2^XSUM_LOW_MANTISSA_BITS - 1.
+   Lower chunks will be non-negative, and in the range from 0 up to
    2^XSUM_LOW_MANTISSA_BITS - 1. */
 
 static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
@@ -153,7 +153,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
   if (xsum_debug) printf("\nCARRY PROPAGATING IN SMALL ACCUMULATOR\n");
 
-  /* Set u to the index of the uppermost non-zero (for now) chunk, or 
+  /* Set u to the index of the uppermost non-zero (for now) chunk, or
      return with value 0 if there is none. */
 
 # if OPT_CARRY
@@ -162,8 +162,8 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
     u = XSUM_SCHUNKS-1;
     switch (XSUM_SCHUNKS & 0x7)   /* get u to be a multiple of 8 minus 1  */
-    { 
-      case 7: if (sacc->chunk[u] != 0) goto found2;  
+    {
+      case 7: if (sacc->chunk[u] != 0) goto found2;
               u -= 1;                                /* XSUM_SCHUNKS is a */
       case 6: if (sacc->chunk[u] != 0) goto found2;  /* constant, so the  */
               u -= 1;                                /* compiler will do  */
@@ -187,11 +187,11 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
                 | (sacc->chunk[u-6] | sacc->chunk[u-7]) ) goto found;
       u -= 8;
     } while (u >= 0);
-  
+
     if (xsum_debug) printf ("number is zero (1)\n");
     uix = 0;
     goto done;
-  
+
   found:
     if (c0123 == 0) u -= 4;
     while (sacc->chunk[u] == 0)
@@ -204,7 +204,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 # else  /* Non-optimized search for uppermost non-zero chunk */
 
   { for (u = XSUM_SCHUNKS-1; sacc->chunk[u] == 0; u--)
-    { if (u == 0) 
+    { if (u == 0)
       { if (xsum_debug) printf ("number is zero (1)\n");
         uix = 0;
         goto done;
@@ -216,7 +216,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
   if (xsum_debug) printf("u: %d",u);
 
-  /* Carry propagate, starting at the low-order chunks.  Note that the 
+  /* Carry propagate, starting at the low-order chunks.  Note that the
      loop limit of u may be increased inside the loop. */
 
   uix = -1;  /* indicates that a non-zero chunk has not been found yet */
@@ -224,7 +224,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
   i = 0;     /* set to the index of the next non-zero chunck, from bottom */
 
 # if OPT_CARRY
-  { 
+  {
     /* Quickly skip over unused low-order chunks.  Done here at the start
        on the theory that there are often many unused low-order chunks,
        justifying some overhead to begin, but later stretches of unused
@@ -244,25 +244,25 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     xsum_schunk clow;    /* Low-order bits of c */
     xsum_schunk chigh;   /* High-order bits of c */
 
-    /* Find the next non-zero chunk, setting i to its index, or break out 
+    /* Find the next non-zero chunk, setting i to its index, or break out
        of loop if there is none.  Note that the chunk at index u is not
        necessarily non-zero - it was initially, but u or the chunk at u
        may have changed. */
 
 #   if OPT_CARRY
     { do
-      { c = sacc->chunk[i]; 
+      { c = sacc->chunk[i];
         if (c != 0) goto nonzero;
         i += 1;
         if (i > u) break;
-        c = sacc->chunk[i]; 
+        c = sacc->chunk[i];
         if (c != 0) goto nonzero;
         i += 1;
       } while (i <= u);
     }
 #   else
     { do
-      { c = sacc->chunk[i]; 
+      { c = sacc->chunk[i];
         if (c != 0) goto nonzero;
         i += 1;
       } while (i <= u);
@@ -296,15 +296,15 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
     /* We now change chunk[i] and add to chunk[i+1]. Note that i+1 should be
        in range (no bigger than XSUM_CHUNKS-1) if summing memory, since
-       the number of chunks is big enough to hold any sum, and we do not 
-       store redundant chunks with values 0 or -1 above previously non-zero 
-       chunks.  But other add operations might cause overflow, in which 
+       the number of chunks is big enough to hold any sum, and we do not
+       store redundant chunks with values 0 or -1 above previously non-zero
+       chunks.  But other add operations might cause overflow, in which
        case we produce a NaN with all 1s as payload.  (We can't reliably produce
        an Inf of the right sign.) */
 
     sacc->chunk[i] = clow;
     if (i+1 >= XSUM_SCHUNKS)
-    { xsum_small_add_inf_nan (sacc, 
+    { xsum_small_add_inf_nan (sacc,
         ((xsum_int)XSUM_EXP_MASK << XSUM_MANTISSA_BITS) | XSUM_MANTISSA_MASK);
       u = i;
     }
@@ -334,8 +334,8 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
   while (sacc->chunk[uix] == -1 && uix > 0)
   { /* A shift of a negative number is undefined according to the standard, so
        do a multiply - it's all presumably constant-folded by the compiler. */
-    sacc->chunk[uix-1] += ((xsum_schunk) -1) 
-                             * (((xsum_schunk) 1) << XSUM_LOW_MANTISSA_BITS); 
+    sacc->chunk[uix-1] += ((xsum_schunk) -1)
+                             * (((xsum_schunk) 1) << XSUM_LOW_MANTISSA_BITS);
     sacc->chunk[uix] = 0;
     uix -= 1;
   }
@@ -355,7 +355,7 @@ done:
 /* INITIALIZE LARGE ACCUMULATOR CHUNKS.  Sets all counts to -1. */
 
 static void xsum_large_init_chunks (xsum_large_accumulator *restrict lacc)
-{ 
+{
 # if USE_MEMSET_LARGE
   {
     /* Since in two's complement representation, -1 consists of all 1 bits,
@@ -389,7 +389,7 @@ static void xsum_large_init_chunks (xsum_large_accumulator *restrict lacc)
 }
 
 
-/* ADD CHUNK FROM A LARGE ACCUMULATOR TO THE SMALL ACCUMULATOR WITHIN IT. 
+/* ADD CHUNK FROM A LARGE ACCUMULATOR TO THE SMALL ACCUMULATOR WITHIN IT.
    The large accumulator chunk to add is indexed by ix.  This chunk will
    be cleared to zero and its count reset after it has been added to the
    small accumulator (except no add is done for a new chunk being initialized).
@@ -405,7 +405,7 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
   xsum_expint exp, low_exp, high_exp;
   xsum_uint low_chunk, mid_chunk, high_chunk;
   xsum_lchunk chunk;
-  
+
   const xsum_expint count = lacc->count[ix];
 
   /* Add to the small accumulator only if the count is not -1, which
@@ -420,7 +420,7 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
     }
 
     /* Get the chunk we will add.  Note that this chunk is the integer sum
-       of entire 64-bit floating-point representations, with sign, exponent, 
+       of entire 64-bit floating-point representations, with sign, exponent,
        and mantissa, but we want only the sum of the mantissas. */
 
     chunk = lacc->chunk[ix];
@@ -432,19 +432,19 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
     }
 
     /* If we added the maximum number of values to 'chunk', the sum of
-       the sign and exponent parts (all the same, equal to the index) will 
+       the sign and exponent parts (all the same, equal to the index) will
        have overflowed out the top, leaving only the sum of the mantissas.
        If the count of how many more terms we could have summed is greater
        than zero, we therefore add this count times the index (shifted to
-       the position of the sign and exponent) to get the unwanted bits to 
+       the position of the sign and exponent) to get the unwanted bits to
        overflow out the top. */
 
     if (count > 0)
     { chunk += (xsum_lchunk)(count*ix) << XSUM_MANTISSA_BITS;
     }
 
-    /* Find the exponent for this chunk from the low bits of the index, 
-       and split it into low and high parts, for accessing the small 
+    /* Find the exponent for this chunk from the low bits of the index,
+       and split it into low and high parts, for accessing the small
        accumulator.  Noting that for denormalized numbers where the
        exponent part is zero, the actual exponent is 1 (before subtracting
        the bias), not zero. */
@@ -510,7 +510,7 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
 
     /* The above additions/subtractions reduce by one the number we can
        do before we need to do carry propagation again. */
-  
+
     lacc->sacc.adds_until_propagate -= 1;
   }
 
@@ -530,7 +530,7 @@ static void xsum_add_lchunk_to_small (xsum_large_accumulator *restrict lacc,
 
 
 /* ADD A CHUNK TO THE LARGE ACCUMULATOR OR PROCESS NAN OR INF.  This routine
-   is called when the count for a chunk is negative after decrementing, which 
+   is called when the count for a chunk is negative after decrementing, which
    indicates either inf/nan, or that the chunk has not been initialized, or
    that the chunk needs to be transferred to the small accumulator. */
 
@@ -558,7 +558,7 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
   if (xsum_debug) printf("\nTRANSFERRING CHUNKS IN LARGE ACCUMULATOR\n");
 
 # if USE_USED_LARGE
-  { 
+  {
     xsum_used *p, *e;
     xsum_used u, uu;
     int ix;
@@ -566,18 +566,26 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
     p = lacc->chunks_used;
     e = p + XSUM_LCHUNKS/64;
 
-    /* Very quickly skip some unused low-order blocks of chunks by looking 
+    /* Very quickly skip some unused low-order blocks of chunks by looking
        at the used_used flags. */
 
     uu = lacc->used_used;
-    if ((uu & 0xffffffff) == 0) { uu >>= 32; p += 32; }
-    if ((uu & 0xffff) == 0) { uu >>= 16; p += 16; }
-    if ((uu & 0xff) == 0) p += 8;
+    if ((uu & 0xffffffff) == 0)
+    { uu >>= 32;
+      p += 32;
+    }
+    if ((uu & 0xffff) == 0)
+    { uu >>= 16;
+      p += 16;
+    }
+    if ((uu & 0xff) == 0)
+    { p += 8;
+    }
 
     /* Loop over remaining blocks of chunks. */
 
-    do 
-    { 
+    do
+    {
       /* Loop to quickly find the next non-zero block of used flags, or finish
          up if we've added all the used blocks to the small accumulator. */
 
@@ -605,13 +613,22 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
          bits of a chunk that is in use. */
 
       ix = (p - lacc->chunks_used) << 6;
-      if ((u & 0xffffffff) == 0) { u >>= 32; ix += 32; }
-      if ((u & 0xffff) == 0) { u >>= 16; ix += 16; }
-      if ((u & 0xff) == 0) { u >>= 8; ix += 8; }
+      if ((u & 0xffffffff) == 0)
+      { u >>= 32;
+        ix += 32;
+      }
+      if ((u & 0xffff) == 0)
+      { u >>= 16;
+        ix += 16;
+      }
+      if ((u & 0xff) == 0)
+      { u >>= 8;
+        ix += 8;
+      }
 
       do
       { if (lacc->count[ix] >= 0)
-        { xsum_add_lchunk_to_small (lacc, ix); 
+        { xsum_add_lchunk_to_small (lacc, ix);
         }
         ix += 1;
         u >>= 1;
@@ -643,7 +660,7 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
 /* INITIALIZE A SMALL ACCUMULATOR TO ZERO. */
 
 void xsum_small_init (xsum_small_accumulator *restrict sacc)
-{ 
+{
 # if USE_MEMSET_SMALL
     memset (sacc, 0, sizeof *sacc);
 # else
@@ -653,20 +670,20 @@ void xsum_small_init (xsum_small_accumulator *restrict sacc)
     n = XSUM_SCHUNKS;
     do { *p++ = 0; n -= 1; } while (n > 0);
     sacc->Inf = sacc->NaN = 0;
-  } 
+  }
 # endif
   sacc->adds_until_propagate = XSUM_SMALL_CARRY_TERMS;
 }
 
 
-/* ADD ONE NUMBER TO A SMALL ACCUMULATOR ASSUMING NO CARRY PROPAGATION REQ'D. 
+/* ADD ONE NUMBER TO A SMALL ACCUMULATOR ASSUMING NO CARRY PROPAGATION REQ'D.
    This function is declared INLINE regardless of the setting of INLINE_SMALL
-   and for good performance it must be inlined by the compiler (otherwise the 
+   and for good performance it must be inlined by the compiler (otherwise the
    procedure call overhead will result in substantial inefficiency). */
 
-static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc, 
+static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
                                        xsum_flt value)
-{ 
+{
   union fpunion u;
   xsum_int ivalue;
   xsum_int mantissa, low_mantissa, high_mantissa;
@@ -688,12 +705,12 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
   mantissa = ivalue & XSUM_MANTISSA_MASK;
   exp = (ivalue >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK;
 
-  /* Categorize number as normal, denormalized, or Inf/NaN according to 
+  /* Categorize number as normal, denormalized, or Inf/NaN according to
      the value of the exponent field. */
 
   if (exp == 0) /* zero or denormalized */
   { /* If it's a zero (positive or negative), we do nothing. */
-    if (mantissa == 0) 
+    if (mantissa == 0)
     { return;
     }
     /* Denormalized mantissa has no implicit 1, but exponent is 1 not 0. */
@@ -727,9 +744,9 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
   chunk0 = chunk_ptr[0];
   chunk1 = chunk_ptr[1];
 
-  /* Separate mantissa into two parts, after shifting, and add to (or 
-     subtract from) this chunk and the next higher chunk (which always 
-     exists since there are three extra ones at the top). 
+  /* Separate mantissa into two parts, after shifting, and add to (or
+     subtract from) this chunk and the next higher chunk (which always
+     exists since there are three extra ones at the top).
 
      Note that low_mantissa will have at most XSUM_LOW_MANTISSA_BITS bits,
      while high_mantissa will have at most XSUM_MANTISSA_BITS bits, since
@@ -742,7 +759,7 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
   /* Add or subtract to or from the two affected chunks. */
 
   if (ivalue < 0)
-  { 
+  {
     chunk_ptr[0] = chunk0 - low_mantissa;
     chunk_ptr[1] = chunk1 - high_mantissa;
 
@@ -755,7 +772,7 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     }
   }
   else
-  { 
+  {
     chunk_ptr[0] = chunk0 + low_mantissa;
     chunk_ptr[1] = chunk1 + high_mantissa;
 
@@ -770,12 +787,12 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
 }
 
 
-/* ADD ONE DOUBLE TO A SMALL ACCUMULATOR.  This is equivalent to, but 
+/* ADD ONE DOUBLE TO A SMALL ACCUMULATOR.  This is equivalent to, but
    somewhat faster than, calling xsum_small_addv with a vector of one
    value. */
 
 void xsum_small_add1 (xsum_small_accumulator *restrict sacc, xsum_flt value)
-{ 
+{
   if (sacc->adds_until_propagate == 0)
   { (void) xsum_carry_propagate(sacc);
   }
@@ -789,8 +806,8 @@ void xsum_small_add1 (xsum_small_accumulator *restrict sacc, xsum_flt value)
 /* ADD A VECTOR OF FLOATING-POINT NUMBERS TO A SMALL ACCUMULATOR.  Mixes
    calls of xsum_carry_propagate with calls of xsum_add1_no_carry. */
 
-void xsum_small_addv (xsum_small_accumulator *restrict sacc, 
-                      const xsum_flt *restrict vec, 
+void xsum_small_addv (xsum_small_accumulator *restrict sacc,
+                      const xsum_flt *restrict vec,
                       xsum_length n)
 { xsum_length m, i;
 
@@ -803,7 +820,7 @@ void xsum_small_addv (xsum_small_accumulator *restrict sacc,
     { xsum_add1_no_carry (sacc, vec[i]);
     }
     sacc->adds_until_propagate -= m;
-    vec += m; 
+    vec += m;
     n -= m;
   }
 }
@@ -812,8 +829,8 @@ void xsum_small_addv (xsum_small_accumulator *restrict sacc,
 /* ADD SQUARED NORM OF VECTOR OF FLOATING-POINT NUMBERS TO SMALL ACCUMULATOR.
    Mixes calls of xsum_carry_propagate with calls of xsum_add1_no_carry. */
 
-void xsum_small_add_sqnorm (xsum_small_accumulator *restrict sacc, 
-                            const xsum_flt *restrict vec, 
+void xsum_small_add_sqnorm (xsum_small_accumulator *restrict sacc,
+                            const xsum_flt *restrict vec,
                             xsum_length n)
 { xsum_length m, i;
 
@@ -826,17 +843,17 @@ void xsum_small_add_sqnorm (xsum_small_accumulator *restrict sacc,
     { xsum_add1_no_carry (sacc, vec[i] * vec[i]);
     }
     sacc->adds_until_propagate -= m;
-    vec += m; 
+    vec += m;
     n -= m;
   }
 }
 
 
-/* ADD DOT PRODUCT OF VECTORS FLOATING-POINT NUMBERS TO SMALL ACCUMULATOR.
+/* ADD DOT PRODUCT OF VECTORS OF FLOATING-POINT NUMBERS TO SMALL ACCUMULATOR.
    Mixes calls of xsum_carry_propagate with calls of xsum_add1_no_carry. */
 
-void xsum_small_add_dot (xsum_small_accumulator *restrict sacc, 
-                         const xsum_flt *vec1, const xsum_flt *vec2, 
+void xsum_small_add_dot (xsum_small_accumulator *restrict sacc,
+                         const xsum_flt *vec1, const xsum_flt *vec2,
                          xsum_length n)
 { xsum_length m, i;
 
@@ -849,8 +866,8 @@ void xsum_small_add_dot (xsum_small_accumulator *restrict sacc,
     { xsum_add1_no_carry (sacc, vec1[i] * vec2[i]);
     }
     sacc->adds_until_propagate -= m;
-    vec1 += m; 
-    vec2 += m; 
+    vec1 += m;
+    vec2 += m;
     n -= m;
   }
 }
@@ -861,7 +878,7 @@ void xsum_small_add_dot (xsum_small_accumulator *restrict sacc,
    add, which may also be modified, but should still represent the same
    number.  Source and destination may be the same. */
 
-void xsum_small_add_accumulator (xsum_small_accumulator *dst_sacc, 
+void xsum_small_add_accumulator (xsum_small_accumulator *dst_sacc,
                                  xsum_small_accumulator *src_sacc)
 {
   int i;
@@ -881,7 +898,7 @@ void xsum_small_add_accumulator (xsum_small_accumulator *dst_sacc,
 
     if (src_sacc->Inf) xsum_small_add_inf_nan (dst_sacc, src_sacc->Inf);
     if (src_sacc->NaN) xsum_small_add_inf_nan (dst_sacc, src_sacc->NaN);
-  
+
     for (i = 0; i < XSUM_SCHUNKS; i++)
     { dst_sacc->chunk[i] += src_sacc->chunk[i];
     }
@@ -909,13 +926,13 @@ void xsum_small_negate (xsum_small_accumulator *restrict sacc)
 }
 
 
-/* RETURN THE RESULT OF ROUNDING A SMALL ACCUMULATOR.  The rounding mode 
-   is to nearest, with ties to even.  The small accumulator may be modified 
+/* RETURN THE RESULT OF ROUNDING A SMALL ACCUMULATOR.  The rounding mode
+   is to nearest, with ties to even.  The small accumulator may be modified
    by this operation (by carry propagation being done), but the value it
    represents should not change. */
 
 xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
-{ 
+{
   xsum_int ivalue;
   xsum_schunk lower;
   union fpunion u;
@@ -931,10 +948,10 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
     return u.fltv;
   }
 
-  /* Otherwise, if any number was infinite, we return +Inf, -Inf, or a Nan 
+  /* Otherwise, if any number was infinite, we return +Inf, -Inf, or a Nan
      (if both +Inf and -Inf occurred).  Note that we do NOT return NaN if
-     we have both an infinite number and a sum of other numbers that 
-     overflows with opposite sign, since there is no real ambiguity in 
+     we have both an infinite number and a sum of other numbers that
+     overflows with opposite sign, since there is no real ambiguity in
      such a case. */
 
   if (sacc->Inf != 0)
@@ -945,11 +962,11 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   /* If none of the numbers summed were infinite or NaN, we proceed to
      propagate carries, as a preliminary to finding the magnitude of
      the sum.  This also ensures that the sign of the result can be
-     determined from the uppermost non-zero chunk.  
+     determined from the uppermost non-zero chunk.
 
-     We also find the index, i, of this uppermost non-zero chunk, as 
-     the value returned by xsum_carry_propagate, and set ivalue to 
-     sacc->chunk[i].  Note that ivalue will not be 0 or -1, unless 
+     We also find the index, i, of this uppermost non-zero chunk, as
+     the value returned by xsum_carry_propagate, and set ivalue to
+     sacc->chunk[i].  Note that ivalue will not be 0 or -1, unless
      i is 0 (the lowest chunk), in which case it will be handled by
      the code for denormalized numbers. */
 
@@ -962,7 +979,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   /* Handle a possible denormalized number, including zero. */
 
   if (i <= 1)
-  { 
+  {
     /* Check for zero value, in which case we can return immediately. */
 
     if (ivalue == 0)
@@ -971,19 +988,19 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
 
     /* Check if it is actually a denormalized number.  It always is if only
        the lowest chunk is non-zero.  If the highest non-zero chunk is the
-       next-to-lowest, we check the magnitude of the absolute value.  
+       next-to-lowest, we check the magnitude of the absolute value.
        Note that the real exponent is 1 (not 0), so we need to shift right
-       by 1 here, which also means there will be no overflow from the left 
+       by 1 here, which also means there will be no overflow from the left
        shift below (but must view absolute value as unsigned). */
 
     if (i == 0)
     { u.intv = ivalue >= 0 ? ivalue : -ivalue;
       u.intv >>= 1;
-      if (ivalue < 0) 
+      if (ivalue < 0)
       { u.intv |= XSUM_SIGN_MASK;
       }
       if (xsum_debug)
-      { printf("denormalized with i==0: u.intv %016llx\n", 
+      { printf("denormalized with i==0: u.intv %016llx\n",
                 (long long)u.intv);
       }
       return u.fltv;
@@ -997,7 +1014,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       { if (u.intv > - ((xsum_int)1 << XSUM_MANTISSA_BITS))
         { u.intv = (-u.intv) | XSUM_SIGN_MASK;
           if (xsum_debug)
-          { printf("denormalized with i==1: u.intv %016llx\n", 
+          { printf("denormalized with i==1: u.intv %016llx\n",
                     (long long)u.intv);
           }
           return u.fltv;
@@ -1006,7 +1023,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       else /* non-negative */
       { if (u.uintv < (xsum_uint)1 << XSUM_MANTISSA_BITS)
         { if (xsum_debug)
-          { printf("denormalized with i==1: u.intv %016llx\n", 
+          { printf("denormalized with i==1: u.intv %016llx\n",
                     (long long)u.intv);
           }
           return u.fltv;
@@ -1043,7 +1060,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      later move into 'ivalue' if it turns out that one more bit is needed. */
 
   ivalue *= (xsum_int)1 << more;  /* multiply, since << of negative undefined */
-  if (xsum_debug) 
+  if (xsum_debug)
   { printf("after ivalue <<= more,         ivalue: %016llx\n",
             (long long)ivalue);
   }
@@ -1052,7 +1069,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   if (more >= XSUM_LOW_MANTISSA_BITS)
   { more -= XSUM_LOW_MANTISSA_BITS;
     ivalue += lower << more;
-    if (xsum_debug) 
+    if (xsum_debug)
     { printf("after ivalue += lower << more, ivalue: %016llx\n",
               (long long)ivalue);
     }
@@ -1086,7 +1103,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      magnitude should be increased by one in the lowest mantissa bit. */
 
   if (ivalue >= 0)  /* number is positive, lower bits are added to magnitude */
-  { 
+  {
     u.intv = 0;  /* positive sign */
 
     if ((ivalue & 2) == 0)  /* extra bits are 0x */
@@ -1097,14 +1114,14 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
     }
 
     if ((ivalue & 1) != 0)  /* extra bits are 11 */
-    { if (xsum_debug) 
+    { if (xsum_debug)
       { printf("+, round away from 0, since remainder adds >1/2\n");
       }
       goto round_away_from_zero;
     }
 
     if ((ivalue & 4) != 0)  /* low bit is 1 (odd), extra bits are 10 */
-    { if (xsum_debug) 
+    { if (xsum_debug)
       { printf("+odd, round away from 0, since remainder adds >=1/2\n");
       }
       goto round_away_from_zero;
@@ -1121,7 +1138,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
     }
 
     if (lower != 0)  /* low bit 0 (even), extra bits 10, non-zero lower bits */
-    { if (xsum_debug) 
+    { if (xsum_debug)
       { printf("+even, round away from 0, since remainder adds >1/2\n");
       }
       goto round_away_from_zero;
@@ -1135,11 +1152,11 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
   }
 
   else  /* number is negative, lower bits are subtracted from magnitude */
-  { 
+  {
     /* Check for a negative 'ivalue' that when negated doesn't contain a full
        mantissa's worth of bits, plus one to help rounding.  If so, move one
-       more bit into 'ivalue' from 'lower' (and remove it from 'lower'). 
-       This happens when the negation of the upper part of 'ivalue' has the 
+       more bit into 'ivalue' from 'lower' (and remove it from 'lower').
+       This happens when the negation of the upper part of 'ivalue' has the
        form 10000... but the negation of the full 'ivalue' is not 10000... */
 
     if (((-ivalue) & ((xsum_int)1 << (XSUM_MANTISSA_BITS+2))) == 0)
@@ -1149,7 +1166,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       { ivalue += 1;
         lower &= ~pos;
       }
-      e -= 1; 
+      e -= 1;
       if (xsum_debug)
       { printf("j: %d, e: %d, |ivalue|: %016llx, lower: %016llx (b)\n",
              j, e, (long long) (ivalue<0 ? -ivalue : ivalue), (long long)lower);
@@ -1208,7 +1225,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
 
 round_away_from_zero:
 
-  /* Round away from zero, then check for carry having propagated out the 
+  /* Round away from zero, then check for carry having propagated out the
      top, and shift if so. */
 
   ivalue += 4;  /* add 1 to low-order mantissa bit */
@@ -1229,7 +1246,7 @@ done_rounding: ;
 
   /* If exponent has overflowed, change to plus or minus Inf and return. */
 
-  if (e >= XSUM_EXP_MASK) 
+  if (e >= XSUM_EXP_MASK)
   { u.intv |= (xsum_int) XSUM_EXP_MASK << XSUM_MANTISSA_BITS;
     if (xsum_debug)
     { printf ("Final rounded result: %.17le (overflowed)\n  ", u.fltv);
@@ -1242,7 +1259,7 @@ done_rounding: ;
   /* Put exponent and mantissa into u.intv, which already has the sign,
      then return u.fltv. */
 
-  u.intv += (xsum_int)e << XSUM_MANTISSA_BITS; 
+  u.intv += (xsum_int)e << XSUM_MANTISSA_BITS;
   u.intv += ivalue & XSUM_MANTISSA_MASK;  /* mask out the implicit 1 bit */
 
   if (xsum_debug)
@@ -1259,7 +1276,7 @@ done_rounding: ;
 /* INITIALIZE A LARGE ACCUMULATOR TO ZERO. */
 
 void xsum_large_init (xsum_large_accumulator *restrict lacc)
-{ 
+{
   xsum_large_init_chunks (lacc);
   xsum_small_init (&lacc->sacc);
 }
@@ -1268,7 +1285,7 @@ void xsum_large_init (xsum_large_accumulator *restrict lacc)
 /* ADD A VECTOR OF FLOATING-POINT NUMBERS TO A LARGE ACCUMULATOR. */
 
 void xsum_large_addv (xsum_large_accumulator *restrict lacc,
-                      const xsum_flt *restrict vec, 
+                      const xsum_flt *restrict vec,
                       xsum_length n)
 {
   if (xsum_debug) printf("\nLARGE ADDV OF %ld VALUES\n",(long)n);
@@ -1276,7 +1293,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
   if (n == 0) return;
 
 # if OPT_LARGE_SUM
-  { 
+  {
     /* Version that's been manually optimized:  Loop unrolled, branches
        branches eliminated, ... */
 
@@ -1295,16 +1312,16 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 
     m = n-2;  /* may leave out last one */
     while (m >= 0)
-    { 
-      /* Loop processing two values at a time until we're done, or until 
-         one (or both) of the values result in a chunk needing to be processed. 
+    {
+      /* Loop processing two values at a time until we're done, or until
+         one (or both) of the values result in a chunk needing to be processed.
          Updates are done here for both of these chunks, even though it is not
          yet known whether these updates ought to have been done.  We hope
          this allows for better memory pre-fetch and instruction scheduling. */
 
       xsum_length c12m;
       do
-      { 
+      {
         u1.fltv = *v++;
         u2.fltv = *v++;
 
@@ -1364,7 +1381,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
     }
   }
 # else
-  { 
+  {
     /* Version not manually optimized - maybe the compiler can do better. */
 
     union fpunion u;
@@ -1372,7 +1389,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
     xsum_expint ix;
 
     do
-    { 
+    {
       /* Fetch the next number, and convert to integer form in u.uintv. */
 
       u.fltv = *vec;
@@ -1387,16 +1404,16 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { 
-        /* If the decremented count is negative, it's either a special 
-           Inf/NaN chunk (in which case count will stay at -1), or one that 
+      {
+        /* If the decremented count is negative, it's either a special
+           Inf/NaN chunk (in which case count will stay at -1), or one that
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
         xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
       }
       else
-      { 
+      {
         /* Store the decremented count of additions allowed before transfer,
            and add this value to the chunk. */
 
@@ -1415,7 +1432,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 /* ADD ONE DOUBLE TO A LARGE ACCUMULATOR.  Just calls xsum_large_addv. */
 
 void xsum_large_add1 (xsum_large_accumulator *restrict lacc, xsum_flt value)
-{ 
+{
   xsum_large_addv (lacc, &value, 1);
 }
 
@@ -1423,15 +1440,15 @@ void xsum_large_add1 (xsum_large_accumulator *restrict lacc, xsum_flt value)
 /* ADD SQUARED NORM OF VECTOR OF FLOATING-POINT NUMBERS TO LARGE ACCUMULATOR. */
 
 void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
-                            const xsum_flt *restrict vec, 
+                            const xsum_flt *restrict vec,
                             xsum_length n)
-{ 
+{
   if (xsum_debug) printf("\nLARGE ADD_SQNORM OF %ld VALUES\n",(long)n);
 
   if (n == 0) return;
 
 # if OPT_LARGE_SQNORM
-  { 
+  {
     union fpunion u1, u2;
     int count1, count2;
     xsum_expint ix1, ix2;
@@ -1448,16 +1465,16 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 
     m = n-2;  /* may leave out last one */
     while (m >= 0)
-    { 
-      /* Loop processing two squares at a time until we're done, or until 
-         one (or both) of them result in a chunk needing to be processed. 
+    {
+      /* Loop processing two squares at a time until we're done, or until
+         one (or both) of them result in a chunk needing to be processed.
          Updates are done here for both of these chunks, even though it is not
          yet known whether these updates ought to have been done.  We hope
          this allows for better memory pre-fetch and instruction scheduling. */
 
       xsum_length c12m;
       do
-      { 
+      {
         f = *v++;
         u1.fltv = f * f;
         f = *v++;
@@ -1529,7 +1546,7 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 
     do
     {
-      /* Fetch the next number, square it, and convert to integer form in 
+      /* Fetch the next number, square it, and convert to integer form in
          u.uintv. */
 
       double a = *vec;
@@ -1546,8 +1563,8 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 
       if (count < 0)
       {
-        /* If the decremented count is negative, it's either a special 
-           Inf/NaN chunk (in which case count will stay at -1), or one that 
+        /* If the decremented count is negative, it's either a special
+           Inf/NaN chunk (in which case count will stay at -1), or one that
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
@@ -1571,8 +1588,8 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 /* ADD DOT PRODUCT OF VECTORS OF FLOATING-POINT NUMBERS TO LARGE ACCUMULATOR. */
 
 void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
-                         const xsum_flt *vec1, 
-                         const xsum_flt *vec2, 
+                         const xsum_flt *vec1,
+                         const xsum_flt *vec2,
                          xsum_length n)
 {
   if (xsum_debug) printf("\nLARGE ADD_DOT OF %ld VALUES\n",(long)n);
@@ -1580,7 +1597,7 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
   if (n == 0) return;
 
 # if OPT_LARGE_DOT
-  { 
+  {
     /* Version that's been manually optimized:  Loop unrolled, pre-fetch
        attempted, branches eliminated, ... */
 
@@ -1600,9 +1617,9 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 
     m = n-2;  /* may leave out last one */
     while (m >= 0)
-    { 
-      /* Loop processing two products at a time until we're done, or until 
-         one (or both) of them result in a chunk needing to be processed. 
+    {
+      /* Loop processing two products at a time until we're done, or until
+         one (or both) of them result in a chunk needing to be processed.
          Updates are done here for both of these chunks, even though it is not
          yet known whether these updates ought to have been done.  We hope
          this allows for better memory pre-fetch and instruction scheduling. */
@@ -1695,16 +1712,16 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { 
-        /* If the decremented count is negative, it's either a special 
-           Inf/NaN chunk (in which case count will stay at -1), or one that 
+      {
+        /* If the decremented count is negative, it's either a special
+           Inf/NaN chunk (in which case count will stay at -1), or one that
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
         xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
       }
       else
-      { 
+      {
         /* Store the decremented count of additions allowed before transfer,
            and add this value to the chunk. */
 
@@ -1723,7 +1740,7 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
    add, which may also be modified, but should still represent the same
    number.  Source and destination may be the same. */
 
-void xsum_large_add_accumulator (xsum_large_accumulator *dst_lacc, 
+void xsum_large_add_accumulator (xsum_large_accumulator *dst_lacc,
                                  xsum_large_accumulator *src_lacc)
 {
   if (xsum_debug) printf("\nADDING ACCUMULATOR TO A LARGE ACCUMULATOR\n");
@@ -1746,7 +1763,7 @@ void xsum_large_negate (xsum_large_accumulator *restrict lacc)
 
 
 /* RETURN RESULT OF ROUNDING A LARGE ACCUMULATOR.  Rounding mode is to nearest,
-   with ties to even.  
+   with ties to even.
 
    This is done by adding all the chunks in the large accumulator to the
    small accumulator, and then calling its rounding procedure. */
@@ -1763,7 +1780,7 @@ xsum_flt xsum_large_round (xsum_large_accumulator *restrict lacc)
 
 /* TRANSFER NUMBER FROM A LARGE ACCUMULATOR TO A SMALL ACCUMULATOR. */
 
-void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict sacc, 
+void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict sacc,
                                       xsum_large_accumulator *restrict lacc)
 {
   if (xsum_debug) printf("\nTRANSFERRING FROM LARGE TO SMALL ACCUMULATOR\n");
@@ -1774,7 +1791,7 @@ void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict sacc,
 
 /* TRANSFER NUMBER FROM A SMALL ACCUMULATOR TO A LARGE ACCUMULATOR. */
 
-void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc, 
+void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc,
                                       xsum_small_accumulator *restrict sacc)
 {
   if (xsum_debug) printf("\nTRANSFERRING FROM SMALL TO LARGE ACCUMULATOR\n");
@@ -1788,24 +1805,24 @@ void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc,
 
 /* SUM A VECTOR WITH DOUBLE FP ACCUMULATOR. */
 
-xsum_flt xsum_sum_double (const xsum_flt *restrict vec, 
+xsum_flt xsum_sum_double (const xsum_flt *restrict vec,
                           xsum_length n)
 { double s;
   xsum_length j;
   s = 0.0;
 # if OPT_SIMPLE_SUM
-  { for (j = 3; j < n; j += 4) 
-    { s += vec[j-3]; 
-      s += vec[j-2]; 
-      s += vec[j-1]; 
-      s += vec[j]; 
+  { for (j = 3; j < n; j += 4)
+    { s += vec[j-3];
+      s += vec[j-2];
+      s += vec[j-1];
+      s += vec[j];
     }
     for (j = j-3; j < n; j++)
     { s += vec[j];
     }
   }
 # else
-  { for (j = 0; j < n; j++) 
+  { for (j = 0; j < n; j++)
     { s += vec[j];
     }
   }
@@ -1820,12 +1837,12 @@ xsum_flt xsum_sum_double (const xsum_flt *restrict vec,
 
 #include <quadmath.h>
 
-xsum_flt xsum_sum_float128 (const xsum_flt *restrict vec, 
+xsum_flt xsum_sum_float128 (const xsum_flt *restrict vec,
                             xsum_length n)
 { __float128 s;
   xsum_length j;
   s = 0.0;
-  for (j = 0; j < n; j++) 
+  for (j = 0; j < n; j++)
   { s += vec[j];
   }
   return (xsum_flt) s;
@@ -1836,11 +1853,11 @@ xsum_flt xsum_sum_float128 (const xsum_flt *restrict vec,
 
 /* SUM A VECTOR WITH DOUBLE FP, NOT IN ORDER. */
 
-xsum_flt xsum_sum_double_not_ordered (const xsum_flt *restrict vec, 
+xsum_flt xsum_sum_double_not_ordered (const xsum_flt *restrict vec,
                                       xsum_length n)
 { double s[2] = { 0, 0 };
   xsum_length j;
-  for (j = 1; j < n; j += 2) 
+  for (j = 1; j < n; j += 2)
   { s[0] += vec[j-1];
     s[1] += vec[j];
   }
@@ -1853,14 +1870,14 @@ xsum_flt xsum_sum_double_not_ordered (const xsum_flt *restrict vec,
 
 /* SUM A VECTOR WITH KAHAN'S METHOD. */
 
-xsum_flt xsum_sum_kahan (const xsum_flt *restrict vec, 
+xsum_flt xsum_sum_kahan (const xsum_flt *restrict vec,
                          xsum_length n)
 { double s, t, c, y;
   xsum_length j;
   s = 0.0;
   c = 0.0;
 # if OPT_KAHAN_SUM
-  { for (j = 1; j < n; j += 2) 
+  { for (j = 1; j < n; j += 2)
     { y = vec[j-1] - c;
       t = s;
       s += y;
@@ -1870,7 +1887,7 @@ xsum_flt xsum_sum_kahan (const xsum_flt *restrict vec,
       s += y;
       c = (s - t) - y;
     }
-    for (j = j-1; j < n; j++) 
+    for (j = j-1; j < n; j++)
     { y = vec[j] - c;
       t = s;
       s += y;
@@ -1878,7 +1895,7 @@ xsum_flt xsum_sum_kahan (const xsum_flt *restrict vec,
     }
   }
 # else
-  { for (j = 0; j < n; j++) 
+  { for (j = 0; j < n; j++)
     { y = vec[j] - c;
       t = s;
       s += y;
@@ -1892,7 +1909,7 @@ xsum_flt xsum_sum_kahan (const xsum_flt *restrict vec,
 
 /* SQUARED NORM OF A VECTOR WITH DOUBLE FP ACCUMULATOR. */
 
-xsum_flt xsum_sqnorm_double (const xsum_flt *restrict vec, 
+xsum_flt xsum_sqnorm_double (const xsum_flt *restrict vec,
                              xsum_length n)
 { double s;
   xsum_length j;
@@ -1900,10 +1917,10 @@ xsum_flt xsum_sqnorm_double (const xsum_flt *restrict vec,
   s = 0.0;
 # if OPT_SIMPLE_SQNORM
   { double a, b, c, d;
-    for (j = 3; j < n; j += 4) 
-    { a = vec[j-3]; 
-      b = vec[j-2]; 
-      c = vec[j-1]; 
+    for (j = 3; j < n; j += 4)
+    { a = vec[j-3];
+      b = vec[j-2];
+      c = vec[j-1];
       d = vec[j];
       s += a*a;
       s += b*b;
@@ -1917,7 +1934,7 @@ xsum_flt xsum_sqnorm_double (const xsum_flt *restrict vec,
   }
 # else
   { double a;
-    for (j = 0; j < n; j++) 
+    for (j = 0; j < n; j++)
     { a = vec[j];
       s += a*a;
     }
@@ -1929,12 +1946,12 @@ xsum_flt xsum_sqnorm_double (const xsum_flt *restrict vec,
 
 /* SQUARED NORM OF A VECTOR WITH DOUBLE FP, NOT IN ORDER. */
 
-xsum_flt xsum_sqnorm_double_not_ordered (const xsum_flt *restrict vec, 
+xsum_flt xsum_sqnorm_double_not_ordered (const xsum_flt *restrict vec,
                                          xsum_length n)
 { double s[2] = { 0, 0 };
   double a[2];
   xsum_length j;
-  for (j = 1; j < n; j += 2) 
+  for (j = 1; j < n; j += 2)
   { a[0] = vec[j-1];
     a[1] = vec[j];
     s[0] += a[0]*a[0];
@@ -1950,15 +1967,15 @@ xsum_flt xsum_sqnorm_double_not_ordered (const xsum_flt *restrict vec,
 
 /* DOT PRODUCT OF VECTORS WITH DOUBLE FP ACCUMULATOR. */
 
-xsum_flt xsum_dot_double (const xsum_flt *vec1, 
-                          const xsum_flt *vec2, 
+xsum_flt xsum_dot_double (const xsum_flt *vec1,
+                          const xsum_flt *vec2,
                           xsum_length n)
 { double s;
   xsum_length j;
 
   s = 0.0;
 # if OPT_SIMPLE_DOT
-  { for (j = 3; j < n; j += 4) 
+  { for (j = 3; j < n; j += 4)
     { s += vec1[j-3] * vec2[j-3];
       s += vec1[j-2] * vec2[j-2];
       s += vec1[j-1] * vec2[j-1];
@@ -1969,7 +1986,7 @@ xsum_flt xsum_dot_double (const xsum_flt *vec1,
     }
   }
 # else
-  { for (j = 0; j < n; j++) 
+  { for (j = 0; j < n; j++)
     { s += vec1[j] * vec2[j];
     }
   }
@@ -1980,12 +1997,12 @@ xsum_flt xsum_dot_double (const xsum_flt *vec1,
 
 /* DOT PRODUCT OF VECTORS WITH DOUBLE FP, NOT IN ORDER. */
 
-xsum_flt xsum_dot_double_not_ordered (const xsum_flt *vec1, 
-                                      const xsum_flt *vec2, 
+xsum_flt xsum_dot_double_not_ordered (const xsum_flt *vec1,
+                                      const xsum_flt *vec2,
                                       xsum_length n)
 { double s[2] = { 0, 0 };
   xsum_length j;
-  for (j = 1; j < n; j += 2) 
+  for (j = 1; j < n; j += 2)
   { s[0] += vec1[j-1] * vec2[j-1];
     s[1] += vec1[j] * vec2[j];
   }
@@ -2005,7 +2022,7 @@ void xsum_small_display (xsum_small_accumulator *restrict sacc)
 {
   int i, dots;
   printf("Small accumulator:");
-  if (sacc->Inf) 
+  if (sacc->Inf)
   { printf (" %cInf", sacc->Inf>0 ? '+' : '-');
     if ((sacc->Inf & ((xsum_uint)XSUM_EXP_MASK << XSUM_MANTISSA_BITS))
           != ((xsum_uint)XSUM_EXP_MASK << XSUM_MANTISSA_BITS))
