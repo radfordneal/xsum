@@ -34,7 +34,7 @@
 /* IMPLEMENTATION OPTIONS.  Can be set to either 0 or 1, whichever seems
    to be fastest. */
 
-#define USE_MEMSET_SMALL 0  /* Use memset rather than a loop (for small mem)? */
+#define USE_MEMSET_SMALL 1  /* Use memset rather than a loop (for small mem)? */
 #define USE_MEMSET_LARGE 1  /* Use memset rather than a loop (for large mem)? */
 #define USE_USED_LARGE 1    /* Use the used flags in a large accumulator? */
 
