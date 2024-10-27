@@ -1,3 +1,22 @@
+Significant changes in the current development version:
+
+  Added a number of new tests for correctness.  Some new timing
+  results are now in the newer-results2 directory.
+
+  Fixed a bug in the xsum_small_add_dot function that would sometimes
+  lead to a term in the dot product being omitted.  This bug did not
+  affect xsum_large_add_dot.
+
+  Fixed a bug in the rounding of a superaccumulator to a double FP
+  value (reported by Jan Štola as issue #1).  The effect of the bug
+  was that rounding was incorrect when the correctly-rounded result is
+  a negative number with a mantissa consisting of all 1s, and the
+  exact value in the superaccumulator is slightly lower (i.e., bigger
+  in absolute value). In this case, it rounds to the next floating
+  point value below the correct rounding (i.e., the floating-point
+  number of the other side of the exact value than the correct rounding).
+  This incorrectly caused overflow in the case of -DBL_MAX - 1.
+
 Significant changes in version of 2021-05-17 (tagged as stable-version-2):
 
   Added xsum_small_add_accumulator and xsum_large_add_accumulator
