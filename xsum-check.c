@@ -119,8 +119,12 @@ Ldenorm, Snormal,
 Snormal, Ldenorm,
 4.57e-314, 9.7e-322,
 -4.57e-314, 9.7e-322,
-4.57e-321, 9.7e-322,
--4.57e-321, 9.7e-322,
+9.7e-322, 4.57e-321,
+9.7e-322, -4.57e-321,
+3.57e-315, 8.7e-321,
+-2.57e-315, 7.7e-321,
+1.7e-316, 2.57e-320,
+6.4e-321, -6.51e-321,
 2.0, -2.0*(1+pow2_52),
 Lnormal, Lnormal,              /* Overflow */
 Lnormal, Lnormal*pow2_52/2,
@@ -537,9 +541,11 @@ int main (int argc, char **argv)
 
   printf("\n%c: TWO TERM TESTS, WITH MULTIPLYING FACTORS\n",++section);
 
-  static int factors[] = { /* should be powers of two, so multiply is exact */
+  static double factors[] = { /* must be powers of two, so multiply is exact */
     2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,
+    1, 0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625,
     -2, -4, -8, -16, -32, -64, -128, -256, -512, -1024, -2048, -4096, -8192,
+    -1, -0.5, -0.25, -0.125, -0.0625, -0.03125, -0.015625,
   0 };
 
   tstno = 0;
