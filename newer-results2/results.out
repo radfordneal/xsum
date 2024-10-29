@@ -72,6 +72,8 @@ Type 'q()' to quit R.
 +   { lines (1:7, logy[,j], col=col[j], lty=lty[j])
 +     points (1:7, logy[,j], col=col[j], pch=20)
 +   }
++ 
++   mtext(paste("         ",system_name),outer=TRUE,line=-1.2,cex=0.8)
 + }
 > 
 > read_times <- function (file)
@@ -136,9 +138,10 @@ null device
           1 
 > 
 > 
-> # AMD ThreadRipper PRO 3945WX.
+> # AMD THREADRIPPER PRO 3945WX.
 > 
-> pdf("thinkstation.pdf",height=9,width=6)
+> system_name <- "thinkstation"
+> pdf(paste0(system_name,".pdf"),height=9,width=6)
 > par(mfcol=c(3,2))
 > 
 > cache = c(32*1024, 512*1024, 16*1024*1024)
@@ -236,6 +239,101 @@ udbl   "thinkstation_clang_11_1_0"
 +                col=c("pink","pink","lightblue","lightblue","gray","gray"))
 +   }
 +   plot_times(thinkstation_no_opt[,,task], add=TRUE)
++   # dev.off()
++ }
+> 
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # INTEL W-2275.
+> 
+> system_name <- "T5820"
+> pdf(paste0(system_name,".pdf"),height=9,width=6)
+> par(mfcol=c(3,2))
+> 
+> cache = c(32*1024, 1024*1024, 19*1024*1024)
+> 
+> T5820_results <- list (
++   T5820_gcc_9_5_0 = read_times ("results-T5820-gcc-9.5.0"),
++   T5820_gcc_10_5_0 = read_times ("results-T5820-gcc-10.5.0"),
++   T5820_gcc_11_4_0 = read_times ("results-T5820-gcc-11.4.0"),
++   T5820_gcc_12_3_0 = read_times ("results-T5820-gcc-12.3.0"),
++   T5820_clang_11_1_0 = read_times ("results-T5820-clang-11.1.0"),
++   T5820_clang_12_0_1 = read_times ("results-T5820-clang-12.0.1"),
++   T5820_clang_13_0_1 = read_times ("results-T5820-clang-13.0.1"),
++   T5820_clang_14_0_0 = read_times ("results-T5820-clang-14.0.0"),
++   T5820_clang_15_0_7 = read_times ("results-T5820-clang-15.0.7")
++ )
+> 
+> T5820 <- eval (as.call (c (find_min_times, T5820_results)))
+Compilations with minimum for 1000 terms:
+       sum                  norm                 dot                 
+sacc   "T5820_clang_12_0_1" "T5820_gcc_12_3_0"   "T5820_gcc_12_3_0"  
+lacc   "T5820_clang_11_1_0" "T5820_clang_12_0_1" "T5820_clang_15_0_7"
+ifast  "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+online "T5820_gcc_12_3_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+dbl    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+udbl   "T5820_clang_12_0_1" "T5820_clang_14_0_0" "T5820_gcc_9_5_0"   
+> 
+> for (task in c("sum","norm","dot"))
++ {
++   plot_times (T5820[,,task],  
++               paste0("T5820-",task), 
++               cache / c(sum=8,norm=8,dot=16)[task])
++   title (task)
++   for (dat in T5820_results)
++   { plot_times(dat[,,task], add=TRUE,
++                col=c("pink","pink","lightblue","lightblue","gray","gray"))
++   }
++   plot_times(T5820[,,task], add=TRUE)
++   # dev.off()
++ }
+> 
+> T5820_no_opt_results <- list (
++   T5820_gcc_9_5_0 =
++      read_times ("results-T5820-gcc-9.5.0-no-opt"),
++   T5820_gcc_10_5_0 =
++      read_times ("results-T5820-gcc-10.5.0-no-opt"),
++   T5820_gcc_11_4_0 =
++      read_times ("results-T5820-gcc-11.4.0-no-opt"),
++   T5820_gcc_12_3_0 =
++      read_times ("results-T5820-gcc-12.3.0-no-opt"),
++   T5820_clang_11_1_0 =
++      read_times ("results-T5820-clang-11.1.0-no-opt"),
++   T5820_clang_12_0_1 =
++      read_times ("results-T5820-clang-12.0.1-no-opt"),
++   T5820_clang_13_0_1 =
++      read_times ("results-T5820-clang-13.0.1-no-opt"),
++   T5820_clang_14_0_0 =
++      read_times ("results-T5820-clang-14.0.0-no-opt"),
++   T5820_clang_15_0_7 =
++      read_times ("results-T5820-clang-15.0.7-no-opt")
++ )
+> 
+> T5820_no_opt <- 
++   eval (as.call (c (find_min_times, T5820_no_opt_results)))
+Compilations with minimum for 1000 terms:
+       sum                  norm                 dot                 
+sacc   "T5820_gcc_12_3_0"   "T5820_clang_13_0_1" "T5820_gcc_9_5_0"   
+lacc   "T5820_clang_11_1_0" "T5820_clang_15_0_7" "T5820_clang_14_0_0"
+ifast  "T5820_gcc_11_4_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+online "T5820_gcc_12_3_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+dbl    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+udbl   "T5820_clang_13_0_1" "T5820_clang_15_0_7" "T5820_gcc_9_5_0"   
+> 
+> for (task in c("sum","norm","dot"))
++ {
++   plot_times (T5820_no_opt[,,task],  
++               paste0("T5820-no-opt-",task), 
++               cache / c(sum=8,norm=8,dot=16)[task])
++   title (paste(task,"no-opt"))
++   for (dat in T5820_no_opt_results)
++   { plot_times(dat[,,task], add=TRUE,
++                col=c("pink","pink","lightblue","lightblue","gray","gray"))
++   }
++   plot_times(T5820_no_opt[,,task], add=TRUE)
 +   # dev.off()
 + }
 > 
