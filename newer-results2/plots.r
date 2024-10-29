@@ -271,3 +271,80 @@ for (task in c("sum","norm","dot"))
 }
 
 dev.off()
+
+
+# AMD OPTERON X3216 APU.
+
+system_name <- "hpms10"
+pdf(paste0(system_name,".pdf"),height=9,width=6)
+par(mfcol=c(3,2))
+
+cache = c(32*1024, 1024*1024)
+
+hpms10_results <- list (
+  hpms10_gcc_9_5_0 = read_times ("results-hpms10-gcc-9.5.0"),
+  hpms10_gcc_10_5_0 = read_times ("results-hpms10-gcc-10.5.0"),
+  hpms10_gcc_11_4_0 = read_times ("results-hpms10-gcc-11.4.0"),
+  hpms10_gcc_12_3_0 = read_times ("results-hpms10-gcc-12.3.0"),
+  hpms10_clang_11_1_0 = read_times ("results-hpms10-clang-11.1.0"),
+  hpms10_clang_12_0_1 = read_times ("results-hpms10-clang-12.0.1"),
+  hpms10_clang_13_0_1 = read_times ("results-hpms10-clang-13.0.1"),
+  hpms10_clang_14_0_0 = read_times ("results-hpms10-clang-14.0.0"),
+  hpms10_clang_15_0_7 = read_times ("results-hpms10-clang-15.0.7")
+)
+
+hpms10 <- eval (as.call (c (find_min_times, hpms10_results)))
+
+for (task in c("sum","norm","dot"))
+{
+  plot_times (hpms10[,,task],  
+              paste0("hpms10-",task), 
+              cache / c(sum=8,norm=8,dot=16)[task])
+  title (task)
+  for (dat in hpms10_results)
+  { plot_times(dat[,,task], add=TRUE,
+               col=c("pink","pink","lightblue","lightblue","gray","gray"))
+  }
+  plot_times(hpms10[,,task], add=TRUE)
+  # dev.off()
+}
+
+hpms10_no_opt_results <- list (
+  hpms10_gcc_9_5_0 =
+     read_times ("results-hpms10-gcc-9.5.0-no-opt"),
+  hpms10_gcc_10_5_0 =
+     read_times ("results-hpms10-gcc-10.5.0-no-opt"),
+  hpms10_gcc_11_4_0 =
+     read_times ("results-hpms10-gcc-11.4.0-no-opt"),
+  hpms10_gcc_12_3_0 =
+     read_times ("results-hpms10-gcc-12.3.0-no-opt"),
+  hpms10_clang_11_1_0 =
+     read_times ("results-hpms10-clang-11.1.0-no-opt"),
+  hpms10_clang_12_0_1 =
+     read_times ("results-hpms10-clang-12.0.1-no-opt"),
+  hpms10_clang_13_0_1 =
+     read_times ("results-hpms10-clang-13.0.1-no-opt"),
+  hpms10_clang_14_0_0 =
+     read_times ("results-hpms10-clang-14.0.0-no-opt"),
+  hpms10_clang_15_0_7 =
+     read_times ("results-hpms10-clang-15.0.7-no-opt")
+)
+
+hpms10_no_opt <- 
+  eval (as.call (c (find_min_times, hpms10_no_opt_results)))
+
+for (task in c("sum","norm","dot"))
+{
+  plot_times (hpms10_no_opt[,,task],  
+              paste0("hpms10-no-opt-",task), 
+              cache / c(sum=8,norm=8,dot=16)[task])
+  title (paste(task,"no-opt"))
+  for (dat in hpms10_no_opt_results)
+  { plot_times(dat[,,task], add=TRUE,
+               col=c("pink","pink","lightblue","lightblue","gray","gray"))
+  }
+  plot_times(hpms10_no_opt[,,task], add=TRUE)
+  # dev.off()
+}
+
+dev.off()

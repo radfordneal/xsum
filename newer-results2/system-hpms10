@@ -1,0 +1,15 @@
+HPE microserver gen 10
+AMD Operteron X3216 APU, 2 cores, launched 2017
+L1 Cache 32Kb D per core, 96KB I (shared by both cores)
+L2 Cache 1024Kb (shared by both cores)
+32 GBytes RAM, DDR4-1600 (2 DIMMs, 2 channels)
+Ubuntu 22.04.4 LTS (64 bit)
+
+Relevant output of lstopo-no-graphics:
+
+Machine (31GB total)
+  Package L#0
+    NUMANode L#0 (P#0 31GB)
+    L2 L#0 (1024KB) + L1i L#0 (96KB)
+      L1d L#0 (32KB) + Core L#0 + PU L#0 (P#0)
+      L1d L#1 (32KB) + Core L#1 + PU L#1 (P#1)

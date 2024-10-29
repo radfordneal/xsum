@@ -5,6 +5,8 @@ L3 Cache 19MB (shared by all cores)
 128 GBytes RAM, DDR4-2933 (8 DIMMs, 4 channels)
 Ubuntu 22.04.3 LTS (64 bit)
 
+Relevant output of lstopo-no-graphics:
+
 Machine (125GB total)
   Package L#0
     NUMANode L#0 (P#0 125GB)

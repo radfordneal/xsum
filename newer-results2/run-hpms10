@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Run tests on HPE microserver gen 10, Ubuntu 22.04.4 LTS.
+
+TOP=`git rev-parse --show-toplevel`
+
+(cd $TOP; git checkout xsum.c)
+
+(cd $TOP; GCC=-9 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-9.5.0
+
+(cd $TOP; GCC=-10 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-10.5.0
+
+(cd $TOP; GCC=-11 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-11.4.0
+
+(cd $TOP; GCC=-12 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-12.3.0
+
+(cd $TOP; CLANG=-11 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-11.1.0
+
+(cd $TOP; CLANG=-12 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-12.0.1
+
+(cd $TOP; CLANG=-13 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-13.0.1
+
+(cd $TOP; CLANG=-14 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-14.0.0
+
+(cd $TOP; CLANG=-15 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-15.0.7
+
+(cd $TOP; ed xsum.c <no-opt-script)
+
+(cd $TOP; GCC=-9 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-9.5.0-no-opt
+
+(cd $TOP; GCC=-10 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-10.5.0-no-opt
+
+(cd $TOP; GCC=-11 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-11.4.0-no-opt
+
+(cd $TOP; GCC=-12 compile-zhu gcc-intel)
+time ../run-tests-zhu >results-hpms10-gcc-12.3.0-no-opt
+
+(cd $TOP; CLANG=-11 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-11.1.0-no-opt
+
+(cd $TOP; CLANG=-12 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-12.0.1-no-opt
+
+(cd $TOP; CLANG=-13 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-13.0.1-no-opt
+
+(cd $TOP; CLANG=-14 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-14.0.0-no-opt
+
+(cd $TOP; CLANG=-15 compile-zhu clang-intel)
+time ../run-tests-zhu >results-hpms10-clang-15.0.7-no-opt
+
+(cd $TOP; git checkout xsum.c)
