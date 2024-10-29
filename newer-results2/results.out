@@ -436,3 +436,98 @@ udbl   "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_11_4_0"
 null device 
           1 
 > 
+> 
+> # INTEL W-2275.
+> 
+> system_name <- "T3650"
+> pdf(paste0(system_name,".pdf"),height=9,width=6)
+> par(mfcol=c(3,2))
+> 
+> cache = c(32*1024, 512*1024, 16*1024*1024)
+> 
+> T3650_results <- list (
++   T3650_gcc_9_5_0 = read_times ("results-T3650-gcc-9.5.0"),
++   T3650_gcc_10_5_0 = read_times ("results-T3650-gcc-10.5.0"),
++   T3650_gcc_11_4_0 = read_times ("results-T3650-gcc-11.4.0"),
++   T3650_gcc_12_3_0 = read_times ("results-T3650-gcc-12.3.0"),
++   T3650_clang_11_1_0 = read_times ("results-T3650-clang-11.1.0"),
++   T3650_clang_12_0_1 = read_times ("results-T3650-clang-12.0.1"),
++   T3650_clang_13_0_1 = read_times ("results-T3650-clang-13.0.1"),
++   T3650_clang_14_0_0 = read_times ("results-T3650-clang-14.0.0"),
++   T3650_clang_15_0_7 = read_times ("results-T3650-clang-15.0.7")
++ )
+> 
+> T3650 <- eval (as.call (c (find_min_times, T3650_results)))
+Compilations with minimum for 1000 terms:
+       sum                norm                 dot                 
+sacc   "T3650_gcc_12_3_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"  
+lacc   "T3650_gcc_9_5_0"  "T3650_clang_12_0_1" "T3650_clang_11_1_0"
+ifast  "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+online "T3650_gcc_11_4_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+dbl    "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+udbl   "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+> 
+> for (task in c("sum","norm","dot"))
++ {
++   plot_times (T3650[,,task],  
++               paste0("T3650-",task), 
++               cache / c(sum=8,norm=8,dot=16)[task])
++   title (task)
++   for (dat in T3650_results)
++   { plot_times(dat[,,task], add=TRUE,
++                col=c("pink","pink","lightblue","lightblue","gray","gray"))
++   }
++   plot_times(T3650[,,task], add=TRUE)
++   # dev.off()
++ }
+> 
+> T3650_no_opt_results <- list (
++   T3650_gcc_9_5_0 =
++      read_times ("results-T3650-gcc-9.5.0-no-opt"),
++   T3650_gcc_10_5_0 =
++      read_times ("results-T3650-gcc-10.5.0-no-opt"),
++   T3650_gcc_11_4_0 =
++      read_times ("results-T3650-gcc-11.4.0-no-opt"),
++   T3650_gcc_12_3_0 =
++      read_times ("results-T3650-gcc-12.3.0-no-opt"),
++   T3650_clang_11_1_0 =
++      read_times ("results-T3650-clang-11.1.0-no-opt"),
++   T3650_clang_12_0_1 =
++      read_times ("results-T3650-clang-12.0.1-no-opt"),
++   T3650_clang_13_0_1 =
++      read_times ("results-T3650-clang-13.0.1-no-opt"),
++   T3650_clang_14_0_0 =
++      read_times ("results-T3650-clang-14.0.0-no-opt"),
++   T3650_clang_15_0_7 =
++      read_times ("results-T3650-clang-15.0.7-no-opt")
++ )
+> 
+> T3650_no_opt <- 
++   eval (as.call (c (find_min_times, T3650_no_opt_results)))
+Compilations with minimum for 1000 terms:
+       sum                norm                 dot               
+sacc   "T3650_gcc_12_3_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"
+lacc   "T3650_gcc_9_5_0"  "T3650_clang_13_0_1" "T3650_gcc_12_3_0"
+ifast  "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
+online "T3650_gcc_11_4_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
+dbl    "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
+udbl   "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
+> 
+> for (task in c("sum","norm","dot"))
++ {
++   plot_times (T3650_no_opt[,,task],  
++               paste0("T3650-no-opt-",task), 
++               cache / c(sum=8,norm=8,dot=16)[task])
++   title (paste(task,"no-opt"))
++   for (dat in T3650_no_opt_results)
++   { plot_times(dat[,,task], add=TRUE,
++                col=c("pink","pink","lightblue","lightblue","gray","gray"))
++   }
++   plot_times(T3650_no_opt[,,task], add=TRUE)
++   # dev.off()
++ }
+> 
+> dev.off()
+null device 
+          1 
+> 
