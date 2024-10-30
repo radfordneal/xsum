@@ -28,6 +28,27 @@
 #include "xsum.h"
 
 
+/* ---------------------- IMPLEMENTATION ASSUMPTIONS ----------------------- */
+
+/* This code makes the following assumptions:
+
+     o The 'double' type is a standard IEEE 64-bit floating-point value.
+
+     o The 'endianness' of 'double' and 64-bit integers is consistent
+       between these types - that is, looking at the bits of a 'double' 
+       value as an 64-bit integer will have the expected result.
+
+     o A bit pattern can be switched between 'double' and a 64-bit integer
+       by storing a value in an element of a suitable union type and reading
+       it out as an element of a different type.
+
+     o Right shifts of a signed operand produce the results expected for 
+       a two's complement representation.
+
+     o Rounding should be done in the "round to nearest, ties to even" mode.
+*/
+
+
 /* --------------------------- CONFIGURATION ------------------------------- */
 
 
@@ -332,8 +353,8 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
      one fewer non-zero chunks. */
 
   while (sacc->chunk[uix] == -1 && uix > 0)
-  { /* A shift of a negative number is undefined according to the standard, so
-       do a multiply - it's all presumably constant-folded by the compiler. */
+  { /* Left shift of a negative number is undefined according to the standard,
+       so do a multiply - it's all presumably constant-folded by the compiler.*/
     sacc->chunk[uix-1] += ((xsum_schunk) -1)
                              * (((xsum_schunk) 1) << XSUM_LOW_MANTISSA_BITS);
     sacc->chunk[uix] = 0;
