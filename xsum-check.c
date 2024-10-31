@@ -59,7 +59,10 @@ double zero = 0.0;
 
 xsum_flt one_term[] = {
 
-  1.0,             /* Some unexceptional examples of normal numbers */
+  0.0,             /* Some unexceptional examples of normal numbers */
+  -0.0,
+  -2.0,
+  1.0,
   0.1,
   3.1,
   2.3e10,
@@ -76,7 +79,7 @@ xsum_flt one_term[] = {
   4.57e-314,
   9.7e-322,
   Sdenorm/pow2_64/2,
-0 };
+};
 
 /* Tests with two terms.  Answer should match ordinary floating point add. 
    All are also done with negation of the values here. */
@@ -85,6 +88,9 @@ xsum_flt two_term[] = {
 
 1.0, 2.0,         /* Unexceptional adds of normal numbers */
 0.1, 12.2,
+1.0, -0.0,
+0.0, -0.0,
+-13.1, 0.0,
 12.1, -11.3,
 11.3, -12.1,
 1.234567e14, 9.87654321,
@@ -229,7 +235,7 @@ Lnormal, Lnormal*pow2_52/2,
 (double)(1L<<55)+24.0, 5.0-1e-45,
 (double)(1L<<55)+24.0, 6.0-1e-45,
 (double)(1L<<55)+24.0, 7.0-1e-45,
-0 };
+};
 
 /* Tests with three terms.  Answers are given here as a fourth number,
    some computed/verified using Rmpfr in check.r.  All are also done 
@@ -244,11 +250,15 @@ Sdenorm, Snormal, -Sdenorm, Snormal,
 12345.6, Ldenorm, -12345.6, Ldenorm,
 12345.6, -Ldenorm, -12345.6, -Ldenorm,
 2.0, -2.0*(1+pow2_52), pow2_52/8, -2*pow2_52+pow2_52/8,
+1.0, 0.0, 0.0, 1.0,
+-1.0, -0.0, -0.0, -1.0,
+0.0, 0.0, 0.0, 0.0,
+-0.0, -0.0, -0.0, 0.0,
 1.0, 2.0, 3.0, 6.0,
 12.0, 3.5, 2.0, 17.5,
 3423.34e12, -93.431, -3432.1e11, 3080129999999906.5,
 432457232.34, 0.3432445, -3433452433, -3000995200.3167553,
-0 };
+};
 
 /* Tests with ten terms.  Answers are given here as an eleventh number,
    some computed/verified using Rmpfr in check.r. */
@@ -258,13 +268,14 @@ Lnormal, Lnormal, Lnormal, Lnormal, Lnormal, Lnormal, -Lnormal, -Lnormal, -Lnorm
 Lnormal, Lnormal, Lnormal, Lnormal, 0.125, 0.125, -Lnormal, -Lnormal, -Lnormal, -Lnormal, 0.25,
 2.0*(1+pow2_52), -2.0, -pow2_52, -pow2_52, 0, 0, 0, 0, 0, 0, 0,
 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1111111111e0,
+1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 0.0, 1e8, 111111111e0,
 1.234e88, -93.3e-23, 994.33, 1334.3, 457.34, -1.234e88, 93.3e-23, -994.33, -1334.3, -457.34, 0,
 1., -23., 456., -78910., 1112131415., -161718192021., 22232425262728., -2930313233343536., 373839404142434445., -46474849505152535455., -46103918342424313856.,
 2342423.3423, 34234.450, 945543.4, 34345.34343, 1232.343, 0.00004343, 43423.0, -342344.8343, -89544.3435, -34334.3, 2934978.4009734304,
 0.9101534, 0.9048397, 0.4036596, 0.1460245, 0.2931254, 0.9647649, 0.1125303, 0.1574193, 0.6522300, 0.7378597, 5.2826068,
 428.366070546, 707.3261930632, 103.29267289, 9040.03475821, 36.2121638, 19.307901408, 1.4810709160, 8.077159101, 1218.907244150, 778.068267017, 12341.0735011012,
 1.1e-322, 5.3443e-321, -9.343e-320, 3.33e-314, 4.41e-322, -8.8e-318, 3.1e-310, 4.1e-300, -4e-300, 7e-307, 1.0000070031003328e-301,
-0 };
+};
 
 /* Vectors of length two for testing dot product and squared norm.  These a
    of 'float' type so that casting to double and multiplying will give the
@@ -276,9 +287,12 @@ float dot_term[] = {
   -1.0f, 1.0f,
   0.3f, 1.4f,
   313.5f, -14.33f,
+  0.0f, 0.0f,
+  2.0f, 0.0f,
+  0.0f, 2.0f,
   12.2f, 1.1e-20f,
   5.5e15f, -4.1,
-0 };
+};
 
 #if 1
 #define REP1 (1 << 23) /* Repeat factor for second set of one term tests */
@@ -408,7 +422,7 @@ int main (int argc, char **argv)
 
   section = 'A';
 
-  printf("\n%c: ZERO TERM TEST\n",section);
+  printf("\n%c: ZERO TESTS\n",section);
 
   if (echo) printf(" \n-- TEST 0: \n");
   if (echo) printf("   ANSWER:  %.16le\n",0.0);
@@ -421,9 +435,33 @@ int main (int argc, char **argv)
   xsum_large_init (&lacc);
   large_result(&lacc,0,0);
 
+  xsum_small_init (&sacc);
+  xsum_small_addv (&sacc, NULL, 0);
+  small_result(&sacc,0,0);
+
+  xsum_large_init (&lacc);
+  xsum_large_addv (&lacc, NULL, 0);
+  large_result(&lacc,0,0);
+
+  xsum_small_init (&sacc);
+  xsum_small_add1 (&sacc, 0.0);
+  small_result(&sacc,0,0);
+
+  xsum_large_init (&lacc);
+  xsum_large_add1 (&lacc, 0.0);
+  large_result(&lacc,0,0);
+
+  xsum_small_init (&sacc);
+  xsum_small_add1 (&sacc, -0.0);
+  small_result(&sacc,0,0);
+
+  xsum_large_init (&lacc);
+  xsum_large_add1 (&lacc, -0.0);
+  large_result(&lacc,0,0);
+
   printf("\n%c: ONE TERM TESTS\n",++section);
 
-  for (i = 0; one_term[i] != 0; i += 1)
+  for (i = 0; i < sizeof one_term / sizeof *one_term; i += 1)
   { 
     if (echo) printf(" \n-- TEST %2d: %.16le\n",i,one_term[i]);
     s = one_term[i];
@@ -442,7 +480,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: ONE TERM TESTS, NEGATED\n",++section);
 
-  for (i = 0; one_term[i] != 0; i += 1)
+  for (i = 0; i < sizeof one_term / sizeof *one_term; i += 1)
   { 
     if (echo) printf(" \n-- TEST %2d: %.16le\n",i,-one_term[i]);
     s = -one_term[i];
@@ -461,7 +499,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: ONE TERM TESTS TIMES %d\n",++section,REP1);
 
-  for (i = 0; one_term[i] != 0; i += 1)
+  for (i = 0; i < sizeof one_term / sizeof *one_term; i += 1)
   { 
     double v = one_term[i];
     if (echo) printf(" \n-- TEST %2d: %.16le\n",i,v);
@@ -481,7 +519,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: ONE TERM TESTS TIMES %d, NEGATED\n",++section,REP1);
 
-  for (i = 0; one_term[i] != 0; i += 1)
+  for (i = 0; i < sizeof one_term / sizeof *one_term; i += 1)
   { 
     double v = -one_term[i];
     if (echo) printf(" \n-- TEST %2d: %.16le\n",i,v);
@@ -501,7 +539,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: TWO TERM TESTS\n",++section);
 
-  for (i = 0; two_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof two_term / sizeof *two_term; i += 2)
   { 
     double v[2] = { two_term[i], two_term[i+1] };
     if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",i/2,v[0],v[1]);
@@ -521,7 +559,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: TWO TERM TESTS, NEGATED\n",++section);
 
-  for (i = 0; two_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof two_term / sizeof *two_term; i += 2)
   { 
     double v[2] = { -two_term[i], -two_term[i+1] };
     if (echo) printf(" \n-- TEST %2d: %.16le %.16le\n",i/2,v[0],v[1]);
@@ -549,7 +587,7 @@ int main (int argc, char **argv)
   0 };
 
   tstno = 0;
-  for (i = 0; two_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof two_term / sizeof *two_term; i += 2)
   { for (j = 0; factors[j] != 0; j++)
     { 
       double v[2] = { factors[j]*two_term[i], factors[j]*two_term[i+1] };
@@ -575,7 +613,7 @@ int main (int argc, char **argv)
           ++section);
 
   tstno = 0;
-  for (i = 0; two_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof two_term / sizeof *two_term; i += 2)
   { for (j = 0; factors[j] != 0; j++)
     { 
       double v[2] = { factors[j]*two_term[i], factors[j]*two_term[i+1] };
@@ -607,7 +645,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: THREE TERM TESTS\n",++section);
 
-  for (i = 0; three_term[i] != 0; i += 4)
+  for (i = 0; i < sizeof three_term / sizeof *three_term; i += 4)
   { 
     double v[3] = { three_term[i], three_term[i+1], three_term[i+2] };
     if (echo) printf(" \n-- TEST %2d: %.16le %.16le %.16le\n",
@@ -628,7 +666,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: THREE TERM TESTS, NEGATED\n",++section);
 
-  for (i = 0; three_term[i] != 0; i += 4)
+  for (i = 0; i < sizeof three_term / sizeof *three_term; i += 4)
   { 
     double v[3] = { -three_term[i], -three_term[i+1], -three_term[i+2] };
     if (echo) printf(" \n-- TEST %2d: %.16le %.16le %.16le\n",
@@ -649,7 +687,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: TEN TERM TESTS\n",++section);
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -674,7 +712,7 @@ int main (int argc, char **argv)
 
   printf("\n%c: TEN TERM TESTS, NEGATED\n",++section);
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
@@ -701,7 +739,7 @@ int main (int argc, char **argv)
 
   tstno = 0;
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -726,7 +764,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -759,7 +797,7 @@ int main (int argc, char **argv)
 
   tstno = 0;
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
@@ -784,7 +822,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
