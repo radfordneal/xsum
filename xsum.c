@@ -59,11 +59,9 @@
 #define USE_MEMSET_LARGE 1  /* Use memset rather than a loop (for large mem)? */
 #define USE_USED_LARGE 1    /* Use the used flags in a large accumulator? */
 
+#define OPT_SMALL 1         /* Should manually optimized routines be used for */
+                            /*   operations using the small accumulator?      */
 #define OPT_CARRY 1         /* Use manually optimized carry propagation?      */
-
-#define OPT_SMALL_SUM 1     /* Should manually optimized routines be used for */
-#define OPT_SMALL_SQNORM 1  /*   operations using the small accumulator?      */
-#define OPT_SMALL_DOT 1     /*     (Not currently used)                       */
 
 #define OPT_LARGE_SUM 1     /* Should manually optimized routines be used for */
 #define OPT_LARGE_SQNORM 1  /*   operations using the large accumulator?      */
@@ -718,13 +716,15 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     printf("\n");
   }
 
-  /* Extract exponent and mantissa. */
+  /* Extract exponent and mantissa.  Split exponent into high and low parts. */
 
   u.fltv = value;
   ivalue = u.intv;
 
-  mantissa = ivalue & XSUM_MANTISSA_MASK;
   exp = (ivalue >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK;
+  mantissa = ivalue & XSUM_MANTISSA_MASK;
+  high_exp = exp >> XSUM_LOW_EXP_BITS;
+  low_exp = exp & XSUM_LOW_EXP_MASK;
 
   /* Categorize number as normal, denormalized, or Inf/NaN according to
      the value of the exponent field. */
@@ -735,7 +735,7 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     { return;
     }
     /* Denormalized mantissa has no implicit 1, but exponent is 1 not 0. */
-    exp = 1;
+    exp = low_exp = 1;
   }
   else if (exp == XSUM_EXP_MASK)  /* Inf or NaN */
   { /* Just update flags in accumulator structure. */
@@ -747,11 +747,13 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     mantissa |= (xsum_int)1 << XSUM_MANTISSA_BITS;
   }
 
-  /* Separate high part of exponent, used as index of chunk, and low
-     part of exponent, giving position within chunk. */
+  /* Use high part of exponent as index of chunk, and low part of
+     exponent to give position within chunk.  Fetch the two chunks
+     that will be modified. */
 
-  low_exp = exp & XSUM_LOW_EXP_MASK;
-  high_exp = exp >> XSUM_LOW_EXP_BITS;
+  chunk_ptr = sacc->chunk + high_exp;
+  chunk0 = chunk_ptr[0];
+  chunk1 = chunk_ptr[1];
 
   if (xsum_debug)
   { printf("  high exp: ");
@@ -760,10 +762,6 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     pbinary_int64 (low_exp, XSUM_LOW_EXP_BITS);
     printf("\n");
   }
-
-  chunk_ptr = sacc->chunk + high_exp;
-  chunk0 = chunk_ptr[0];
-  chunk1 = chunk_ptr[1];
 
   /* Separate mantissa into two parts, after shifting, and add to (or
      subtract from) this chunk and the next higher chunk (which always
@@ -777,34 +775,60 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
   low_mantissa = ((xsum_uint)mantissa << low_exp) & XSUM_LOW_MANTISSA_MASK;
   high_mantissa = mantissa >> (XSUM_LOW_MANTISSA_BITS - low_exp);
 
-  /* Add or subtract to or from the two affected chunks. */
+  /* Add to, or subtract from, the two affected chunks. */
 
-  if (ivalue < 0)
-  {
-    chunk_ptr[0] = chunk0 - low_mantissa;
-    chunk_ptr[1] = chunk1 - high_mantissa;
-
-    if (xsum_debug)
-    { printf (" -high man: ");
-      pbinary_int64 (-high_mantissa, XSUM_MANTISSA_BITS);
-      printf ("\n  -low man: ");
-      pbinary_int64 (-low_mantissa, XSUM_LOW_MANTISSA_BITS);
-      printf("\n");
-    }
-  }
-  else
-  {
-    chunk_ptr[0] = chunk0 + low_mantissa;
-    chunk_ptr[1] = chunk1 + high_mantissa;
+# if OPT_SMALL
+  { xsum_int ivalue_neg 
+               = ivalue >> (XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
+    chunk_ptr[0] = chunk0 + (low_mantissa ^ ivalue_neg) + (ivalue_neg & 1);
+    chunk_ptr[1] = chunk1 + (high_mantissa ^ ivalue_neg) + (ivalue_neg & 1);
 
     if (xsum_debug)
-    { printf ("  high man: ");
-      pbinary_int64 (high_mantissa, XSUM_MANTISSA_BITS);
-      printf ("\n   low man: ");
-      pbinary_int64 (low_mantissa, XSUM_LOW_MANTISSA_BITS);
-      printf("\n");
+    { if (ivalue < 0)
+      { printf (" -high man: ");
+        pbinary_int64 (-high_mantissa, XSUM_MANTISSA_BITS);
+        printf ("\n  -low man: ");
+        pbinary_int64 (-low_mantissa, XSUM_LOW_MANTISSA_BITS);
+        printf("\n");
+      }
+      else
+      { printf ("  high man: ");
+        pbinary_int64 (high_mantissa, XSUM_MANTISSA_BITS);
+        printf ("\n   low man: ");
+        pbinary_int64 (low_mantissa, XSUM_LOW_MANTISSA_BITS);
+        printf("\n");
+      }
     }
   }
+# else
+  { if (ivalue < 0)
+    {
+      chunk_ptr[0] = chunk0 - low_mantissa;
+      chunk_ptr[1] = chunk1 - high_mantissa;
+
+      if (xsum_debug)
+      { printf (" -high man: ");
+        pbinary_int64 (-high_mantissa, XSUM_MANTISSA_BITS);
+        printf ("\n  -low man: ");
+        pbinary_int64 (-low_mantissa, XSUM_LOW_MANTISSA_BITS);
+        printf("\n");
+      }
+    }
+    else
+    {
+      chunk_ptr[0] = chunk0 + low_mantissa;
+      chunk_ptr[1] = chunk1 + high_mantissa;
+
+      if (xsum_debug)
+      { printf ("  high man: ");
+        pbinary_int64 (high_mantissa, XSUM_MANTISSA_BITS);
+        printf ("\n   low man: ");
+        pbinary_int64 (low_mantissa, XSUM_LOW_MANTISSA_BITS);
+        printf("\n");
+      }
+    }
+  }
+# endif
 }
 
 

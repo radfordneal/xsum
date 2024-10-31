@@ -1,3 +1,5 @@
+1,$s/define OPT_CARRY 1/define OPT_CARRY 0/
+1,$s/define OPT_SMALL 1/define OPT_SMALL 0/
 1,$s/define OPT_LARGE_SUM 1/define OPT_LARGE_SUM 0/
 1,$s/define OPT_LARGE_SQNORM 1/define OPT_LARGE_SQNORM 0/
 1,$s/define OPT_LARGE_DOT 1/define OPT_LARGE_DOT 0/
