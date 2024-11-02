@@ -1329,99 +1329,102 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 {
   if (xsum_debug) printf("\nLARGE ADDV OF %ld VALUES\n",(long)n);
 
-  if (n == 0) return;
-
 # if OPT_LARGE_SUM
   {
-    /* Version that's been manually optimized:  Loop unrolled, branches
-       branches eliminated, ... */
+    union fpunion u;
+    xsum_lcount count;
+    xsum_expint ix;
 
-    union fpunion u1, u2;
-    int count1, count2;
-    xsum_expint ix1, ix2;
-    const xsum_flt *v;
-    xsum_length m;
-
-    v = vec;
-
-    /* Unrolled loop processing two values each time around.  The loop is
-       done as two nested loops, arranged so that the inner one will have
-       no branches except for the one looping back.  This is achieved by
-       a trick for combining three tests for negativity into one. */
-
-    m = n-2;  /* may leave out last one */
-    while (m >= 0)
+    while (n > 3)
     {
-      /* Loop processing two values at a time until we're done, or until
-         one (or both) of the values result in a chunk needing to be processed.
-         Updates are done here for both of these chunks, even though it is not
-         yet known whether these updates ought to have been done.  We hope
-         this allows for better memory pre-fetch and instruction scheduling. */
+      u.fltv = *vec;
+      vec += 1;
 
-      xsum_length c12m;
-      do
-      {
-        u1.fltv = *v++;
-        u2.fltv = *v++;
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
 
-        m -= 2;
+      count = lacc->count[ix] - 1;
 
-        ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-        count1 = lacc->count[ix1] - 1;
-        lacc->chunk[ix1] += u1.uintv;
-        lacc->count[ix1] = count1;
-
-        ix2 = u2.uintv >> XSUM_MANTISSA_BITS;
-        count2 = lacc->count[ix2] - 1;
-        c12m = m | (xsum_length)count1 | (xsum_length)count2;
-        lacc->chunk[ix2] += u2.uintv;
-        lacc->count[ix2] = count2;
-
-      } while (c12m >= 0);
-           /* ... equivalent to while (count1 >= 0 && count2 >= 0 && m >= 0) */
-
-      /* See if we were actually supposed to update these chunks.  If not,
-         back out the changes and then process the chunks as they ought to
-         have been processed. */
-
-      if (count1 < 0 || count2 < 0)
-      { lacc->count[ix2] = count2 + 1;
-        lacc->chunk[ix2] -= u2.uintv;
-        if (count1 < 0)
-        { lacc->count[ix1] = count1 + 1;
-          lacc->chunk[ix1] -= u1.uintv;
-          xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
-          count2 = lacc->count[ix2] - 1;
-        }
-        if (count2 < 0)
-        { xsum_large_add_value_inf_nan (lacc, ix2, u2.uintv);
-        }
-        else
-        { lacc->count[ix2] = count2;
-          lacc->chunk[ix2] += u2.uintv;
-        }
-      }
-
-    }
-
-    /* May have to process the last value. */
-
-    if (m == -1)
-    { u1.fltv = *v;
-      ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-      count1 = lacc->count[ix1] - 1;
-      if (count1 < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
       }
       else
-      { lacc->count[ix1] = count1;
-        lacc->chunk[ix1] += u1.uintv;
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
       }
+
+      u.fltv = *vec;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      u.fltv = *vec;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      u.fltv = *vec;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 4;
+    }
+
+    while (n > 0)
+    {
+      u.fltv = *vec;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 1;
     }
   }
 # else
   {
     /* Version not manually optimized - maybe the compiler can do better. */
+
+    if (n == 0) return;
 
     union fpunion u;
     xsum_lcount count;
@@ -1484,95 +1487,101 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 {
   if (xsum_debug) printf("\nLARGE ADD_SQNORM OF %ld VALUES\n",(long)n);
 
-  if (n == 0) return;
-
 # if OPT_LARGE_SQNORM
   {
-    union fpunion u1, u2;
-    int count1, count2;
-    xsum_expint ix1, ix2;
-    const xsum_flt *v;
-    xsum_length m;
-    xsum_flt f;
+    union fpunion u;
+    xsum_lcount count;
+    xsum_expint ix;
+    double a;
 
-    v = vec;
-
-    /* Unrolled loop processing two squares each time around.  The loop is
-       done as two nested loops, arranged so that the inner one will have
-       no branches except for the one looping back.  This is achieved by
-       a trick for combining three tests for negativity into one. */
-
-    m = n-2;  /* may leave out last one */
-    while (m >= 0)
+    while (n > 3)
     {
-      /* Loop processing two squares at a time until we're done, or until
-         one (or both) of them result in a chunk needing to be processed.
-         Updates are done here for both of these chunks, even though it is not
-         yet known whether these updates ought to have been done.  We hope
-         this allows for better memory pre-fetch and instruction scheduling. */
+      a = *vec;
+      u.fltv = a*a;
+      vec += 1;
 
-      xsum_length c12m;
-      do
-      {
-        f = *v++;
-        u1.fltv = f * f;
-        f = *v++;
-        u2.fltv = f * f;
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
 
-        m -= 2;
+      count = lacc->count[ix] - 1;
 
-        ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-        count1 = lacc->count[ix1] - 1;
-        lacc->chunk[ix1] += u1.uintv;
-        lacc->count[ix1] = count1;
-
-        ix2 = u2.uintv >> XSUM_MANTISSA_BITS;
-        count2 = lacc->count[ix2] - 1;
-        c12m = m | (xsum_length)count1 | (xsum_length)count2;
-        lacc->chunk[ix2] += u2.uintv;
-        lacc->count[ix2] = count2;
-
-      } while (c12m >= 0);
-           /* ... equivalent to while (count1 >= 0 && count2 >= 0 && m >= 0) */
-
-      /* See if we were actually supposed to update these chunks.  If not,
-         back out the changes and then process the chunks as they ought to
-         have been processed. */
-
-      if (count1 < 0 || count2 < 0)
-      { lacc->count[ix2] = count2 + 1;
-        lacc->chunk[ix2] -= u2.uintv;
-        if (count1 < 0)
-        { lacc->count[ix1] = count1 + 1;
-          lacc->chunk[ix1] -= u1.uintv;
-          xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
-          count2 = lacc->count[ix2] - 1;
-        }
-        if (count2 < 0)
-        { xsum_large_add_value_inf_nan (lacc, ix2, u2.uintv);
-        }
-        else
-        { lacc->count[ix2] = count2;
-          lacc->chunk[ix2] += u2.uintv;
-        }
-      }
-
-    }
-
-    /* May have to process the last value. */
-
-    if (m == -1)
-    { f = *v;
-      u1.fltv = f * f;
-      ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-      count1 = lacc->count[ix1] - 1;
-      if (count1 < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
       }
       else
-      { lacc->count[ix1] = count1;
-        lacc->chunk[ix1] += u1.uintv;
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
       }
+
+      a = *vec;
+      u.fltv = a*a;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      a = *vec;
+      u.fltv = a*a;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      a = *vec;
+      u.fltv = a*a;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 4;
+    }
+
+    while (n > 0)
+    {
+      a = *vec;
+      u.fltv = a*a;
+      vec += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 1;
     }
   }
 # else
@@ -1582,6 +1591,8 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
     union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+
+    if (n == 0) return;
 
     do
     {
@@ -1633,97 +1644,95 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 {
   if (xsum_debug) printf("\nLARGE ADD_DOT OF %ld VALUES\n",(long)n);
 
-  if (n == 0) return;
-
 # if OPT_LARGE_DOT
   {
-    /* Version that's been manually optimized:  Loop unrolled, pre-fetch
-       attempted, branches eliminated, ... */
+    union fpunion u;
+    xsum_lcount count;
+    xsum_expint ix;
 
-    union fpunion u1, u2;
-    int count1, count2;
-    xsum_expint ix1, ix2;
-    const xsum_flt *v1, *v2;
-    xsum_flt f1, f2;
-    xsum_length m;
-
-    v1 = vec1; v2 = vec2;
-
-    /* Unrolled loop processing two products each time around.  The loop is
-       done as two nested loops, arranged so that the inner one will have
-       no branches except for the one looping back.  This is achieved by
-       a trick for combining three tests for negativity into one. */
-
-    m = n-2;  /* may leave out last one */
-    while (m >= 0)
+    while (n > 3)
     {
-      /* Loop processing two products at a time until we're done, or until
-         one (or both) of them result in a chunk needing to be processed.
-         Updates are done here for both of these chunks, even though it is not
-         yet known whether these updates ought to have been done.  We hope
-         this allows for better memory pre-fetch and instruction scheduling. */
+      u.fltv = *vec1 * *vec2;
+      vec1 += 1; vec2 += 1;
 
-      xsum_length c12m;
-      do
-      { f1 = *v1++; f2 = *v2++;
-        u1.fltv = f1 * f2;
-        f1 = *v1++; f2 = *v2++;
-        u2.fltv = f1 * f2;
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
 
-        m -= 2;
+      count = lacc->count[ix] - 1;
 
-        ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-        count1 = lacc->count[ix1] - 1;
-        lacc->count[ix1] = count1;
-        lacc->chunk[ix1] += u1.uintv;
-
-        ix2 = u2.uintv >> XSUM_MANTISSA_BITS;
-        count2 = lacc->count[ix2] - 1;
-        c12m = m | (xsum_length)count1 | (xsum_length)count2;
-        lacc->count[ix2] = count2;
-        lacc->chunk[ix2] += u2.uintv;
-
-      } while (c12m >= 0);
-           /* ... equivalent to while (count1 >= 0 && count2 >= 0 && m >= 0) */
-
-      /* See if we were actually supposed to update these chunks.  If not,
-         back out the changes and then process the chunks as they ought to
-         have been processed. */
-
-      if (count1 < 0 || count2 < 0)
-      { lacc->count[ix2] = count2 + 1;
-        lacc->chunk[ix2] -= u2.uintv;
-        if (count1 < 0)
-        { lacc->count[ix1] = count1 + 1;
-          lacc->chunk[ix1] -= u1.uintv;
-          xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
-          count2 = lacc->count[ix2] - 1;
-        }
-        if (count2 < 0)
-        { xsum_large_add_value_inf_nan (lacc, ix2, u2.uintv);
-        }
-        else
-        { lacc->count[ix2] = count2;
-          lacc->chunk[ix2] += u2.uintv;
-        }
-      }
-
-    }
-
-    /* May have to process the last pair. */
-
-    if (m == -1)
-    { f1 = *v1; f2 = *v2;
-      u1.fltv = f1 * f2;
-      ix1 = u1.uintv >> XSUM_MANTISSA_BITS;
-      count1 = lacc->count[ix1] - 1;
-      if (count1 < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix1, u1.uintv);
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
       }
       else
-      { lacc->count[ix1] = count1;
-        lacc->chunk[ix1] += u1.uintv;
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
       }
+
+      u.fltv = *vec1 * *vec2;
+      vec1 += 1; vec2 += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      u.fltv = *vec1 * *vec2;
+      vec1 += 1; vec2 += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      u.fltv = *vec1 * *vec2;
+      vec1 += 1; vec2 += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 4;
+    }
+
+    while (n > 0)
+    {
+      u.fltv = *vec1 * *vec2;
+      vec1 += 1; vec2 += 1;
+
+      ix = u.uintv >> XSUM_MANTISSA_BITS;
+
+      count = lacc->count[ix] - 1;
+
+      if (count < 0)
+      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      }
+      else
+      { lacc->count[ix] = count;
+        lacc->chunk[ix] += u.uintv;
+      }
+
+      n -= 1;
     }
   }
 # else
@@ -1733,6 +1742,8 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
     union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+
+    if (n == 0) return;
 
     do
     {
