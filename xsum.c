@@ -177,34 +177,23 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
 # if OPT_CARRY
 
-  { xsum_schunk c0123;
-
-    u = XSUM_SCHUNKS-1;
-    switch (XSUM_SCHUNKS & 0x7)   /* get u to be a multiple of 8 minus 1  */
+  { u = XSUM_SCHUNKS-1;
+    switch (XSUM_SCHUNKS & 0x3)   /* get u to be a multiple of 4 minus one  */
     {
-      case 7: if (sacc->chunk[u] != 0) goto found2;
-              u -= 1;                                /* XSUM_SCHUNKS is a */
-      case 6: if (sacc->chunk[u] != 0) goto found2;  /* constant, so the  */
-              u -= 1;                                /* compiler will do  */
-      case 5: if (sacc->chunk[u] != 0) goto found2;  /* simple code here  */
-              u -= 1;
-      case 4: if (sacc->chunk[u] != 0) goto found2;
-              u -= 1;
       case 3: if (sacc->chunk[u] != 0) goto found2;
-              u -= 1;
-      case 2: if (sacc->chunk[u] != 0) goto found2;
-              u -= 1;
-      case 1: if (sacc->chunk[u] != 0) goto found2;
+              u -= 1;                                /* XSUM_SCHUNKS is a */
+      case 2: if (sacc->chunk[u] != 0) goto found2;  /* constant, so the  */
+              u -= 1;                                /* compiler will do  */
+      case 1: if (sacc->chunk[u] != 0) goto found2;  /* simple code here  */
               u -= 1;
       case 0: ;
     }
 
-    do  /* here, u should be a multiple of 8 minus one, and at least 7 */
-    { c0123 = (sacc->chunk[u] | sacc->chunk[u-1])
-               | (sacc->chunk[u-2] | sacc->chunk[u-3]);
-      if (c0123 | (sacc->chunk[u-4] | sacc->chunk[u-5])
-                | (sacc->chunk[u-6] | sacc->chunk[u-7]) ) goto found;
-      u -= 8;
+    do  /* here, u should be a multiple of 4 minus one, and at least 3 */
+    { if (sacc->chunk[u] | sacc->chunk[u-1] | sacc->chunk[u-2] | sacc->chunk[u-3])
+      { goto found;
+      }
+      u -= 4;
     } while (u >= 0);
 
     if (xsum_debug) printf ("number is zero (1)\n");
@@ -212,12 +201,14 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     goto done;
 
   found:
-    if (c0123 == 0) u -= 4;
-    while (sacc->chunk[u] == 0)
-    { u -= 1;
-    }
+    if (sacc->chunk[u] != 0) goto found2;
+    u -= 1;
+    if (sacc->chunk[u] != 0) goto found2;
+    u -= 1;
+    if (sacc->chunk[u] != 0) goto found2;
+    u -= 1;
 
-  found2: ;
+   found2: ;
   }
 
 # else  /* Non-optimized search for uppermost non-zero chunk */
@@ -251,8 +242,9 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
     int e = u-3;  /* end three before so we won't access beyond chunk array */
     do
-    { if ((sacc->chunk[i] | sacc->chunk[i+1])
-            | (sacc->chunk[i+2] | sacc->chunk[i+3])) break;
+    { if (sacc->chunk[i] | sacc->chunk[i+1] | sacc->chunk[i+2] | sacc->chunk[i+3])
+      { break;
+      }
       i += 4;
     } while (i < e);
   }
@@ -271,6 +263,14 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 #   if OPT_CARRY
     { do
       { c = sacc->chunk[i];
+        if (c != 0) goto nonzero;
+        i += 1;
+        if (i > u) break;
+        c = sacc->chunk[i];
+        if (c != 0) goto nonzero;
+        i += 1;
+        if (i > u) break;
+        c = sacc->chunk[i];
         if (c != 0) goto nonzero;
         i += 1;
         if (i > u) break;
