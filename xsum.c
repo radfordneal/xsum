@@ -680,18 +680,18 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
 
 void xsum_small_init (xsum_small_accumulator *restrict sacc)
 {
+  sacc->adds_until_propagate = XSUM_SMALL_CARRY_TERMS;
+  sacc->Inf = sacc->NaN = 0;
 # if USE_MEMSET_SMALL
-    memset (sacc, 0, sizeof *sacc);
+    memset (sacc->chunk, 0, XSUM_SCHUNKS * sizeof(xsum_schunk));
 # else
   { xsum_schunk *p;
     int n;
     p = sacc->chunk;
     n = XSUM_SCHUNKS;
     do { *p++ = 0; n -= 1; } while (n > 0);
-    sacc->Inf = sacc->NaN = 0;
   }
 # endif
-  sacc->adds_until_propagate = XSUM_SMALL_CARRY_TERMS;
 }
 
 
