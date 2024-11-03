@@ -32,15 +32,14 @@
 
 /* This code makes the following assumptions:
 
-     o The 'double' type is a standard IEEE 64-bit floating-point value.
+     o The 'double' type is a IEEE-754 standard 64-bit floating-point value.
+
+     o The 'int64_t' and 'uint64_t' types exist, for 64-bit signed and
+       unsigned integers.
 
      o The 'endianness' of 'double' and 64-bit integers is consistent
        between these types - that is, looking at the bits of a 'double' 
        value as an 64-bit integer will have the expected result.
-
-     o A bit pattern can be switched between 'double' and a 64-bit integer
-       by storing a value in an element of a suitable union type and reading
-       it out as an element of a different type.
 
      o Right shifts of a signed operand produce the results expected for 
        a two's complement representation.
@@ -87,9 +86,10 @@
 #endif
 
 
-/* UNION OF FLOATING AND INTEGER TYPES. */
+/* COPY A 64-BIT QUANTITY - DOUBLE TO 64-BIT INT OR VICE VERSA.  The
+   arguments are destination and source variables (not values). */
 
-union fpunion { xsum_flt fltv; xsum_int intv; xsum_uint uintv; };
+#define COPY64(dst,src) memcpy(&(dst),&(src),sizeof(double))
 
 
 /* OPTIONAL INCLUSION OF PBINARY MODULE.  Used for debug output. */
@@ -138,7 +138,7 @@ static NOINLINE void xsum_small_add_inf_nan
                        (xsum_small_accumulator *restrict sacc, xsum_int ivalue)
 {
   xsum_int mantissa;
-  union fpunion u;
+  double fltv;
 
   mantissa = ivalue & XSUM_MANTISSA_MASK;
 
@@ -149,9 +149,9 @@ static NOINLINE void xsum_small_add_inf_nan
     }
     else if (sacc->Inf != ivalue)
     { /* previous Inf was opposite sign */
-      u.intv = ivalue;
-      u.fltv = u.fltv - u.fltv;  /* result will be a NaN */
-      sacc->Inf = u.intv;
+      COPY64 (fltv, ivalue);
+      fltv = fltv - fltv;  /* result will be a NaN */
+      COPY64 (sacc->Inf, fltv);
     }
   }
   else /* NaN */
@@ -217,7 +217,8 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         u -= 4;
       }
 #     else
-      { if (sacc->chunk[u] | sacc->chunk[u-1] | sacc->chunk[u-2] | sacc->chunk[u-3])
+      { if (sacc->chunk[u] | sacc->chunk[u-1] 
+          | sacc->chunk[u-2] | sacc->chunk[u-3])
         { goto found;
         }
         u -= 4;
@@ -288,7 +289,8 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         }
       }
 #     else
-      { if (sacc->chunk[i] | sacc->chunk[i+1] | sacc->chunk[i+2] | sacc->chunk[i+3])
+      { if (sacc->chunk[i] | sacc->chunk[i+1] 
+          | sacc->chunk[i+2] | sacc->chunk[i+3])
         { break;
         }
       }
@@ -799,7 +801,6 @@ void xsum_small_init (xsum_small_accumulator *restrict sacc)
 static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
                                        xsum_flt value)
 {
-  union fpunion u;
   xsum_int ivalue;
   xsum_int mantissa;
   xsum_expint exp, low_exp, high_exp;
@@ -813,8 +814,7 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
 
   /* Extract exponent and mantissa.  Split exponent into high and low parts. */
 
-  u.fltv = value;
-  ivalue = u.intv;
+  COPY64 (ivalue, value);
 
   exp = (ivalue >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK;
   mantissa = ivalue & XSUM_MANTISSA_MASK;
@@ -1076,8 +1076,9 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
 {
   xsum_int ivalue;
   xsum_schunk lower;
-  union fpunion u;
   int i, j, e, more;
+  xsum_int intv;
+  double fltv;
 
   if (xsum_debug) printf("\nROUNDING SMALL ACCUMULATOR\n");
 
@@ -1088,9 +1089,14 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      and a sum of other numbers that overflows with opposite sign,
      since there is no real ambiguity regarding the sign in such a case. */
 
-  if ((sacc->NaN | sacc->Inf) != 0)
-  { u.intv = sacc->NaN != 0 ? sacc->NaN : sacc->Inf;
-    return u.fltv;
+  if (sacc->NaN != 0)
+  { COPY64(fltv, sacc->NaN);
+    return fltv;
+  }
+
+  if (sacc->Inf != 0)
+  { COPY64 (fltv, sacc->Inf);
+    return fltv;
   }
 
   /* If none of the numbers summed were infinite or NaN, we proceed to
@@ -1128,39 +1134,42 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
        shift below (but must view absolute value as unsigned). */
 
     if (i == 0)
-    { u.intv = ivalue >= 0 ? ivalue : -ivalue;
-      u.intv >>= 1;
+    { intv = ivalue >= 0 ? ivalue : -ivalue;
+      intv >>= 1;
       if (ivalue < 0)
-      { u.intv |= XSUM_SIGN_MASK;
+      { intv |= XSUM_SIGN_MASK;
       }
       if (xsum_debug)
-      { printf("denormalized with i==0: u.intv %016llx\n",
-                (long long)u.intv);
+      { printf("denormalized with i==0: intv %016llx\n",
+                (long long)intv);
       }
-      return u.fltv;
+      COPY64 (fltv, intv);
+      return fltv;
     }
     else
     { /* Note: Left shift of -ve number is undefined, so do a multiply instead,
                which is probably optimized to a shift. */
-      u.intv = ivalue * ((xsum_int)1 << (XSUM_LOW_MANTISSA_BITS-1))
-                 + (sacc->chunk[0] >> 1);
-      if (u.intv < 0)
-      { if (u.intv > - ((xsum_int)1 << XSUM_MANTISSA_BITS))
-        { u.intv = (-u.intv) | XSUM_SIGN_MASK;
+      intv = ivalue * ((xsum_int)1 << (XSUM_LOW_MANTISSA_BITS-1))
+               + (sacc->chunk[0] >> 1);
+      if (intv < 0)
+      { if (intv > - ((xsum_int)1 << XSUM_MANTISSA_BITS))
+        { intv = (-intv) | XSUM_SIGN_MASK;
           if (xsum_debug)
-          { printf("denormalized with i==1: u.intv %016llx\n",
-                    (long long)u.intv);
+          { printf("denormalized with i==1: intv %016llx\n",
+                    (long long)intv);
           }
-          return u.fltv;
+          COPY64 (fltv, intv);
+          return fltv;
         }
       }
       else /* non-negative */
-      { if (u.uintv < (xsum_uint)1 << XSUM_MANTISSA_BITS)
+      { if ((xsum_uint)intv < (xsum_uint)1 << XSUM_MANTISSA_BITS)
         { if (xsum_debug)
-          { printf("denormalized with i==1: u.intv %016llx\n",
-                    (long long)u.intv);
+          { printf("denormalized with i==1: intv %016llx\n",
+                    (long long)intv);
           }
-          return u.fltv;
+          COPY64 (fltv, intv);
+          return fltv;
         }
       }
       /* otherwise, it's not actually denormalized, so fall through to below */
@@ -1178,8 +1187,9 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      may carry out of the top here, but not carry out of the top once
      more bits are shifted into the bottom later on. */
 
-  u.fltv = (xsum_flt) ivalue;  /* finds position of topmost 1 bit of |ivalue| */
-  e = (u.uintv >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK; /* e-bias is in 0..32 */
+  fltv = (xsum_flt) ivalue;  /* finds position of topmost 1 bit of |ivalue| */
+  COPY64 (intv, fltv);
+  e = (intv >> XSUM_MANTISSA_BITS) & XSUM_EXP_MASK; /* e-bias is in 0..32 */
   more = 2 + XSUM_MANTISSA_BITS + XSUM_EXP_BIAS - e;
 
   if (xsum_debug)
@@ -1231,14 +1241,14 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
      subtract.
 
      After setting 'ivalue' to the tentative unsigned mantissa
-     (shifted left 2), and 'u.intv' to have the correct sign, this
+     (shifted left 2), and 'intv' to have the correct sign, this
      code goes to done_rounding if it finds that just discarding lower
      order bits is correct, and to round_away_from_zero if instead the
      magnitude should be increased by one in the lowest mantissa bit. */
 
   if (ivalue >= 0)  /* number is positive, lower bits are added to magnitude */
   {
-    u.intv = 0;  /* positive sign */
+    intv = 0;  /* positive sign */
 
     if ((ivalue & 2) == 0)  /* extra bits are 0x */
     { if (xsum_debug)
@@ -1307,7 +1317,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
       }
     }
 
-    u.intv = XSUM_SIGN_MASK;  /* negative sign */
+    intv = XSUM_SIGN_MASK;    /* negative sign */
     ivalue = -ivalue;         /* ivalue now contains the absolute value */
 
     if ((ivalue & 3) == 3)  /* extra bits are 11 */
@@ -1381,29 +1391,31 @@ done_rounding: ;
   /* If exponent has overflowed, change to plus or minus Inf and return. */
 
   if (e >= XSUM_EXP_MASK)
-  { u.intv |= (xsum_int) XSUM_EXP_MASK << XSUM_MANTISSA_BITS;
+  { intv |= (xsum_int) XSUM_EXP_MASK << XSUM_MANTISSA_BITS;
+    COPY64 (fltv, intv);
     if (xsum_debug)
-    { printf ("Final rounded result: %.17le (overflowed)\n  ", u.fltv);
-      pbinary_double(u.fltv);
+    { printf ("Final rounded result: %.17le (overflowed)\n  ", fltv);
+      pbinary_double(fltv);
       printf("\n");
     }
-    return u.fltv;
+    return fltv;
   }
 
-  /* Put exponent and mantissa into u.intv, which already has the sign,
-     then return u.fltv. */
+  /* Put exponent and mantissa into intv, which already has the sign,
+     then copy into fltv. */
 
-  u.intv += (xsum_int)e << XSUM_MANTISSA_BITS;
-  u.intv += ivalue & XSUM_MANTISSA_MASK;  /* mask out the implicit 1 bit */
+  intv += (xsum_int)e << XSUM_MANTISSA_BITS;
+  intv += ivalue & XSUM_MANTISSA_MASK;  /* mask out the implicit 1 bit */
+  COPY64 (fltv, intv);
 
   if (xsum_debug)
-  { printf ("Final rounded result: %.17le\n  ", u.fltv);
-    pbinary_double(u.fltv);
+  { printf ("Final rounded result: %.17le\n  ", fltv);
+    pbinary_double(fltv);
     printf("\n");
     if ((ivalue >> XSUM_MANTISSA_BITS) != 1) abort();
   }
 
-  return u.fltv;
+  return fltv;
 }
 
 
@@ -1426,70 +1438,70 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 
 # if OPT_LARGE_SUM
   {
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+    xsum_uint uintv;
 
     while (n > 3)
     {
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 4;
@@ -1497,19 +1509,19 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 
     while (n > 0)
     {
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 1;
@@ -1521,20 +1533,20 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
 
     if (n == 0) return;
 
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+    xsum_uint uintv;
 
     do
     {
-      /* Fetch the next number, and convert to integer form in u.uintv. */
+      /* Fetch the next number, and convert to integer form in uintv. */
 
-      u.fltv = *vec;
+      COPY64 (uintv, *vec);
       vec += 1;
 
       /* Isolate the upper sign+exponent bits that index the chunk. */
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       /* Find the count for this chunk, and subtract one. */
 
@@ -1547,7 +1559,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
-        xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+        xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       {
@@ -1555,7 +1567,7 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
            and add this value to the chunk. */
 
         lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 1;
@@ -1584,75 +1596,75 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 
 # if OPT_LARGE_SQNORM
   {
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
-    double a;
+    xsum_uint uintv;
+    double fltv;
 
     while (n > 3)
     {
-      a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 4;
@@ -1660,20 +1672,20 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
 
     while (n > 0)
     {
-      a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 1;
@@ -1683,24 +1695,25 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
   {
     /* Version not manually optimized - maybe the compiler can do better. */
 
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+    xsum_uint uintv;
+    double fltv;
 
     if (n == 0) return;
 
     do
     {
       /* Fetch the next number, square it, and convert to integer form in
-         u.uintv. */
+         uintv. */
 
-      double a = *vec;
-      u.fltv = a*a;
+      fltv = *vec * *vec;
+      COPY64 (uintv, fltv);
       vec += 1;
 
       /* Isolate the upper sign+exponent bits that index the chunk. */
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       /* Find the count for this chunk, and subtract one. */
 
@@ -1713,7 +1726,7 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
-        xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+        xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       {
@@ -1721,9 +1734,11 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
            and add this value to the chunk. */
 
         lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
+
       n -= 1;
+
     } while (n > 0);
   }
 # endif
@@ -1741,70 +1756,75 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 
 # if OPT_LARGE_DOT
   {
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+    xsum_uint uintv;
+    double fltv;
 
     while (n > 3)
     {
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 4;
@@ -1812,19 +1832,20 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
 
     while (n > 0)
     {
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       count = lacc->count[ix] - 1;
 
       if (count < 0)
-      { xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+      { xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       { lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
 
       n -= 1;
@@ -1834,23 +1855,25 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
   {
     /* Version not manually optimized - maybe the compiler can do better. */
 
-    union fpunion u;
     xsum_lcount count;
     xsum_expint ix;
+    xsum_uint uintv;
+    double fltv;
 
     if (n == 0) return;
 
     do
     {
       /* Fetch the next numbers, multiply them, and convert the result to
-         integer form in u.uintv. */
+         integer form in uintv. */
 
-      u.fltv = *vec1 * *vec2;
+      fltv = *vec1 * *vec2;
+      COPY64 (uintv, fltv);
       vec1 += 1; vec2 += 1;
 
       /* Isolate the upper sign+exponent bits that index the chunk. */
 
-      ix = u.uintv >> XSUM_MANTISSA_BITS;
+      ix = uintv >> XSUM_MANTISSA_BITS;
 
       /* Find the count for this chunk, and subtract one. */
 
@@ -1863,7 +1886,7 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
            needs to be transferred to the small accumulator, or one that
            has never been used before and needs to be initialized. */
 
-        xsum_large_add_value_inf_nan (lacc, ix, u.uintv);
+        xsum_large_add_value_inf_nan (lacc, ix, uintv);
       }
       else
       {
@@ -1871,9 +1894,11 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
            and add this value to the chunk. */
 
         lacc->count[ix] = count;
-        lacc->chunk[ix] += u.uintv;
+        lacc->chunk[ix] += uintv;
       }
+
       n -= 1;
+
     } while (n > 0);
   }
 # endif
