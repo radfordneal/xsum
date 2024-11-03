@@ -108,7 +108,7 @@ typedef int_least16_t xsum_lcount; /* Signed int type of counts for large acc.*/
 #define XSUM_LCHUNKS \
   (1 << (XSUM_EXP_BITS+1))         /* # of chunks in large accumulator */
 
-typedef uint_fast64_t xsum_used;   /* Unsigned type for holding used flags */
+typedef uint64_t xsum_used;        /* Unsigned type for holding used flags */
 
 typedef struct
 { xsum_lchunk chunk[XSUM_LCHUNKS]; /* Chunks making up large accumulator */

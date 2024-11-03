@@ -55,12 +55,14 @@
 /* IMPLEMENTATION OPTIONS.  Can be set to either 0 or 1, whichever seems
    to be fastest. */
 
+#define USE_SIMD 1          /* Use SIMD intrinsics (SSE2/AVX) if available?   */
+
 #define USE_MEMSET_SMALL 1  /* Use memset rather than a loop (for small mem)? */
 #define USE_MEMSET_LARGE 1  /* Use memset rather than a loop (for large mem)? */
 #define USE_USED_LARGE 1    /* Use the used flags in a large accumulator? */
 
 #define OPT_SMALL 0         /* Class of manual optimization for operations on */
-                            /*   small accumulator: 0 (none), 1, or 2         */
+                            /*   small accumulator: 0 (none), 1, 2, 3 (SIMD)  */
 #define OPT_CARRY 1         /* Use manually optimized carry propagation?      */
 
 #define OPT_LARGE_SUM 1     /* Should manually optimized routines be used for */
@@ -76,6 +78,13 @@
 #define INLINE_SMALL 1      /* Inline more of the small accumulator routines? */
                             /*   (Not currently used)                         */
 #define INLINE_LARGE 1      /* Inline more of the large accumulator routines? */
+
+
+/* INCLUDE INTEL INTRINSICS IF USED AND AVAILABLE. */
+
+#if USE_SIMD && __SSE2__
+# include <immintrin.h>
+#endif
 
 
 /* UNION OF FLOATING AND INTEGER TYPES. */
@@ -190,10 +199,31 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     }
 
     do  /* here, u should be a multiple of 4 minus one, and at least 3 */
-    { if (sacc->chunk[u] | sacc->chunk[u-1] | sacc->chunk[u-2] | sacc->chunk[u-3])
-      { goto found;
+    { 
+#     if USE_SIMD && __AVX__
+      { __m256i ch;
+        ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+u-3));
+        if (!_mm256_testz_si256(ch,ch))
+        { goto found;
+        }
+        u -= 4;
+        if (u < 0)
+        { break;
+        }
+        ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+u-3));
+        if (!_mm256_testz_si256(ch,ch))
+        { goto found;
+        }
+        u -= 4;
       }
-      u -= 4;
+#     else
+      { if (sacc->chunk[u] | sacc->chunk[u-1] | sacc->chunk[u-2] | sacc->chunk[u-3])
+        { goto found;
+        }
+        u -= 4;
+      }
+#     endif
+
     } while (u >= 0);
 
     if (xsum_debug) printf ("number is zero (1)\n");
@@ -229,8 +259,6 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
   /* Carry propagate, starting at the low-order chunks.  Note that the
      loop limit of u may be increased inside the loop. */
 
-  uix = -1;  /* indicates that a non-zero chunk has not been found yet */
-
   i = 0;     /* set to the index of the next non-zero chunck, from bottom */
 
 # if OPT_CARRY
@@ -241,14 +269,38 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
        chunks may not be as large. */
 
     int e = u-3;  /* end three before so we won't access beyond chunk array */
+
     do
-    { if (sacc->chunk[i] | sacc->chunk[i+1] | sacc->chunk[i+2] | sacc->chunk[i+3])
-      { break;
+    { 
+#     if USE_SIMD && __AVX__
+      { __m256i ch;
+        ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+i));
+        if (!_mm256_testz_si256(ch,ch))
+        { break;
+        }
+        i += 4;
+        if (i >= e) 
+        { break;
+        }
+        ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+i));
+        if (!_mm256_testz_si256(ch,ch))
+        { break;
+        }
       }
+#     else
+      { if (sacc->chunk[i] | sacc->chunk[i+1] | sacc->chunk[i+2] | sacc->chunk[i+3])
+        { break;
+        }
+      }
+#     endif
+
       i += 4;
+
     } while (i < e);
   }
 # endif
+
+  uix = -1;  /* indicates that a non-zero chunk has not been found yet */
 
   do
   { xsum_schunk c;       /* Set to the chunk at index i (next non-zero one) */
@@ -394,7 +446,28 @@ static void xsum_large_init_chunks (xsum_large_accumulator *restrict lacc)
 
 # if USE_USED_LARGE
 #   if USE_MEMSET_SMALL
-      memset(lacc->chunks_used, 0, XSUM_LCHUNKS/64 * sizeof *lacc->chunks_used);
+    { memset(lacc->chunks_used, 0, XSUM_LCHUNKS/64 * sizeof *lacc->chunks_used);
+    }
+#   elif USE_SIMD && __AVX__ && XSUM_LCHUNKS/64==64
+    { xsum_used *ch = lacc->chunks_used;
+      __m256i z = _mm256_setzero_si256();
+      _mm256_storeu_si256 ((__m256i *)(ch+0), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+4), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+8), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+12), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+16), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+20), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+24), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+28), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+32), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+36), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+40), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+44), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+48), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+52), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+56), z);
+      _mm256_storeu_si256 ((__m256i *)(ch+60), z);
+    }
 #   else
     { xsum_lchunk *p;
       int n;
@@ -683,7 +756,30 @@ void xsum_small_init (xsum_small_accumulator *restrict sacc)
   sacc->adds_until_propagate = XSUM_SMALL_CARRY_TERMS;
   sacc->Inf = sacc->NaN = 0;
 # if USE_MEMSET_SMALL
-    memset (sacc->chunk, 0, XSUM_SCHUNKS * sizeof(xsum_schunk));
+  { memset (sacc->chunk, 0, XSUM_SCHUNKS * sizeof(xsum_schunk));
+  }
+# elif USE_SIMD && __AVX__ && XSUM_SCHUNKS==67
+  { xsum_schunk *ch = sacc->chunk;
+    __m256i z = _mm256_setzero_si256();
+    _mm256_storeu_si256 ((__m256i *)(ch+0), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+4), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+8), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+12), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+16), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+20), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+24), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+28), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+32), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+36), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+40), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+44), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+48), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+52), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+56), z);
+    _mm256_storeu_si256 ((__m256i *)(ch+60), z);
+    _mm_storeu_si128    ((__m128i *)(ch+64), _mm256_castsi256_si128(z));
+    _mm_storeu_si64     (ch+66, _mm256_castsi256_si128(z));
+  }
 # else
   { xsum_schunk *p;
     int n;
@@ -705,9 +801,8 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
 {
   union fpunion u;
   xsum_int ivalue;
-  xsum_int mantissa, low_mantissa, high_mantissa;
+  xsum_int mantissa;
   xsum_expint exp, low_exp, high_exp;
-  xsum_schunk chunk0, chunk1;
   xsum_schunk *chunk_ptr;
 
   if (xsum_debug)
@@ -766,8 +861,6 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
      that will be modified. */
 
   chunk_ptr = sacc->chunk + high_exp;
-  chunk0 = chunk_ptr[0];
-  chunk1 = chunk_ptr[1];
 
   /* Separate mantissa into two parts, after shifting, and add to (or
      subtract from) this chunk and the next higher chunk (which always
@@ -775,34 +868,43 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
 
      Note that low_mantissa will have at most XSUM_LOW_MANTISSA_BITS bits,
      while high_mantissa will have at most XSUM_MANTISSA_BITS bits, since
-     even though high_mantissa includes the extra implicit 1 bit, it will
+     even though the high mantissa includes the extra implicit 1 bit, it will
      also be shifted right by at least one bit. */
 
-  low_mantissa = ((xsum_uint)mantissa << low_exp) & XSUM_LOW_MANTISSA_MASK;
-  high_mantissa = mantissa >> (XSUM_LOW_MANTISSA_BITS - low_exp);
+  xsum_int split_mantissa[2];
+  split_mantissa[0] = ((xsum_uint)mantissa << low_exp) & XSUM_LOW_MANTISSA_MASK;
+  split_mantissa[1] = mantissa >> (XSUM_LOW_MANTISSA_BITS - low_exp);
 
   /* Add to, or subtract from, the two affected chunks. */
 
 # if OPT_SMALL==1
   { xsum_int ivalue_sign = ivalue<0 ? -1 : 1;
-    chunk_ptr[0] = chunk0 + ivalue_sign * low_mantissa;
-    chunk_ptr[1] = chunk1 + ivalue_sign * high_mantissa;
+    chunk_ptr[0] += ivalue_sign * split_mantissa[0];
+    chunk_ptr[1] += ivalue_sign * split_mantissa[1];
   }
 # elif OPT_SMALL==2
   { xsum_int ivalue_neg 
-               = ivalue >> (XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
-    chunk_ptr[0] = chunk0 + (low_mantissa ^ ivalue_neg) + (ivalue_neg & 1);
-    chunk_ptr[1] = chunk1 + (high_mantissa ^ ivalue_neg) + (ivalue_neg & 1);
-
+              = ivalue>>(XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
+    chunk_ptr[0] += (split_mantissa[0] ^ ivalue_neg) + (ivalue_neg & 1);
+    chunk_ptr[1] += (split_mantissa[1] ^ ivalue_neg) + (ivalue_neg & 1);
   }
-# else /* OPT_SMALL==0 */
+# elif OPT_SMALL==3 && USE_SIMD && __SSE2__
+  { xsum_int ivalue_neg 
+              = ivalue>>(XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
+    _mm_storeu_si128 ((__m128i *)chunk_ptr, 
+                      _mm_add_epi64 (_mm_loadu_si128 ((__m128i *)chunk_ptr),
+                       _mm_add_epi64 (_mm_set1_epi64((__m64)(ivalue_neg&1)),
+                        _mm_xor_si128 (_mm_set1_epi64((__m64)ivalue_neg),
+                         _mm_loadu_si128 ((__m128i *)split_mantissa)))));
+  }
+# else
   { if (ivalue < 0)
-    { chunk_ptr[0] = chunk0 - low_mantissa;
-      chunk_ptr[1] = chunk1 - high_mantissa;
+    { chunk_ptr[0] -= split_mantissa[0];
+      chunk_ptr[1] -= split_mantissa[1];
     }
     else
-    { chunk_ptr[0] = chunk0 + low_mantissa;
-      chunk_ptr[1] = chunk1 + high_mantissa;
+    { chunk_ptr[0] += split_mantissa[0];
+      chunk_ptr[1] += split_mantissa[1];
     }
   }
 # endif
@@ -810,16 +912,16 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
   if (xsum_debug)
   { if (ivalue < 0)
     { printf (" -high man: ");
-      pbinary_int64 (-high_mantissa, XSUM_MANTISSA_BITS);
+      pbinary_int64 (-split_mantissa[1], XSUM_MANTISSA_BITS);
       printf ("\n  -low man: ");
-      pbinary_int64 (-low_mantissa, XSUM_LOW_MANTISSA_BITS);
+      pbinary_int64 (-split_mantissa[0], XSUM_LOW_MANTISSA_BITS);
       printf("\n");
     }
     else
     { printf ("  high man: ");
-      pbinary_int64 (high_mantissa, XSUM_MANTISSA_BITS);
+      pbinary_int64 (split_mantissa[1], XSUM_MANTISSA_BITS);
       printf ("\n   low man: ");
-      pbinary_int64 (low_mantissa, XSUM_LOW_MANTISSA_BITS);
+      pbinary_int64 (split_mantissa[0], XSUM_LOW_MANTISSA_BITS);
       printf("\n");
     }
   }
@@ -979,22 +1081,15 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
 
   if (xsum_debug) printf("\nROUNDING SMALL ACCUMULATOR\n");
 
-  /* See if we have a NaN from one of the numbers being a NaN, in which
-     case we return the NaN with largest payload. */
+  /* See if we have a NaN from one of the numbers being a NaN, in
+     which case we return the NaN with largest payload, or an infinite
+     result (+Inf, -Inf, or a NaN if both +Inf and -Inf occurred).
+     Note that we do NOT return NaN if we have both an infinite number
+     and a sum of other numbers that overflows with opposite sign,
+     since there is no real ambiguity regarding the sign in such a case. */
 
-  if (sacc->NaN != 0)
-  { u.intv = sacc->NaN;
-    return u.fltv;
-  }
-
-  /* Otherwise, if any number was infinite, we return +Inf, -Inf, or a Nan
-     (if both +Inf and -Inf occurred).  Note that we do NOT return NaN if
-     we have both an infinite number and a sum of other numbers that
-     overflows with opposite sign, since there is no real ambiguity in
-     such a case. */
-
-  if (sacc->Inf != 0)
-  { u.intv = sacc->Inf;
+  if ((sacc->NaN | sacc->Inf) != 0)
+  { u.intv = sacc->NaN != 0 ? sacc->NaN : sacc->Inf;
     return u.fltv;
   }
 
