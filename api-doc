@@ -26,7 +26,7 @@ This is a guide to how to use the 'xsum' package for exact summation
 from a C program.
 
 The 'xsum' package implements exact summation of double-precision
-(IEEE) floating-point numbers, with the exact sum stored in a
+(IEEE-754) floating-point numbers, with the exact sum stored in a
 "superaccumulator".  
 
 Both "small" and "large" superaccumulators are implemented, with the
