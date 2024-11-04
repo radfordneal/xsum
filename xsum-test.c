@@ -34,10 +34,16 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <math.h>
 #include "xsum.h"
 #include "pbinary.h"
 
 #define MAXLINE 10000
+
+int different (double a, double b)
+{ 
+  return isnan(a) != isnan(b) || !isnan(a) && !isnan(b) && a != b;
+}
 
 int main (int argc, char **argv)
 {
@@ -148,24 +154,24 @@ int main (int argc, char **argv)
 
     if (!have_div)
     {
-      if (result_s != (double) xsum_small_round(&sacc))
+      if (different (result_s, xsum_small_round(&sacc)))
       { printf ("RESULT DIFFERS AFTER ROUNDING SMALL ACCUMULATOR TWICE\n");
       }
 
-      if (result_l != (double) xsum_large_round(&lacc))
+      if (different (result_l, xsum_large_round(&lacc)))
       { printf ("RESULT DIFFERS AFTER ROUNDING LARGE ACCUMULATOR TWICE\n");
       }
     }
 
-    if (result_s != result_l)
+    if (different (result_s, result_l))
     { printf("RESULTS DIFFER FOR SMALL AND LARGE ACCUMULATORS\n");
     }
 
-    if (N <= 2 && result_s != s)
+    if (N <= 2 && different (result_s, s))
     { printf("RESULTS DIFFER FOR DOUBLE AND SMALL ACCUMULATOR\n");
     }
 
-    if (N <= 2 && result_l != s)
+    if (N <= 2 && different (result_l, s))
     { printf("RESULTS DIFFER FOR DOUBLE AND LARGE ACCUMULATOR\n");
     }
   }

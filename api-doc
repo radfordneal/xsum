@@ -150,11 +150,12 @@ functions:
   xsum_large_div_unsigned (pointer_to_large_accumulator, unsigned)
 
 The value returned will be Inf, -Inf, or NaN if that is the value in
-the superaccumulator, and will be Inf or -Inf if the superaccumulator
-contains a finite value and the divisor is zero.
+the superaccumulator, and will be Inf, -Inf, or NaN if the divisor is
+zero and the superaccumulator contains a finite value that is
+positive, negative, or zero, respectively.
 
-The value stored in the superaccumulator is not changed by these
-functions.
+The value in the superaccumulator passed as the first argument is not
+changed by these functions.
 
 Note that this facility allows for computing the exactly-rounded mean
 of a set of numbers (with no more than 2^32-1 numbers).
