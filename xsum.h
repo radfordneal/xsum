@@ -127,7 +127,7 @@ typedef struct
 typedef ptrdiff_t xsum_length;
 
 
-/* FUNCTIONS FOR EXACT SUMMATION. */
+/* FUNCTIONS FOR EXACT SUMMATION, WITH POSSIBLE DIVISION BY AN INTEGER. */
 
 void xsum_small_init (xsum_small_accumulator *restrict);
 void xsum_small_add1 (xsum_small_accumulator *restrict, xsum_flt);
@@ -159,6 +159,11 @@ void xsum_large_to_small_accumulator (xsum_small_accumulator *restrict,
                                       xsum_large_accumulator *restrict);
 void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict, 
                                       xsum_small_accumulator *restrict);
+
+xsum_flt xsum_small_div_unsigned (xsum_small_accumulator *restrict, unsigned);
+xsum_flt xsum_small_div_int (xsum_small_accumulator *restrict, int);
+xsum_flt xsum_large_div_unsigned (xsum_large_accumulator *restrict, unsigned);
+xsum_flt xsum_large_div_int (xsum_large_accumulator *restrict, int);
 
 
 /* FUNCTIONS USEFUL FOR TESTING AND DEBUGGING. */

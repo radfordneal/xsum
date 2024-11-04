@@ -36,9 +36,13 @@ superaccumulator is more efficient when fewer numbers are summed.
 
 The exact sum in a superaccumulator can be used to produce a
 double-precision rounded result, which is the exactly-correct rounding
-(to nearest, ties to even) of the exact sum.  See the paper in
-xsum-paper.pdf (also at https://arxiv.org/abs/1505.05571) for more
-details.
+(to nearest, ties to even) of the exact sum.
+
+One can also obtain the exactly-rounded result of dividing the value
+in a superaccumulator by a signed or unsigned 32-bit integer.
+
+For more information, see the paper in xsum-paper.pdf (also at
+https://arxiv.org/abs/1505.05571) for more details.
 
 
 How to build with the xsum package.
@@ -132,6 +136,28 @@ of the following functions:
 The value stored in the superaccumulator is not changed by these
 functions.  Additional values can be added to the superaccumulator,
 and then the result of rounding it can again be obtained, etc.
+
+
+Obtaining the rounded value of a superaccumulator divided by an integer.
+
+The correct rounding of a superaccumulator value divided by a signed
+or unsigned 32-bit integer can be obtained with one of the following
+functions:
+
+  xsum_small_div_int (pointer_to_small_accumulator, int)
+  xsum_small_div_unsigned (pointer_to_small_accumulator, unsigned)
+  xsum_large_div_int (pointer_to_large_accumulator, int)
+  xsum_large_div_unsigned (pointer_to_large_accumulator, unsigned)
+
+The value returned will be Inf, -Inf, or NaN if that is the value in
+the superaccumulator, and will be Inf or -Inf if the superaccumulator
+contains a finite value and the divisor is zero.
+
+The value stored in the superaccumulator is not changed by these
+functions.
+
+Note that this facility allows for computing the exactly-rounded mean
+of a set of numbers (with no more than 2^32-1 numbers).
 
 
 Other operations on superaccumulators.

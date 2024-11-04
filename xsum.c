@@ -1970,6 +1970,120 @@ void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc,
 }
 
 
+/* FIND RESULT OF DIVIDING SMALL ACCUMULATOR BY UNSIGNED INTEGER. */
+
+xsum_flt xsum_small_div_unsigned
+           (xsum_small_accumulator *restrict sacc, unsigned div)
+{ 
+  if (xsum_debug) printf("\nDIVIDE SMALL ACCUMULATOR BY UNSIGNED INTEGER\n");
+  xsum_small_accumulator tacc = *sacc;
+
+  xsum_flt result;
+  unsigned rem;
+  int sign;
+  int i, j;
+
+  /* Carry propagate in the temporary copy, 'tacc', of the accumulator,
+     then record sign and negate and re-propagate so that it will be 
+     positive.  Sets 'i' to the index of the topmost nonzero chunk. */
+
+  sign = +1;
+  i = xsum_carry_propagate(&tacc);
+
+  if (tacc.chunk[i] < 0)
+  { xsum_small_negate(&tacc);
+    i = xsum_carry_propagate(&tacc);
+    if (xsum_debug) 
+    { printf("Negated accumulator to make it non-negative\n");
+      if (tacc.chunk[i] < 0) abort();
+    }
+    sign = -1;
+  }
+
+  /* Do the division in the small accumulator, putting the remainder after
+     dividing the bottom chunk in 'rem'. */
+
+  rem = 0;
+  for (j = i; j>=0; j--)
+  { xsum_uint num = ((xsum_uint) rem << XSUM_LOW_MANTISSA_BITS) + tacc.chunk[j];
+    unsigned quo = num / div;
+    rem = num - quo*div;
+    tacc.chunk[j] = quo;
+  }
+
+  if (xsum_debug)
+  { printf("After division by %u: ",div);
+    xsum_small_display (&tacc);
+  }
+
+  /* Find new top chunk. */
+
+  while (i > 0 && tacc.chunk[i] == 0)
+  { i -= 1;
+  }
+
+  /* Set lowest-order bit in lowest chunk to achieve correct rounding 
+     given the remainder.  Note that this bit is always zero to start. */
+
+  if (i > 1 || tacc.chunk[1] >= (1 << XSUM_HIGH_MANTISSA_BITS))  /* normal */
+  { tacc.chunk[0] |= rem>0;  /* will break tie if higher bits are 1/2 */
+  }
+  else  /* denormalized */
+  { if (tacc.chunk[0] & 2)  /* lowest bit is 1 (odd) */
+    { tacc.chunk[0] |= (xsum_uint) rem * 2 >= div;  /* round up if rem>=div/2 */
+    }
+    else  /* lowest bit is 0 (even) */
+    { tacc.chunk[0] |= (xsum_uint) rem * 2 > div;  /* round up if rem > div/2 */
+    }
+  }
+
+  if (xsum_debug)
+  { printf("New low chunk accounting for remainder %u:\n\n",rem);
+    pbinary_int64 (tacc.chunk[0], XSUM_SCHUNK_BITS);
+  }
+
+  /* Do the final rounding, with the lowest bit set as above. */
+
+  result = xsum_small_round (&tacc);
+
+  return sign*result;
+}
+
+
+/* FIND RESULT OF DIVIDING SMALL ACCUMULATOR BY SIGNED INTEGER. */
+
+xsum_flt xsum_small_div_int
+           (xsum_small_accumulator *restrict sacc, int div)
+{ if (xsum_debug) printf("\nDIVIDE SMALL ACCUMULATOR BY SIGNED INTEGER\n");
+  if (div < 0)
+  { return -xsum_small_div_unsigned (sacc, (unsigned) -div);
+  }
+  else
+  { return xsum_small_div_unsigned (sacc, (unsigned) div);
+  }
+}
+
+
+/* FIND RESULT OF DIVIDING LARGE ACCUMULATOR BY UNSIGNED INTEGER. */
+
+xsum_flt xsum_large_div_unsigned
+           (xsum_large_accumulator *restrict lacc, unsigned div)
+{ if (xsum_debug) printf("\nDIVIDE LARGE ACCUMULATOR BY UNSIGNED INTEGER\n");
+  xsum_large_transfer_to_small (lacc);
+  return xsum_small_div_unsigned (&lacc->sacc, div);
+}
+
+
+/* FIND RESULT OF DIVIDING LARGE ACCUMULATOR BY SIGNED INTEGER. */
+
+xsum_flt xsum_large_div_int
+           (xsum_large_accumulator *restrict lacc, int div)
+{ if (xsum_debug) printf("\nDIVIDE LARGE ACCUMULATOR BY SIGNED INTEGER\n");
+  xsum_large_transfer_to_small (lacc);
+  return xsum_small_div_int (&lacc->sacc, div);
+}
+
+
 /* ------------------- ROUTINES FOR NON-EXACT SUMMATION --------------------- */
 
 

@@ -28,9 +28,12 @@
    computed with small and large superaccumulators, and with simple 
    long double and double arithmetic. A number may be followed by 
    *times, in which case it is added "times" times. If invoked with 
-   an argument, debug output is enabled. */
+   an argument, debug output is enabled. The line may end with '/'
+   followed by an integer, in which case the result of dividing the
+   sum by that integer is printed. */
 
 #include <stdio.h>
+#include <limits.h>
 #include "xsum.h"
 #include "pbinary.h"
 
@@ -47,6 +50,8 @@ int main (int argc, char **argv)
   char in[MAXLINE+1];
   char *inp;
   int c, p, r, N;
+  int have_div;
+  long div;
  
   xsum_debug = argc > 1;
 
@@ -74,9 +79,16 @@ int main (int argc, char **argv)
     xsum_large_init(&lacc);
     ls = s = 0;
     N = 0;
+    have_div = 0;
 
     for (;;)
-    { if (sscanf(inp,"%lf%n",&v,&p) < 1) break;
+    { if (sscanf(inp," /%ld%n",&div,&p) > 0)
+      { printf("DIVIDING BY: %ld\n\n      ",div);
+        have_div = 1;
+        inp += p;
+        break;
+      }
+      if (sscanf(inp,"%lf%n",&v,&p) < 1) break;
       inp += p;
       r = 1;
       if (*inp=='*' && sscanf(++inp,"%d%n",&r,&p) > 0)
@@ -100,11 +112,26 @@ int main (int argc, char **argv)
       }
     }
 
+    if (have_div && (div > UINT_MAX || div < INT_MIN))
+    { div = div > UINT_MAX ? (long)UINT_MAX : (long)INT_MIN;
+      printf("      Divisor out of range, with be set to %ld\n",div);
+    }
+
     while (*inp == ' ') inp += 1;
     if (*inp!=0) printf("ignored junk: %s\n",inp);
 
-    result_s = xsum_small_round(&sacc); 
-    result_l = xsum_large_round(&lacc);
+    if (have_div)
+    { result_s = div > INT_MAX ? xsum_small_div_unsigned(&sacc,div)
+                               : xsum_small_div_int(&sacc,div);
+      result_l = div > INT_MAX ? xsum_large_div_unsigned(&lacc,div)
+                               : xsum_large_div_int(&lacc,div);
+      ls /= (double) div;
+      s /= (double) div;
+    }
+    else
+    { result_s = xsum_small_round(&sacc); 
+      result_l = xsum_large_round(&lacc);
+    }
 
     printf ("ROUNDED RESULTS:\n");
     printf ("small %+.18le\n      ", (double)result_s);
@@ -119,12 +146,15 @@ int main (int argc, char **argv)
     if (xsum_debug) xsum_small_display(&sacc);
     if (xsum_debug) xsum_large_display(&lacc);
 
-    if (result_s != (double) xsum_small_round(&sacc))
-    { printf ("RESULT DIFFERS AFTER ROUNDING SMALL ACCUMULATOR TWICE\n");
-    }
+    if (!have_div)
+    {
+      if (result_s != (double) xsum_small_round(&sacc))
+      { printf ("RESULT DIFFERS AFTER ROUNDING SMALL ACCUMULATOR TWICE\n");
+      }
 
-    if (result_l != (double) xsum_large_round(&lacc))
-    { printf ("RESULT DIFFERS AFTER ROUNDING LARGE ACCUMULATOR TWICE\n");
+      if (result_l != (double) xsum_large_round(&lacc))
+      { printf ("RESULT DIFFERS AFTER ROUNDING LARGE ACCUMULATOR TWICE\n");
+      }
     }
 
     if (result_s != result_l)
