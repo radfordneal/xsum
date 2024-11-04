@@ -1,4 +1,4 @@
-/* AUTOMATIC CORRECTNESS CHECKS FOR FUNCTIONS FOR EXACT SUMMATION. */
+	/* AUTOMATIC CORRECTNESS CHECKS FOR FUNCTIONS FOR EXACT SUMMATION. */
 
 /* Copyright 2015, 2018, 2021, 2024 Radford M. Neal
 
@@ -33,7 +33,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <math.h>
+
 #include "xsum.h"
 #include "pbinary.h"
 
@@ -345,6 +347,54 @@ void large_result (xsum_large_accumulator *lacc, double s, int i)
   { printf("%3d large: Result incorrect %.16le %.16le\n", i, r, s);
     printf("    "); pbinary_double(r); printf("\n");
     printf("    "); pbinary_double(s); printf("\n");
+  }
+  if (xsum_debug) printf("END RESULT\n");
+}
+
+void small_div_result (xsum_small_accumulator *sacc, double s, long val, int i)
+{
+  double r;
+  if (xsum_debug) printf("SMALL RESULTS:\n");
+  if (xsum_debug) xsum_small_display(sacc);
+  if (val <= INT_MAX)
+  { r = xsum_small_div_int (sacc, (int)val);
+    if (different(r,s))
+    { printf("%3d small int: Result incorrect %.16le %.16le\n", i, r, s);
+      printf("    "); pbinary_double(r); printf("\n");
+      printf("    "); pbinary_double(s); printf("\n");
+    }
+  }
+  if (val >= 0)
+  { r = xsum_small_div_unsigned (sacc, (unsigned)val);
+    if (different(r,s))
+    { printf("%3d sml unsgnd: Result incorrect %.16le %.16le\n", i, r, s);
+      printf("    "); pbinary_double(r); printf("\n");
+      printf("    "); pbinary_double(s); printf("\n");
+    }
+  }
+  if (xsum_debug) printf("END RESULT\n");
+}
+
+void large_div_result (xsum_large_accumulator *lacc, double s, long val, int i)
+{
+  double r;
+  if (xsum_debug) printf("LARGE RESULTS:\n");
+  if (xsum_debug) xsum_large_display(lacc);
+  if (val <= INT_MAX)
+  { r = xsum_large_div_int (lacc, (int)val);
+    if (different(r,s))
+    { printf("%3d large int: Result incorrect %.16le %.16le\n", i, r, s);
+      printf("    "); pbinary_double(r); printf("\n");
+      printf("    "); pbinary_double(s); printf("\n");
+    }
+  }
+  if (val >= 0)
+  { r = xsum_large_div_unsigned (lacc, (unsigned)val);
+    if (different(r,s))
+    { printf("%3d lrg unsgnd: Result incorrect %.16le %.16le\n", i, r, s);
+      printf("    "); pbinary_double(r); printf("\n");
+      printf("    "); pbinary_double(s); printf("\n");
+    }
   }
   if (xsum_debug) printf("END RESULT\n");
 }
@@ -1132,7 +1182,7 @@ int main (int argc, char **argv)
 
   tstno += 1;
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -1159,7 +1209,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -1190,7 +1240,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
@@ -1217,7 +1267,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
@@ -1253,7 +1303,7 @@ int main (int argc, char **argv)
 
   tstno = 0;
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { ten_term[i+0], ten_term[i+1], ten_term[i+2], 
@@ -1294,7 +1344,7 @@ int main (int argc, char **argv)
     tstno += 1;
   }
 
-  for (i = 0; ten_term[i] != 0; i += 11)
+  for (i = 0; i < sizeof ten_term / sizeof *ten_term; i += 11)
   { 
     double v[10] = 
     { -ten_term[i+0], -ten_term[i+1], -ten_term[i+2], 
@@ -1432,7 +1482,7 @@ int main (int argc, char **argv)
   printf("\n%c: TESTS OF SQUARED NORM\n",++section);
 
   tstno = 0;
-  for (i = 0; dot_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof dot_term / sizeof *dot_term; i += 2)
   { int si, k;
     for (si = -1; si <= 1; si+=2)
     { double vi[3] = { 0.0, (double)si*dot_term[i], (double)si*dot_term[i+1] };
@@ -1489,7 +1539,7 @@ int main (int argc, char **argv)
   printf("\n%c: TESTS OF DOT PRODUCT\n",++section);
 
   tstno = 0;
-  for (i = 0; dot_term[i] != 0; i += 2)
+  for (i = 0; i < sizeof dot_term / sizeof *dot_term; i += 2)
   { int si, sj, k;
     for (si = -1; si <= 1; si+=2)
     { double vi[3] = { 0.0, (double)si*dot_term[i], (double)si*dot_term[i+1] };
@@ -1546,6 +1596,77 @@ int main (int argc, char **argv)
         }
       }
     }
+  }
+
+  printf("\n%c: TESTS OF DIVISION OF ONE TERM BY VARIOUS DIVISORS\n",++section);
+
+  for (i = 0; i < sizeof one_term / sizeof *one_term; i += 1)
+  {
+    long div[] = { 0, 1, 2, 3, 255, 256, 257, 32766, 32767, 32768, 32769,
+                   2000000000, 4000000000, 2000000001, 4000000001, 3210987654,
+                   INT_MAX, INT_MIN, UINT_MAX, INT_MAX-1, INT_MIN+1, UINT_MAX-1
+                 };
+
+    int w, sign;
+
+    sign = 1;
+    do 
+    { for (w = 0; w < sizeof div / sizeof *div; w++)
+      { long val = sign*div[w];
+        if (val < INT_MIN)
+        { continue;
+        }
+        if (echo) printf(" \n-- TEST %2d: %.16le / %ld\n",i,one_term[i],val);
+        s = one_term[i];
+        if (echo) printf("   ANSWER:  %.16le\n",s/val);
+
+        xsum_debug = debug_all || debug_letter==section && debug_number==i;
+
+        xsum_small_init (&sacc);
+        xsum_small_add1 (&sacc, s);
+        small_div_result(&sacc,s/val,val,i);
+
+        xsum_large_init (&lacc);
+        xsum_large_add1 (&lacc, s);
+        large_div_result(&lacc,s/val,val,i);
+      }
+      sign = -sign;
+    } while (sign == -1);
+  }
+
+  printf("\n%c: TESTS OF DIVISION WITH TWO TERMS BY POWERS OF TWO\n",++section);
+
+  for (i = 0; i < sizeof two_term / sizeof *two_term; i += 2)
+  {
+    long divp2[] = { 1, 2, 4, 8, 256, 32768, 2147483648 };
+    int w, sign;
+
+    sign = 1;
+    do 
+    { for (w = 0; w < sizeof divp2 / sizeof *divp2; w++)
+      { long val = sign*divp2[w];
+        if (val < INT_MIN)
+        { continue;
+        }
+        if (echo) printf(" \n-- TEST %2d: %.16le %.16le */ %ld\n",
+                          i,two_term[i],two_term[i+1],val);
+        s = (val*two_term[i] + val*two_term[i+1]) / val;
+        if (echo) printf("   ANSWER:  %.16le\n",s/val);
+
+        xsum_debug = debug_all || debug_letter==section && debug_number==i;
+
+        xsum_small_init (&sacc);
+        xsum_small_add1 (&sacc, val*two_term[i]);
+        xsum_small_add1 (&sacc, val*two_term[i+1]);
+        small_div_result(&sacc,s,val,i);
+
+        xsum_large_init (&lacc);
+        xsum_large_add1 (&lacc, val*two_term[i]);
+        xsum_large_add1 (&lacc, val*two_term[i+1]);
+        large_div_result(&lacc,s,val,i);
+      }
+      sign = -sign;
+    } while (sign == -1);
   }
   
   printf("\nDONE\n\n");

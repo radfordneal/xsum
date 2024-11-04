@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "xsum.h"
 
 
@@ -1975,20 +1976,52 @@ void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc,
 xsum_flt xsum_small_div_unsigned
            (xsum_small_accumulator *restrict sacc, unsigned div)
 { 
-  if (xsum_debug) printf("\nDIVIDE SMALL ACCUMULATOR BY UNSIGNED INTEGER\n");
-  xsum_small_accumulator tacc = *sacc;
-
   xsum_flt result;
   unsigned rem;
+  double fltv;
   int sign;
   int i, j;
 
-  /* Carry propagate in the temporary copy, 'tacc', of the accumulator,
-     then record sign and negate and re-propagate so that it will be 
-     positive.  Sets 'i' to the index of the topmost nonzero chunk. */
+  if (xsum_debug) printf("\nDIVIDE SMALL ACCUMULATOR BY UNSIGNED INTEGER\n");
+
+  /* Return NaN or an Inf if that's what's in the superaccumulator. */
+
+  if (sacc->NaN != 0)
+  { COPY64(fltv, sacc->NaN);
+    return fltv;
+  }
+
+  if (sacc->Inf != 0)
+  { COPY64 (fltv, sacc->Inf);
+    return fltv;
+  }
+
+  /* Make a copy of the superaccumulator, so we can change it here without
+     changing *sacc. */
+
+  xsum_small_accumulator tacc = *sacc;
+
+  /* Carry propagate in the temporary copy of the superaccumulator.
+     Sets 'i' to the index of the topmost nonzero chunk. */
+
+  i = xsum_carry_propagate(&tacc);
+
+  /* Check for division by zero, and if so, return +Inf, -Inf, or NaN,
+     depending on whether the superaccumulator is positive, negative,
+     or zero. */
+
+  if (div == 0)
+  { if (xsum_debug)
+    { printf("divide by zero, top chunk has index %d, value %ld\n",
+              i, tacc.chunk[i]);
+    }
+    return tacc.chunk[i] > 0 ? INFINITY : tacc.chunk[i] < 0 ? -INFINITY : NAN;
+  }
+
+  /* Record sign of accumulator, and if it's negative, negate and
+     re-propagate so that it will be positive. */
 
   sign = +1;
-  i = xsum_carry_propagate(&tacc);
 
   if (tacc.chunk[i] < 0)
   { xsum_small_negate(&tacc);
@@ -2022,23 +2055,40 @@ xsum_flt xsum_small_div_unsigned
   { i -= 1;
   }
 
-  /* Set lowest-order bit in lowest chunk to achieve correct rounding 
-     given the remainder.  Note that this bit is always zero to start. */
+  /* Do rounding, with separate approachs for normal and denormalized numbers.*/
 
-  if (i > 1 || tacc.chunk[1] >= (1 << XSUM_HIGH_MANTISSA_BITS))  /* normal */
-  { tacc.chunk[0] |= rem>0;  /* will break tie if higher bits are 1/2 */
-  }
-  else  /* denormalized */
-  { if (tacc.chunk[0] & 2)  /* lowest bit is 1 (odd) */
-    { tacc.chunk[0] |= (xsum_uint) rem * 2 >= div;  /* round up if rem>=div/2 */
+  if (i > 1 || tacc.chunk[1] >= (1 << XSUM_HIGH_MANTISSA_BITS))
+  { 
+    /* Normalized number.  Remainder is far below lowest bit, so just need
+       to 'or' in a 1 at the bottom if remainder is non-zero to break a tie 
+       if higher bits below bottom of mantissa are exactly 1/2. */
+
+    if (rem > 0)
+    { tacc.chunk[0] |= 1;
     }
-    else  /* lowest bit is 0 (even) */
-    { tacc.chunk[0] |= (xsum_uint) rem * 2 > div;  /* round up if rem > div/2 */
+  }
+  else
+  { 
+    /* Denormalized number.  Lowest bit of bottom chunk is just below lowest
+       bit of mantissa.  Denormalized numbers do not have any rounding done,
+       so need to explicitly round here using the bottom bit and the 
+       remainder - round up if lower > 1/2 or >= 1/2 and odd. */
+
+    if (tacc.chunk[0] & 1)  /* lower part is >= 1/2 */
+    { 
+      if (tacc.chunk[0] & 2)  /* lowest bit of mantissa is 1 (odd) */
+      { tacc.chunk[0] += 2;     /* round up; may become normalized; that's OK */
+      }
+      else                    /* lowest bit of mantissa is 0 (even) */
+      { if (rem > 0)            /* lower part is > 1/2 */
+        { tacc.chunk[0] += 2;     /* round up */
+        }
+      }
     }
   }
 
   if (xsum_debug)
-  { printf("New low chunk accounting for remainder %u:\n\n",rem);
+  { printf("New low chunk after adjusting to correct rounding %u:\n\n",rem);
     pbinary_int64 (tacc.chunk[0], XSUM_SCHUNK_BITS);
   }
 
