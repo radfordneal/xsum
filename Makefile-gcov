@@ -2,7 +2,7 @@
 #
 # Use as follows:
 #
-#    rm *.o
+#    rm -f *.o *.gcda gmon.out
 #    make -f Makefile-gcov
 #    xsum-check
 #    gcov xsum.c

@@ -101,6 +101,22 @@ xsum_flt two_term[] = {
 3.1e200, -1.7e-100,
 1.7e-100, 3.1e200,
 1.7e-100, -3.1e200,
+1.7e-100, -3.11e180,
+1.9e-90, -3.37e182,
+-1.9e-100, -3.37e182,
+-1.9e-110, -3.37e182,
+-1.9e-120, -3.37e182,
+-1.9e-130, -3.37e182,
+-1.9e-140, -3.37e182,
+-1.9e-150, -3.37e182,
+-1.9e-160, -3.37e182,
+-1.9e-170, -3.37e182,
+-1.9e-170, -3.37e170,
+-1.9e-170, -3.37e180,
+-1.9e-170, -3.37e190,
+-1.9e-170, -3.37e200,
+-1.9e-170, -3.37e210,
+-1.9e-170, -3.37e220,
 1, pow2_52,       /* Test rounding */
 1, pow2_52/2,
 1, pow2_52/2+pow2_52/4096,
@@ -1536,6 +1552,31 @@ int main (int argc, char **argv)
     }
   }
 
+  double seq1[] = 
+   { 1.0, 2.0, 3.0, 4.0, -4.0, -3.0, -2.0, -1.0, 0.5 };
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_sqnorm (&sacc, seq1, 4);
+  small_result(&sacc,30.0,tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_sqnorm (&lacc, seq1, 4);
+  large_result(&lacc,30.0,tstno);
+
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_sqnorm (&sacc, seq1, 8);
+  small_result(&sacc,60.0,tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_sqnorm (&lacc, seq1, 8);
+  large_result(&lacc,60.0,tstno);
+
   printf("\n%c: TESTS OF DOT PRODUCT\n",++section);
 
   tstno = 0;
@@ -1597,6 +1638,33 @@ int main (int argc, char **argv)
       }
     }
   }
+
+  double seq2[] = 
+   { 10000.0, 1000.0, 100.0, 10.0, -2500.0, -700.0, -150.0, 4.0, 0.5 };
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_dot (&sacc, seq1, seq2, 4);
+  small_result(&sacc,12340.0,tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_dot (&lacc, seq1, seq2, 4);
+  large_result(&lacc,12340.0,tstno);
+
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_dot (&sacc, seq1, seq2, 9);
+  xsum_small_add_dot (&sacc, seq1, seq2, 9);
+  small_result (&sacc, 2*(12340.0+12400.0-4.0+0.25), tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_dot (&lacc, seq1, seq2, 9);
+  xsum_large_add_dot (&lacc, seq1, seq2, 9);
+  large_result (&lacc, 2*(12340.0+12400.0-4.0+0.25), tstno);
 
   printf("\n%c: TESTS OF DIVISION OF ONE TERM BY VARIOUS DIVISORS\n",++section);
 
