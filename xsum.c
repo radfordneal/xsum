@@ -250,7 +250,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     if (sacc->chunk[u] != 0)
     { goto found2;
     }
-    u -= 1;  /* after this, sacc->chunk[u] must be non-zero */
+    u -= 1;  
 
    found2: ;
   }
@@ -268,7 +268,9 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
 # endif
 
-  if (xsum_debug) printf("u: %d",u);
+  /* At this point, sacc->chunk[u] must be non-zero */
+
+  if (xsum_debug) printf("u: %d, sacc->chunk[u]: %ld",u,sacc->chunk[u]);
 
   /* Carry propagate, starting at the low-order chunks.  Note that the
      loop limit of u may be increased inside the loop. */
@@ -282,7 +284,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
        justifying some overhead to begin, but later stretches of unused
        chunks may not be as large. */
 
-    int e = u-3;  /* end three before so we won't access beyond chunk array */
+    int e = u-3;  /* go only to 3 before so won't access beyond chunk array */
 
     do
     {
@@ -311,7 +313,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 
       i += 4;
 
-    } while (i < e);
+    } while (i <= e);
   }
 # endif
 
@@ -328,50 +330,52 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
        may have changed. */
 
 #   if OPT_CARRY
-    { do
+    { 
+      c = sacc->chunk[i];
+      if (c != 0)
+      { goto nonzero;
+      }
+      i += 1;
+      if (i > u)
+      { break;  /* reaching here is only possible when u == i initially, */
+      }         /*   with the last add to a chunk having changed it to 0 */
+
+      for (;;)
       { c = sacc->chunk[i];
         if (c != 0)
         { goto nonzero;
         }
         i += 1;
-        if (i > u)
-        { break;
-        }
         c = sacc->chunk[i];
         if (c != 0)
         { goto nonzero;
         }
         i += 1;
-        if (i > u)
-        { break;
-        }
         c = sacc->chunk[i];
         if (c != 0)
         { goto nonzero;
         }
         i += 1;
-        if (i > u)
-        { break;
-        }
         c = sacc->chunk[i];
         if (c != 0)
         { goto nonzero;
         }
         i += 1;
-      } while (i <= u);
+      }
     }
 #   else
-    { do
+    { 
+      do
       { c = sacc->chunk[i];
         if (c != 0)
         { goto nonzero;
         }
         i += 1;
       } while (i <= u);
+
+      break;
     }
 #   endif
-
-    break;
 
     /* Propagate possible carry from this chunk to next chunk up. */
 
@@ -411,7 +415,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
       u = i;
     }
     else
-    { sacc->chunk[i+1] += chigh;
+    { sacc->chunk[i+1] += chigh;  /* note: this could make this chunk be zero */
     }
 
     i += 1;
