@@ -39,10 +39,10 @@
        unsigned integers.
 
      o The 'endianness' of 'double' and 64-bit integers is consistent
-       between these types - that is, looking at the bits of a 'double' 
+       between these types - that is, looking at the bits of a 'double'
        value as an 64-bit integer will have the expected result.
 
-     o Right shifts of a signed operand produce the results expected for 
+     o Right shifts of a signed operand produce the results expected for
        a two's complement representation.
 
      o Rounding should be done in the "round to nearest, ties to even" mode.
@@ -190,17 +190,23 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
   { u = XSUM_SCHUNKS-1;
     switch (XSUM_SCHUNKS & 0x3)   /* get u to be a multiple of 4 minus one  */
     {
-      case 3: if (sacc->chunk[u] != 0) goto found2;
-              u -= 1;                                /* XSUM_SCHUNKS is a */
-      case 2: if (sacc->chunk[u] != 0) goto found2;  /* constant, so the  */
-              u -= 1;                                /* compiler will do  */
-      case 1: if (sacc->chunk[u] != 0) goto found2;  /* simple code here  */
+      case 3: if (sacc->chunk[u] != 0)
+              { goto found2;
+              }
+              u -= 1;                            /* XSUM_SCHUNKS is a */
+      case 2: if (sacc->chunk[u] != 0)           /* constant, so the  */
+              { goto found2;                     /* compiler will do  */
+              }                                  /* simple code here  */
+              u -= 1;
+      case 1: if (sacc->chunk[u] != 0)
+              { goto found2;
+              }
               u -= 1;
       case 0: ;
     }
 
     do  /* here, u should be a multiple of 4 minus one, and at least 3 */
-    { 
+    {
 #     if USE_SIMD && __AVX__
       { __m256i ch;
         ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+u-3));
@@ -218,7 +224,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         u -= 4;
       }
 #     else
-      { if (sacc->chunk[u] | sacc->chunk[u-1] 
+      { if (sacc->chunk[u] | sacc->chunk[u-1]
           | sacc->chunk[u-2] | sacc->chunk[u-3])
         { goto found;
         }
@@ -233,12 +239,18 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     goto done;
 
   found:
-    if (sacc->chunk[u] != 0) goto found2;
+    if (sacc->chunk[u] != 0)
+    { goto found2;
+    }
     u -= 1;
-    if (sacc->chunk[u] != 0) goto found2;
+    if (sacc->chunk[u] != 0)
+    { goto found2;
+    }
     u -= 1;
-    if (sacc->chunk[u] != 0) goto found2;
-    u -= 1;
+    if (sacc->chunk[u] != 0)
+    { goto found2;
+    }
+    u -= 1;  /* after this, sacc->chunk[u] must be non-zero */
 
    found2: ;
   }
@@ -273,7 +285,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
     int e = u-3;  /* end three before so we won't access beyond chunk array */
 
     do
-    { 
+    {
 #     if USE_SIMD && __AVX__
       { __m256i ch;
         ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+i));
@@ -281,7 +293,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         { break;
         }
         i += 4;
-        if (i >= e) 
+        if (i >= e)
         { break;
         }
         ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+i));
@@ -290,7 +302,7 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         }
       }
 #     else
-      { if (sacc->chunk[i] | sacc->chunk[i+1] 
+      { if (sacc->chunk[i] | sacc->chunk[i+1]
           | sacc->chunk[i+2] | sacc->chunk[i+3])
         { break;
         }
@@ -318,26 +330,42 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
 #   if OPT_CARRY
     { do
       { c = sacc->chunk[i];
-        if (c != 0) goto nonzero;
+        if (c != 0)
+        { goto nonzero;
+        }
         i += 1;
-        if (i > u) break;
+        if (i > u)
+        { break;
+        }
         c = sacc->chunk[i];
-        if (c != 0) goto nonzero;
+        if (c != 0)
+        { goto nonzero;
+        }
         i += 1;
-        if (i > u) break;
+        if (i > u)
+        { break;
+        }
         c = sacc->chunk[i];
-        if (c != 0) goto nonzero;
+        if (c != 0)
+        { goto nonzero;
+        }
         i += 1;
-        if (i > u) break;
+        if (i > u)
+        { break;
+        }
         c = sacc->chunk[i];
-        if (c != 0) goto nonzero;
+        if (c != 0)
+        { goto nonzero;
+        }
         i += 1;
       } while (i <= u);
     }
 #   else
     { do
       { c = sacc->chunk[i];
-        if (c != 0) goto nonzero;
+        if (c != 0)
+        { goto nonzero;
+        }
         i += 1;
       } while (i <= u);
     }
@@ -686,21 +714,37 @@ static void xsum_large_transfer_to_small (xsum_large_accumulator *restrict lacc)
 
       for (;;)
       { u = *p;
-        if (u != 0) break;
+        if (u != 0)
+        { break;
+        }
         p += 1;
-        if (p == e) return;
+        if (p == e)
+        { return;
+        }
         u = *p;
-        if (u != 0) break;
+        if (u != 0)
+        { break;
+        }
         p += 1;
-        if (p == e) return;
+        if (p == e)
+        { return;
+        }
         u = *p;
-        if (u != 0) break;
+        if (u != 0)
+        { break;
+        }
         p += 1;
-        if (p == e) return;
+        if (p == e)
+        { return;
+        }
         u = *p;
-        if (u != 0) break;
+        if (u != 0)
+        { break;
+        }
         p += 1;
-        if (p == e) return;
+        if (p == e)
+        { return;
+        }
       }
 
       /* Find and process the chunks in this block that are used.  We skip
@@ -884,15 +928,15 @@ static INLINE void xsum_add1_no_carry (xsum_small_accumulator *restrict sacc,
     chunk_ptr[1] += ivalue_sign * split_mantissa[1];
   }
 # elif OPT_SMALL==2
-  { xsum_int ivalue_neg 
+  { xsum_int ivalue_neg
               = ivalue>>(XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
     chunk_ptr[0] += (split_mantissa[0] ^ ivalue_neg) + (ivalue_neg & 1);
     chunk_ptr[1] += (split_mantissa[1] ^ ivalue_neg) + (ivalue_neg & 1);
   }
 # elif OPT_SMALL==3 && USE_SIMD && __SSE2__
-  { xsum_int ivalue_neg 
+  { xsum_int ivalue_neg
               = ivalue>>(XSUM_SCHUNK_BITS-1); /* all 0s if +ve, all 1s if -ve */
-    _mm_storeu_si128 ((__m128i *)chunk_ptr, 
+    _mm_storeu_si128 ((__m128i *)chunk_ptr,
                       _mm_add_epi64 (_mm_loadu_si128 ((__m128i *)chunk_ptr),
                        _mm_add_epi64 (_mm_set1_epi64((__m64)(ivalue_neg&1)),
                         _mm_xor_si128 (_mm_set1_epi64((__m64)ivalue_neg),
@@ -1532,7 +1576,9 @@ void xsum_large_addv (xsum_large_accumulator *restrict lacc,
   {
     /* Version not manually optimized - maybe the compiler can do better. */
 
-    if (n == 0) return;
+    if (n == 0)
+    { return;
+    }
 
     xsum_lcount count;
     xsum_expint ix;
@@ -1701,7 +1747,9 @@ void xsum_large_add_sqnorm (xsum_large_accumulator *restrict lacc,
     xsum_uint uintv;
     double fltv;
 
-    if (n == 0) return;
+    if (n == 0)
+    { return;
+    }
 
     do
     {
@@ -1861,7 +1909,9 @@ void xsum_large_add_dot (xsum_large_accumulator *restrict lacc,
     xsum_uint uintv;
     double fltv;
 
-    if (n == 0) return;
+    if (n == 0)
+    { return;
+    }
 
     do
     {
@@ -1975,7 +2025,7 @@ void xsum_small_to_large_accumulator (xsum_large_accumulator *restrict lacc,
 
 xsum_flt xsum_small_div_unsigned
            (xsum_small_accumulator *restrict sacc, unsigned div)
-{ 
+{
   xsum_flt result;
   unsigned rem;
   double fltv;
@@ -2026,7 +2076,7 @@ xsum_flt xsum_small_div_unsigned
   if (tacc.chunk[i] < 0)
   { xsum_small_negate(&tacc);
     i = xsum_carry_propagate(&tacc);
-    if (xsum_debug) 
+    if (xsum_debug)
     { printf("Negated accumulator to make it non-negative\n");
       if (tacc.chunk[i] < 0) abort();
     }
@@ -2058,9 +2108,9 @@ xsum_flt xsum_small_div_unsigned
   /* Do rounding, with separate approachs for normal and denormalized numbers.*/
 
   if (i > 1 || tacc.chunk[1] >= (1 << XSUM_HIGH_MANTISSA_BITS))
-  { 
+  {
     /* Normalized number.  Remainder is far below lowest bit, so just need
-       to 'or' in a 1 at the bottom if remainder is non-zero to break a tie 
+       to 'or' in a 1 at the bottom if remainder is non-zero to break a tie
        if higher bits below bottom of mantissa are exactly 1/2. */
 
     if (rem > 0)
@@ -2068,14 +2118,14 @@ xsum_flt xsum_small_div_unsigned
     }
   }
   else
-  { 
+  {
     /* Denormalized number.  Lowest bit of bottom chunk is just below lowest
        bit of mantissa.  Denormalized numbers do not have any rounding done,
-       so need to explicitly round here using the bottom bit and the 
+       so need to explicitly round here using the bottom bit and the
        remainder - round up if lower > 1/2 or >= 1/2 and odd. */
 
     if (tacc.chunk[0] & 1)  /* lower part is >= 1/2 */
-    { 
+    {
       if (tacc.chunk[0] & 2)  /* lowest bit of mantissa is 1 (odd) */
       { tacc.chunk[0] += 2;     /* round up; may become normalized; that's OK */
       }
