@@ -101,8 +101,8 @@ calling '...add1' repeatedly.
 The dot product of two vectors can be added to a superaccumulator
 with one of the following procedures:
 
-  xsum_small_add_dot (pointer_to_small_accmulator, array1, array2, length)
-  xsum_large_add_dot (pointer_to_large_accmulator, array1, array2, length)
+  xsum_small_add_dot (pointer_to_small_accumulator, array1, array2, length)
+  xsum_large_add_dot (pointer_to_large_accumulator, array1, array2, length)
 
 Here, 'array1' and 'array2' are pointers to double arrays, which must
 both have at least 'length' elements.  The products of corresponding
