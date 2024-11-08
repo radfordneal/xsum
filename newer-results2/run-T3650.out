@@ -1,0 +1,1154 @@
+Updated 0 paths from the index
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-9 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-9 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-9 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-9 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:19: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |  if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                  ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |   ((str_double*)(&s1))->mantissa_low == 0 &&
+      |   ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |  ((str_double*)(&EPS))->exponent -= 53;
+      |  ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |  ((str_double*)(&ev_d))->sign = 0;
+      |  ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |   ((str_double*)(&s))->exponent
+      |   ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:6: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |     ((str_double*)(&s_t))->exponent
+      |     ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:15: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |     if(max < ((str_double*)&s_t)->exponent)
+      |              ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:13: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |      max = ((str_double*)&s_t)->exponent;
+      |            ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |    ((str_double*)(&ev_d))->exponent = max;
+      |    ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:8: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |   if (((str_double*)(&s))->exponent > 0)
+      |       ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |    ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:44: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                           ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:7: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |      ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |      ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:9: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |  exp = ((str_double*)(&x))->exponent;
+      |        ~^~~~~~~~~~~~~~~~~~
+g++-9 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m17.857s
+user	6m17.804s
+sys	0m0.053s
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-10 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-10 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-10 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-10 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:19: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |  if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                  ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |   ((str_double*)(&s1))->mantissa_low == 0 &&
+      |   ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |  ((str_double*)(&EPS))->exponent -= 53;
+      |  ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |  ((str_double*)(&ev_d))->sign = 0;
+      |  ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |   ((str_double*)(&s))->exponent
+      |   ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:6: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |     ((str_double*)(&s_t))->exponent
+      |     ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:15: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |     if(max < ((str_double*)&s_t)->exponent)
+      |              ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:13: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |      max = ((str_double*)&s_t)->exponent;
+      |            ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |    ((str_double*)(&ev_d))->exponent = max;
+      |    ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:8: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |   if (((str_double*)(&s))->exponent > 0)
+      |       ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |    ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:44: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                           ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:7: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |      ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |      ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:9: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |  exp = ((str_double*)(&x))->exponent;
+      |        ~^~~~~~~~~~~~~~~~~~
+g++-10 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	7m19.639s
+user	7m19.585s
+sys	0m0.053s
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-11 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-11 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-11 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-11 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |         if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |                 ((str_double*)(&s1))->mantissa_low == 0 &&
+      |                 ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |         ((str_double*)(&EPS))->exponent -= 53;
+      |         ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |         ((str_double*)(&ev_d))->sign = 0;
+      |         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |                 ((str_double*)(&s))->exponent
+      |                 ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:34: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |                                 ((str_double*)(&s_t))->exponent
+      |                                 ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:43: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |                                 if(max < ((str_double*)&s_t)->exponent)
+      |                                          ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:48: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |                                         max = ((str_double*)&s_t)->exponent;
+      |                                               ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |                         ((str_double*)(&ev_d))->exponent = max;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:22: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |                 if (((str_double*)(&s))->exponent > 0)
+      |                     ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:65: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                                                ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:42: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |                                         ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |                                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:16: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |         exp = ((str_double*)(&x))->exponent;
+      |               ~^~~~~~~~~~~~~~~~~~
+g++-11 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m16.874s
+user	6m16.817s
+sys	0m0.057s
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-12 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:32: note: 'result_d' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                                ^~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:22: note: 'result_l' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                      ^~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:12: note: 'result_s' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |            ^~~~~~~~
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-12 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-12 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-12 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:96:32: note: 'result_d' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                                ^~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:96:22: note: 'result_l' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                      ^~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:96:12: note: 'result_s' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |            ^~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:98:26: note: 'result_Online' was declared here
+   98 |   xsum_flt result_iFast, result_Online;
+      |                          ^~~~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:98:12: note: 'result_iFast' was declared here
+   98 |   xsum_flt result_iFast, result_Online;
+      |            ^~~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |         if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |                 ((str_double*)(&s1))->mantissa_low == 0 &&
+      |                 ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |         ((str_double*)(&EPS))->exponent -= 53;
+      |         ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |         ((str_double*)(&ev_d))->sign = 0;
+      |         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |                 ((str_double*)(&s))->exponent
+      |                 ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:34: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |                                 ((str_double*)(&s_t))->exponent
+      |                                 ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:43: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |                                 if(max < ((str_double*)&s_t)->exponent)
+      |                                          ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:48: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |                                         max = ((str_double*)&s_t)->exponent;
+      |                                               ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |                         ((str_double*)(&ev_d))->exponent = max;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:22: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |                 if (((str_double*)(&s))->exponent > 0)
+      |                     ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:65: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                                                ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:42: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |                                         ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |                                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:16: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |         exp = ((str_double*)(&x))->exponent;
+      |               ~^~~~~~~~~~~~~~~~~~
+g++-12 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m2.849s
+user	6m2.797s
+sys	0m0.052s
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-11 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-11 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-11 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-11 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-11 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m52.130s
+user	5m52.065s
+sys	0m0.067s
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-12 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-12 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-12 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-12 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-12 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m56.687s
+user	5m56.634s
+sys	0m0.055s
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-13 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-13 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-13 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-13 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-13 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m48.537s
+user	5m48.473s
+sys	0m0.064s
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-14 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-14 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-14 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-14 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-14 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m47.733s
+user	5m47.659s
+sys	0m0.074s
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-15 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-15 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-15 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-15 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-15 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m49.147s
+user	5m49.078s
+sys	0m0.068s
+69189
+69189
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-9 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-9 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-9 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-9 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-9 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-9 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:19: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |  if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                  ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |   ((str_double*)(&s1))->mantissa_low == 0 &&
+      |   ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |  ((str_double*)(&EPS))->exponent -= 53;
+      |  ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |  ((str_double*)(&ev_d))->sign = 0;
+      |  ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |   ((str_double*)(&s))->exponent
+      |   ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:6: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |     ((str_double*)(&s_t))->exponent
+      |     ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:15: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |     if(max < ((str_double*)&s_t)->exponent)
+      |              ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:13: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |      max = ((str_double*)&s_t)->exponent;
+      |            ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |    ((str_double*)(&ev_d))->exponent = max;
+      |    ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:8: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |   if (((str_double*)(&s))->exponent > 0)
+      |       ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |    ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:44: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                           ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:7: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |      ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |      ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:9: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |  exp = ((str_double*)(&x))->exponent;
+      |        ~^~~~~~~~~~~~~~~~~~
+g++-9 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m29.802s
+user	6m29.740s
+sys	0m0.062s
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-10 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-10 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-10 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-10 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-10 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-10 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:19: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |  if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                  ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |   ((str_double*)(&s1))->mantissa_low == 0 &&
+      |   ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |  ((str_double*)(&EPS))->exponent -= 53;
+      |  ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:3: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |  ((str_double*)(&ev_d))->sign = 0;
+      |  ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:4: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |   ((str_double*)(&s))->exponent
+      |   ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:6: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |     ((str_double*)(&s_t))->exponent
+      |     ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:15: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |     if(max < ((str_double*)&s_t)->exponent)
+      |              ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:13: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |      max = ((str_double*)&s_t)->exponent;
+      |            ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |    ((str_double*)(&ev_d))->exponent = max;
+      |    ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:8: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |   if (((str_double*)(&s))->exponent > 0)
+      |       ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:5: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |    ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:44: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |    ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                           ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:7: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |      ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |      ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:9: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |  exp = ((str_double*)(&x))->exponent;
+      |        ~^~~~~~~~~~~~~~~~~~
+g++-10 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	7m27.995s
+user	7m27.934s
+sys	0m0.060s
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-11 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-11 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-11 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-11 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-11 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-11 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |         if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |                 ((str_double*)(&s1))->mantissa_low == 0 &&
+      |                 ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |         ((str_double*)(&EPS))->exponent -= 53;
+      |         ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |         ((str_double*)(&ev_d))->sign = 0;
+      |         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |                 ((str_double*)(&s))->exponent
+      |                 ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:34: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |                                 ((str_double*)(&s_t))->exponent
+      |                                 ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:43: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |                                 if(max < ((str_double*)&s_t)->exponent)
+      |                                          ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:48: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |                                         max = ((str_double*)&s_t)->exponent;
+      |                                               ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |                         ((str_double*)(&ev_d))->exponent = max;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:22: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |                 if (((str_double*)(&s))->exponent > 0)
+      |                     ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:65: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                                                ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:42: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |                                         ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |                                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:16: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |         exp = ((str_double*)(&x))->exponent;
+      |               ~^~~~~~~~~~~~~~~~~~
+g++-11 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m26.929s
+user	6m26.863s
+sys	0m0.065s
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-test.o xsum-test.c
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DDEBUG -c xsum.c -o xsum-debug.o
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o pbinary.o pbinary.c
+gcc-12 -std=c99  xsum-test.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-test
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-time.o xsum-time.c
+xsum-time.c: In function 'main':
+xsum-time.c:495:29: warning: 'result_d' may be used uninitialized [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:32: note: 'result_d' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                                ^~~~~~~~
+xsum-time.c:483:11: warning: 'result_l' may be used uninitialized [-Wmaybe-uninitialized]
+  482 |     if ((method==0 || strcmp(method,"lacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  483 |           && result_l != (double) xsum_large_round(&lacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:22: note: 'result_l' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                      ^~~~~~~~
+xsum-time.c:478:11: warning: 'result_s' may be used uninitialized [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time.c:96:12: note: 'result_s' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |            ^~~~~~~~
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum.o xsum.c
+gcc-12 -std=c99  xsum-time.o xsum.o pbinary.o -lm -lquadmath -o xsum-time
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o xsum-check.o xsum-check.c
+gcc-12 -std=c99  xsum-check.o xsum-debug.o pbinary.o -lm -lquadmath -o xsum-check
+gcc-12 -std=c99 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY    -c -o show.o show.c
+gcc-12 -std=c99  show.o pbinary.o -lm -lquadmath -o show
+cp xsum-time.c xsum-time-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+xsum-time-zhu.cpp: In function 'int main(int, char**)':
+xsum-time-zhu.cpp:495:29: warning: 'result_d' may be used uninitialized [-Wmaybe-uninitialized]
+  495 |     if (method==0 && N <= 2 && result_l != result_d)
+      |         ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:96:32: note: 'result_d' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                                ^~~~~~~~
+xsum-time-zhu.cpp:487:31: warning: 'result_l' may be used uninitialized [-Wmaybe-uninitialized]
+  487 |     if (method==0 && result_s != result_l)
+      |                      ~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:96:22: note: 'result_l' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |                      ^~~~~~~~
+xsum-time-zhu.cpp:478:11: warning: 'result_s' may be used uninitialized [-Wmaybe-uninitialized]
+  477 |     if ((method==0 || strcmp(method,"sacc")==0)
+      |         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  478 |           && result_s != (double) xsum_small_round(&sacc))
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+xsum-time-zhu.cpp:96:12: note: 'result_s' was declared here
+   96 |   xsum_flt result_s, result_l, result_d, result_dno, result_k;
+      |            ^~~~~~~~
+xsum-time-zhu.cpp:391:36: warning: 'result_Online' may be used uninitialized [-Wmaybe-uninitialized]
+  391 |     if (method==0 && result_Online != result_l)
+      |                      ~~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:98:26: note: 'result_Online' was declared here
+   98 |   xsum_flt result_iFast, result_Online;
+      |                          ^~~~~~~~~~~~~
+xsum-time-zhu.cpp:387:35: warning: 'result_iFast' may be used uninitialized [-Wmaybe-uninitialized]
+  387 |     if (method==0 && result_iFast != result_l)
+      |                      ~~~~~~~~~~~~~^~~~~~~~~~~
+xsum-time-zhu.cpp:98:12: note: 'result_iFast' was declared here
+   98 |   xsum_flt result_iFast, result_Online;
+      |            ^~~~~~~~~~~~
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+g++-12 -O3 -g -march=native -mtune=native -mfpmath=sse  -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c ExactSum.cpp
+ExactSum.cpp: In member function 'int ExactSum::Round3(double, double, double)':
+ExactSum.cpp:42:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   42 |         if (s1 != .0 && ((str_double*)(&s1))->mantissa_high == 0 &&
+      |                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:43:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   43 |                 ((str_double*)(&s1))->mantissa_low == 0 &&
+      |                 ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'double ExactSum::iFastSum(double*, int)':
+ExactSum.cpp:61:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   61 |         ((str_double*)(&EPS))->exponent -= 53;
+      |         ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:64:10: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   64 |         ((str_double*)(&ev_d))->sign = 0;
+      |         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:71:18: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   71 |                 ((str_double*)(&s))->exponent
+      |                 ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:87:34: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   87 |                                 ((str_double*)(&s_t))->exponent
+      |                                 ~^~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:95:43: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   95 |                                 if(max < ((str_double*)&s_t)->exponent)
+      |                                          ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:96:48: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+   96 |                                         max = ((str_double*)&s_t)->exponent;
+      |                                               ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:103:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  103 |                         ((str_double*)(&ev_d))->exponent = max;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:115:22: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  115 |                 if (((str_double*)(&s))->exponent > 0)
+      |                     ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:26: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                         ~^~~~~~~~~~~~~~~~~~~~~~~~~
+ExactSum.cpp:117:65: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  117 |                         ((str_double*)(&half_ulp))->exponent = ((str_double*)(&s))->exponent;
+      |                                                                ~^~~~~~~~~~~~~~~~~~
+ExactSum.cpp:141:42: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  141 |                                         ((str_double*)(&s1))->mantissa_low |= 0x1;   // the Magnify function
+      |                                         ~^~~~~~~~~~~~~~~~~~~
+ExactSum.cpp: In member function 'void ExactSum::AddNumber(double)':
+ExactSum.cpp:240:16: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+  240 |         exp = ((str_double*)(&x))->exponent;
+      |               ~^~~~~~~~~~~~~~~~~~
+g++-12 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm -lquadmath \
+          -o xsum-time-zhu
+
+real	6m17.165s
+user	6m17.105s
+sys	0m0.061s
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-11 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-11 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-11 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-11 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-11 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-11 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	6m5.138s
+user	6m5.081s
+sys	0m0.057s
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-12 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-12 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-12 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-12 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-12 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-12 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	6m3.656s
+user	6m3.596s
+sys	0m0.060s
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-13 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-13 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-13 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-13 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-13 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-13 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m56.517s
+user	5m56.453s
+sys	0m0.061s
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-14 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-14 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-14 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-14 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-14 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-14 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m54.977s
+user	5m54.904s
+sys	0m0.072s
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-test.o xsum-test.c
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DDEBUG -c xsum.c -o xsum-debug.o
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o pbinary.o pbinary.c
+clang-15 xsum-test.o xsum-debug.o pbinary.o -lm -o xsum-test
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-time.o xsum-time.c
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum.o xsum.c
+clang-15 xsum-time.o xsum.o pbinary.o -lm -o xsum-time
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o xsum-check.o xsum-check.c
+clang-15 xsum-check.o xsum-debug.o pbinary.o -lm -o xsum-check
+clang-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY   -c -o show.o show.c
+clang-15 show.o pbinary.o -lm -o show
+cp xsum-time.c xsum-time-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-time-zhu.cpp
+rm xsum-time-zhu.cpp
+cp xsum.c xsum-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c xsum-zhu.cpp
+rm xsum-zhu.cpp
+cp pbinary.c pbinary-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY -DZHU -Drestrict="" -c pbinary-zhu.cpp
+rm pbinary-zhu.cpp
+clang++-15 -O3 -g -march=native -mtune=native -mfpmath=sse -fno-inline-functions -Wall -Wno-parentheses -DDOUBLE -DPBINARY  -c ExactSum.cpp
+clang++-15 xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o -lm \
+          -o xsum-time-zhu
+
+real	5m56.794s
+user	5m56.721s
+sys	0m0.072s
+Updated 1 path from the index
