@@ -1179,8 +1179,7 @@ xsum_flt xsum_small_round (xsum_small_accumulator *restrict sacc)
        the lowest chunk is non-zero.  If the highest non-zero chunk is the
        next-to-lowest, we check the magnitude of the absolute value.
        Note that the real exponent is 1 (not 0), so we need to shift right
-       by 1 here, which also means there will be no overflow from the left
-       shift below (but must view absolute value as unsigned). */
+       by 1 here. */
 
     if (i == 0)
     { intv = ivalue >= 0 ? ivalue : -ivalue;
@@ -2109,13 +2108,18 @@ xsum_flt xsum_small_div_unsigned
   { i -= 1;
   }
 
-  /* Do rounding, with separate approachs for normal and denormalized numbers.*/
+  /* Do rounding, with separate approachs for a normal number with biased
+     exponent greater than 1, and for a normal number with exponent of 1 
+     or a denormalized number (also having true biased exponent of 1). */
 
-  if (i > 1 || tacc.chunk[1] >= (1 << XSUM_HIGH_MANTISSA_BITS))
+  if (i > 1 || tacc.chunk[1] >= (1 << (XSUM_HIGH_MANTISSA_BITS+1)))
   {
-    /* Normalized number.  Remainder is far below lowest bit, so just need
-       to 'or' in a 1 at the bottom if remainder is non-zero to break a tie
-       if higher bits below bottom of mantissa are exactly 1/2. */
+    /* Normalized number with at least two bits at bottom of chunk 0
+       below the mantissa.  Just need to 'or' in a 1 at the bottom if
+       remainder is non-zero to break a tie if bits below bottom of
+       mantissa are exactly 1/2. */
+
+    if (xsum_debug) printf("normalized (2+ bits below), remainder %u\n",rem);
 
     if (rem > 0)
     { tacc.chunk[0] |= 1;
@@ -2123,26 +2127,33 @@ xsum_flt xsum_small_div_unsigned
   }
   else
   {
-    /* Denormalized number.  Lowest bit of bottom chunk is just below lowest
-       bit of mantissa.  Denormalized numbers do not have any rounding done,
-       so need to explicitly round here using the bottom bit and the
-       remainder - round up if lower > 1/2 or >= 1/2 and odd. */
+    /* Denormalized number or normal number with biased exponent of 1.
+       Lowest bit of bottom chunk is just below lowest bit of
+       mantissa.  Need to explicitly round here using the bottom bit
+       and the remainder - round up if lower > 1/2 or >= 1/2 and
+       odd. */
+
+    if (xsum_debug) printf("denormalized, remainder %u\n",rem);
 
     if (tacc.chunk[0] & 1)  /* lower part is >= 1/2 */
     {
       if (tacc.chunk[0] & 2)  /* lowest bit of mantissa is 1 (odd) */
-      { tacc.chunk[0] += 2;     /* round up; may become normalized; that's OK */
+      { tacc.chunk[0] += 2;     /* round up */
       }
       else                    /* lowest bit of mantissa is 0 (even) */
       { if (rem > 0)            /* lower part is > 1/2 */
         { tacc.chunk[0] += 2;     /* round up */
         }
       }
+
+      tacc.chunk[0] &= ~1;  /* clear low bit (but should anyway be ignored) */
     }
   }
 
   if (xsum_debug)
-  { printf("New low chunk after adjusting to correct rounding %u:\n\n",rem);
+  { printf(
+     "New low chunk after adjusting to correct rounding with remainder %u:\n\n",
+      rem);
     pbinary_int64 (tacc.chunk[0], XSUM_SCHUNK_BITS);
   }
 

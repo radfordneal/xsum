@@ -81,6 +81,12 @@ xsum_flt one_term[] = {
   4.57e-314,
   9.7e-322,
   Sdenorm/pow2_64/2,
+  Ldenorm-Sdenorm,
+  Ldenorm-2*Sdenorm,
+  2*Ldenorm,                              /* Some small normalized numbers */
+  2*Ldenorm+2*Sdenorm,
+  Snormal+Sdenorm,
+  Snormal+2*Sdenorm,
 };
 
 /* Tests with two terms.  Answer should match ordinary floating point add. 
@@ -445,16 +451,26 @@ int main (int argc, char **argv)
      as intended. */
 
   if (0)
-  { printf("1:\n  "); pbinary_double(1.0); printf("\n");
-    printf("pow2_16:\n  "); pbinary_double(pow2_16); printf("\n");
-    printf("pow2_52:\n  "); pbinary_double(pow2_52); printf("\n");
-    printf("1/pow2_52:\n  "); pbinary_double(1/pow2_52); printf("\n");
-    printf("pow2_1024:\n  "); pbinary_double(pow2_1024); printf("\n");
-    printf("Lnormal:\n  "); pbinary_double(Lnormal); printf("\n");
-    printf("Snormal:\n  "); pbinary_double(Snormal); printf("\n");
-    printf("Ldenorm:\n  "); pbinary_double(Ldenorm); printf("\n");
-    printf("Sdenorm:\n  "); pbinary_double(Sdenorm); printf("\n");
-    printf("(1L<<55)+8.0:\n  "); pbinary_double((1L<<55)+8.0); printf("\n");
+  { printf("1: %.17g\n  ",1.0);
+    pbinary_double(1.0); printf("\n");
+    printf("pow2_16: %.17g\n  ",pow2_16);
+    pbinary_double(pow2_16); printf("\n");
+    printf("pow2_52: %.17g\n  ",pow2_52);
+    pbinary_double(pow2_52); printf("\n");
+    printf("1/pow2_52: %.17g\n  ",1/pow2_52);
+    pbinary_double(1/pow2_52); printf("\n");
+    printf("pow2_1024: %.17g\n  ",pow2_1024);
+    pbinary_double(pow2_1024); printf("\n");
+    printf("Lnormal: %.17g\n  ",Lnormal);
+    pbinary_double(Lnormal); printf("\n");
+    printf("Snormal: %.17g\n  ",Snormal);
+    pbinary_double(Snormal); printf("\n");
+    printf("Ldenorm: %.17g\n  ",Ldenorm);
+    pbinary_double(Ldenorm); printf("\n");
+    printf("Sdenorm: %.17g\n  ",Sdenorm);
+    pbinary_double(Sdenorm); printf("\n");
+    printf("(1L<<55)+8.0: %.17g\n  ",(1L<<55)+8.0);
+    pbinary_double((1L<<55)+8.0); printf("\n");
     printf("\n");
   }
 
