@@ -157,23 +157,32 @@ null device
 +   thinkstation_clang_14_0_0 = read_times ("results-thinkstation-clang-14.0.0"),
 +   thinkstation_clang_15_0_7 = read_times ("results-thinkstation-clang-15.0.7")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > thinkstation <- eval (as.call (c (find_min_times, thinkstation_results)))
 Compilations with minimum for 1000 terms:
        sum                         norm                       
-sacc   "thinkstation_clang_14_0_0" "thinkstation_clang_14_0_0"
-lacc   "thinkstation_clang_11_1_0" "thinkstation_clang_11_1_0"
-ifast  "thinkstation_gcc_11_4_0"   "thinkstation_gcc_9_5_0"   
+sacc   "thinkstation_clang_13_0_1" "thinkstation_clang_13_0_1"
+lacc   "thinkstation_gcc_10_5_0"   "thinkstation_gcc_12_3_0"  
+ifast  "thinkstation_gcc_12_3_0"   "thinkstation_gcc_9_5_0"   
 online "thinkstation_clang_14_0_0" "thinkstation_gcc_9_5_0"   
-dbl    "thinkstation_gcc_9_5_0"    "thinkstation_gcc_9_5_0"   
-udbl   "thinkstation_gcc_9_5_0"    "thinkstation_clang_12_0_1"
+dbl    "thinkstation_clang_11_1_0" "thinkstation_clang_11_1_0"
+udbl   "thinkstation_clang_11_1_0" "thinkstation_clang_11_1_0"
        dot                        
-sacc   "thinkstation_clang_14_0_0"
-lacc   "thinkstation_clang_14_0_0"
+sacc   "thinkstation_clang_13_0_1"
+lacc   "thinkstation_clang_12_0_1"
 ifast  "thinkstation_gcc_9_5_0"   
 online "thinkstation_gcc_9_5_0"   
-dbl    "thinkstation_clang_12_0_1"
-udbl   "thinkstation_clang_12_0_1"
+dbl    "thinkstation_clang_11_1_0"
+udbl   "thinkstation_clang_11_1_0"
 > 
 > for (task in c("sum","norm","dot"))
 + {
@@ -209,20 +218,29 @@ udbl   "thinkstation_clang_12_0_1"
 +   thinkstation_clang_15_0_7 =
 +      read_times ("results-thinkstation-clang-15.0.7-no-opt")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > thinkstation_no_opt <- 
 +   eval (as.call (c (find_min_times, thinkstation_no_opt_results)))
 Compilations with minimum for 1000 terms:
        sum                         norm                       
-sacc   "thinkstation_clang_11_1_0" "thinkstation_clang_11_1_0"
-lacc   "thinkstation_clang_14_0_0" "thinkstation_gcc_9_5_0"   
+sacc   "thinkstation_clang_13_0_1" "thinkstation_clang_11_1_0"
+lacc   "thinkstation_gcc_9_5_0"    "thinkstation_clang_14_0_0"
 ifast  "thinkstation_gcc_11_4_0"   "thinkstation_gcc_9_5_0"   
-online "thinkstation_clang_14_0_0" "thinkstation_gcc_9_5_0"   
+online "thinkstation_clang_11_1_0" "thinkstation_gcc_9_5_0"   
 dbl    "thinkstation_gcc_9_5_0"    "thinkstation_gcc_9_5_0"   
-udbl   "thinkstation_gcc_9_5_0"    "thinkstation_gcc_11_4_0"  
+udbl   "thinkstation_gcc_9_5_0"    "thinkstation_gcc_9_5_0"   
        dot                        
 sacc   "thinkstation_clang_11_1_0"
-lacc   "thinkstation_clang_12_0_1"
+lacc   "thinkstation_gcc_9_5_0"   
 ifast  "thinkstation_gcc_9_5_0"   
 online "thinkstation_gcc_9_5_0"   
 dbl    "thinkstation_gcc_9_5_0"   
@@ -266,16 +284,25 @@ null device
 +   T5820_clang_14_0_0 = read_times ("results-T5820-clang-14.0.0"),
 +   T5820_clang_15_0_7 = read_times ("results-T5820-clang-15.0.7")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > T5820 <- eval (as.call (c (find_min_times, T5820_results)))
 Compilations with minimum for 1000 terms:
        sum                  norm                 dot                 
-sacc   "T5820_clang_12_0_1" "T5820_gcc_12_3_0"   "T5820_gcc_12_3_0"  
-lacc   "T5820_clang_11_1_0" "T5820_clang_12_0_1" "T5820_clang_15_0_7"
-ifast  "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+sacc   "T5820_clang_11_1_0" "T5820_clang_11_1_0" "T5820_clang_12_0_1"
+lacc   "T5820_gcc_9_5_0"    "T5820_gcc_12_3_0"   "T5820_clang_14_0_0"
+ifast  "T5820_clang_11_1_0" "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
 online "T5820_gcc_12_3_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
-dbl    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
-udbl   "T5820_clang_12_0_1" "T5820_clang_14_0_0" "T5820_gcc_9_5_0"   
+dbl    "T5820_gcc_11_4_0"   "T5820_gcc_9_5_0"    "T5820_gcc_11_4_0"  
+udbl   "T5820_clang_15_0_7" "T5820_clang_14_0_0" "T5820_gcc_9_5_0"   
 > 
 > for (task in c("sum","norm","dot"))
 + {
@@ -311,17 +338,26 @@ udbl   "T5820_clang_12_0_1" "T5820_clang_14_0_0" "T5820_gcc_9_5_0"
 +   T5820_clang_15_0_7 =
 +      read_times ("results-T5820-clang-15.0.7-no-opt")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > T5820_no_opt <- 
 +   eval (as.call (c (find_min_times, T5820_no_opt_results)))
 Compilations with minimum for 1000 terms:
        sum                  norm                 dot                 
-sacc   "T5820_gcc_12_3_0"   "T5820_clang_13_0_1" "T5820_gcc_9_5_0"   
-lacc   "T5820_clang_11_1_0" "T5820_clang_15_0_7" "T5820_clang_14_0_0"
-ifast  "T5820_gcc_11_4_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
+sacc   "T5820_clang_13_0_1" "T5820_clang_11_1_0" "T5820_clang_11_1_0"
+lacc   "T5820_clang_14_0_0" "T5820_clang_14_0_0" "T5820_clang_14_0_0"
+ifast  "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
 online "T5820_gcc_12_3_0"   "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
-dbl    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"    "T5820_gcc_9_5_0"   
-udbl   "T5820_clang_13_0_1" "T5820_clang_15_0_7" "T5820_gcc_9_5_0"   
+dbl    "T5820_clang_15_0_7" "T5820_clang_14_0_0" "T5820_clang_14_0_0"
+udbl   "T5820_clang_15_0_7" "T5820_clang_14_0_0" "T5820_clang_14_0_0"
 > 
 > for (task in c("sum","norm","dot"))
 + {
@@ -361,16 +397,25 @@ null device
 +   hpms10_clang_14_0_0 = read_times ("results-hpms10-clang-14.0.0"),
 +   hpms10_clang_15_0_7 = read_times ("results-hpms10-clang-15.0.7")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > hpms10 <- eval (as.call (c (find_min_times, hpms10_results)))
 Compilations with minimum for 1000 terms:
        sum                   norm                  dot                  
-sacc   "hpms10_clang_11_1_0" "hpms10_clang_14_0_0" "hpms10_clang_12_0_1"
-lacc   "hpms10_clang_11_1_0" "hpms10_clang_11_1_0" "hpms10_clang_11_1_0"
-ifast  "hpms10_clang_12_0_1" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
-online "hpms10_clang_14_0_0" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
+sacc   "hpms10_clang_11_1_0" "hpms10_clang_12_0_1" "hpms10_clang_11_1_0"
+lacc   "hpms10_gcc_11_4_0"   "hpms10_gcc_12_3_0"   "hpms10_clang_11_1_0"
+ifast  "hpms10_clang_11_1_0" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
+online "hpms10_clang_11_1_0" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
 dbl    "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
-udbl   "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_11_4_0"  
+udbl   "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
 > 
 > for (task in c("sum","norm","dot"))
 + {
@@ -406,15 +451,24 @@ udbl   "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_11_4_0"
 +   hpms10_clang_15_0_7 =
 +      read_times ("results-hpms10-clang-15.0.7-no-opt")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > hpms10_no_opt <- 
 +   eval (as.call (c (find_min_times, hpms10_no_opt_results)))
 Compilations with minimum for 1000 terms:
        sum                   norm                  dot                  
-sacc   "hpms10_clang_11_1_0" "hpms10_clang_14_0_0" "hpms10_clang_11_1_0"
-lacc   "hpms10_gcc_12_3_0"   "hpms10_gcc_12_3_0"   "hpms10_gcc_10_5_0"  
+sacc   "hpms10_clang_14_0_0" "hpms10_clang_11_1_0" "hpms10_clang_11_1_0"
+lacc   "hpms10_gcc_11_4_0"   "hpms10_gcc_12_3_0"   "hpms10_gcc_12_3_0"  
 ifast  "hpms10_clang_12_0_1" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
-online "hpms10_clang_12_0_1" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
+online "hpms10_clang_15_0_7" "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
 dbl    "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"   
 udbl   "hpms10_gcc_9_5_0"    "hpms10_gcc_9_5_0"    "hpms10_gcc_11_4_0"  
 > 
@@ -456,16 +510,25 @@ null device
 +   T3650_clang_14_0_0 = read_times ("results-T3650-clang-14.0.0"),
 +   T3650_clang_15_0_7 = read_times ("results-T3650-clang-15.0.7")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > T3650 <- eval (as.call (c (find_min_times, T3650_results)))
 Compilations with minimum for 1000 terms:
        sum                norm                 dot                 
 sacc   "T3650_gcc_12_3_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"  
-lacc   "T3650_gcc_9_5_0"  "T3650_clang_12_0_1" "T3650_clang_11_1_0"
+lacc   "T3650_gcc_11_4_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"  
 ifast  "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
-online "T3650_gcc_11_4_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+online "T3650_gcc_12_3_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
 dbl    "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
-udbl   "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+udbl   "T3650_gcc_11_4_0" "T3650_clang_11_1_0" "T3650_clang_11_1_0"
 > 
 > for (task in c("sum","norm","dot"))
 + {
@@ -501,17 +564,26 @@ udbl   "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"
 +   T3650_clang_15_0_7 =
 +      read_times ("results-T3650-clang-15.0.7-no-opt")
 + )
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
+Read 98 items
 > 
 > T3650_no_opt <- 
 +   eval (as.call (c (find_min_times, T3650_no_opt_results)))
 Compilations with minimum for 1000 terms:
-       sum                norm                 dot               
-sacc   "T3650_gcc_12_3_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"
-lacc   "T3650_gcc_9_5_0"  "T3650_clang_13_0_1" "T3650_gcc_12_3_0"
-ifast  "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
-online "T3650_gcc_11_4_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
-dbl    "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
-udbl   "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0" 
+       sum                norm                 dot                 
+sacc   "T3650_gcc_12_3_0" "T3650_gcc_12_3_0"   "T3650_gcc_12_3_0"  
+lacc   "T3650_gcc_9_5_0"  "T3650_clang_11_1_0" "T3650_gcc_12_3_0"  
+ifast  "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+online "T3650_gcc_11_4_0" "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+dbl    "T3650_gcc_9_5_0"  "T3650_gcc_9_5_0"    "T3650_gcc_9_5_0"   
+udbl   "T3650_gcc_11_4_0" "T3650_clang_11_1_0" "T3650_clang_11_1_0"
 > 
 > for (task in c("sum","norm","dot"))
 + {
