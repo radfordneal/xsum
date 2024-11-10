@@ -2092,7 +2092,7 @@ xsum_flt xsum_small_div_unsigned
   rem = 0;
   for (j = i; j>=0; j--)
   { xsum_uint num = ((xsum_uint) rem << XSUM_LOW_MANTISSA_BITS) + tacc.chunk[j];
-    unsigned quo = num / div;
+    xsum_uint quo = num / div;
     rem = num - quo*div;
     tacc.chunk[j] = quo;
   }
