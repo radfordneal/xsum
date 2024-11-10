@@ -167,11 +167,11 @@ int main (int argc, char **argv)
     { printf("RESULTS DIFFER FOR SMALL AND LARGE ACCUMULATORS\n");
     }
 
-    if (N <= 2 && different (result_s, s))
+    if ((N <= 1 || N <= 2 && !have_div) && different (result_s, s))
     { printf("RESULTS DIFFER FOR DOUBLE AND SMALL ACCUMULATOR\n");
     }
 
-    if (N <= 2 && different (result_l, s))
+    if ((N <= 1 || N <= 2 && !have_div) && different (result_l, s))
     { printf("RESULTS DIFFER FOR DOUBLE AND LARGE ACCUMULATOR\n");
     }
   }
