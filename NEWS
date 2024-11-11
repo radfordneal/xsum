@@ -1,12 +1,5 @@
 Significant changes in the current development version:
 
-  Added a number of new tests for correctness.  Some new timing
-  results are now in the newer-results2 directory.
-
-  Fixed a bug in the xsum_small_add_dot function that would sometimes
-  lead to a term in the dot product being omitted.  This bug did not
-  affect xsum_large_add_dot.
-
   Fixed a bug in the rounding of a superaccumulator to a double FP
   value (reported by Jan Štola as issue #1).  The effect of the bug
   was that rounding was incorrect when the correctly-rounded result is
@@ -16,6 +9,26 @@ Significant changes in the current development version:
   point value below the correct rounding (i.e., the floating-point
   number of the other side of the exact value than the correct rounding).
   This incorrectly caused overflow in the case of -DBL_MAX - 1.
+
+  Fixed a bug in the xsum_small_add_dot function that would sometimes
+  lead to a term in the dot product being omitted.  This bug did not
+  affect xsum_large_add_dot.
+
+  Added a number of new tests for correctness.  
+
+  Added new functions for returning the exactly-rounded result of
+  dividing a superaccumulator by a signed or unsigned 32-bit integer.
+  This can be used to produce the exactly-rounded mean of a list of
+  double values (no more than 2^32-1 of them).  See api-doc for details.
+
+  Revised the manually-optimized code sections, to work better with
+  modern processors and compilers.  Also added some (optional) code
+  that uses SIMD intrinsics (AVX/SSE) to perhaps speed up some parts.
+  These manual optimizations typically produce a small benefit when
+  comparing the best results for several compilers, and also reduce
+  the variance seen with different compiler versions.
+
+  Some new timing results are now in the newer-results2 directory.
 
 Significant changes in version of 2021-05-17 (tagged as stable-version-2):
 
