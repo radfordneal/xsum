@@ -292,6 +292,8 @@ Sdenorm, Snormal, -Sdenorm, Snormal,
 12345.6, Ldenorm, -12345.6, Ldenorm,
 12345.6, -Ldenorm, -12345.6, -Ldenorm,
 2.0, -2.0*(1+pow2_52), pow2_52/8, -2*pow2_52+pow2_52/8,
+1, pow2_52/2, 0, 1,
+1, pow2_52/2, pow2_52/4, 1+pow2_52,
 1.0, 0.0, 0.0, 1.0,
 -1.0, -0.0, -0.0, -1.0,
 0.0, 0.0, 0.0, 0.0,
@@ -352,6 +354,37 @@ float dot_term[] = {
   0.0f, 2.0f,
   12.2f, 1.1e-20f,
   5.5e15f, -4.1,
+};
+
+/* Tests for division with three terms and divisor, followed by result. */
+
+xsum_flt three_term_div[] = {
+  2, 0.00000002,   -1, 7, 0.1428571457142857049,
+  2, 0.000000002,  -1, 7, 0.1428571431428571348,
+  2, 0.0000000021, -1, 7, 0.1428571431571428463,
+  1, pow2_52/2, 0, 1, 1,
+  1, pow2_52/2, Sdenorm, 1, 1+pow2_52,
+  1+pow2_52, pow2_52/2, 0, 1, 1+2*pow2_52,
+  1+pow2_52, pow2_52/2, Sdenorm, 1, 1+2*pow2_52,
+  1, pow2_52/2, 0, 2, 0.5,
+  1, pow2_52/2, Sdenorm, 2, (1+pow2_52)/2,
+  1+pow2_52, pow2_52/2, 0, 2, (1+2*pow2_52)/2,
+  1+pow2_52, pow2_52/2, Sdenorm, 2, (1+2*pow2_52)/2,
+  1, pow2_52/2, 0, 4, 0.25,
+  1, pow2_52/2, Sdenorm, 4, (1+pow2_52)/4,
+  1+pow2_52, pow2_52/2, 0, 4, (1+2*pow2_52)/4,
+  1+pow2_52, pow2_52/2, Sdenorm, 4, (1+2*pow2_52)/4,
+  256*Sdenorm, 0, Sdenorm, 2, 128*Sdenorm,
+  256*Sdenorm, 2*Sdenorm, Sdenorm, 2, 128*Sdenorm+2*Sdenorm,
+  768*Sdenorm, 0, Sdenorm, 3, 256*Sdenorm,
+  768*Sdenorm, Sdenorm, Sdenorm, 3, 256*Sdenorm+Sdenorm,
+  768*Sdenorm, 24*Sdenorm, Sdenorm, 3, 256*Sdenorm+8*Sdenorm,
+  768*Sdenorm, 24*Sdenorm, 2*Sdenorm, 3, 256*Sdenorm+9*Sdenorm,
+  256*Sdenorm, 16*Sdenorm, 4*Sdenorm, 8, 32*Sdenorm+2*Sdenorm,
+  256*Sdenorm, 16*Sdenorm, 5*Sdenorm, 8, 32*Sdenorm+3*Sdenorm,
+  256*Sdenorm, 32*Sdenorm, 9*Sdenorm, 8, 32*Sdenorm+4*Sdenorm+Sdenorm,
+  256*Sdenorm, 32*Sdenorm, 12*Sdenorm, 8, 32*Sdenorm+4*Sdenorm+2*Sdenorm,
+  256*Sdenorm, 32*Sdenorm, 4*Sdenorm, 8, 32*Sdenorm+4*Sdenorm,
 };
 
 #if 1
@@ -1788,6 +1821,53 @@ int main (int argc, char **argv)
       }
       sign = -sign;
     } while (sign == -1);
+  }
+
+  printf("\n%c: TESTS OF DIVISION WITH THREE TERMS\n",++section);
+
+  for (i = 0; i < sizeof three_term_div / sizeof *three_term_div; i += 5)
+  {
+    int sign_num, sign_denom;
+
+    if (echo) 
+    { printf(" \n-- TEST %2d: %.16le %.16le %.16le / %ld\n", i/5, 
+       three_term_div[i], three_term_div[i+1], three_term_div[i+2],
+       (long)three_term_div[i+3]);
+      printf("   ANSWER:  %.16le\n", three_term_div[i+4]);
+    }
+
+    xsum_debug = debug_all || debug_letter==section && debug_number==i/5;
+
+    sign_num = 1;
+    do
+    { sign_denom = 1;
+      do 
+      { 
+        long div = sign_denom * three_term_div[i+3];
+        if (div < INT_MIN)
+        { continue;
+        }
+
+        xsum_flt res = sign_num*sign_denom*three_term_div[i+4];
+
+        xsum_small_init (&sacc);
+        xsum_small_add1 (&sacc, sign_num*three_term_div[i]);
+        xsum_small_add1 (&sacc, sign_num*three_term_div[i+1]);
+        xsum_small_add1 (&sacc, sign_num*three_term_div[i+2]);
+
+        small_div_result (&sacc, res, div, i/5);
+
+        xsum_large_init (&lacc);
+        xsum_large_add1 (&lacc, sign_num*three_term_div[i]);
+        xsum_large_add1 (&lacc, sign_num*three_term_div[i+1]);
+        xsum_large_add1 (&lacc, sign_num*three_term_div[i+2]);
+
+        large_div_result (&lacc, res, div, i/5);
+
+        sign_denom = -sign_denom;
+      } while (sign_denom == -1);
+      sign_num = -sign_num;
+    } while (sign_num == -1);
   }
   
   printf("\nDONE\n\n");
