@@ -385,6 +385,9 @@ xsum_flt three_term_div[] = {
   256*Sdenorm, 32*Sdenorm, 9*Sdenorm, 8, 32*Sdenorm+4*Sdenorm+Sdenorm,
   256*Sdenorm, 32*Sdenorm, 12*Sdenorm, 8, 32*Sdenorm+4*Sdenorm+2*Sdenorm,
   256*Sdenorm, 32*Sdenorm, 4*Sdenorm, 8, 32*Sdenorm+4*Sdenorm,
+  4*Snormal, 11*Sdenorm, 0, 4, Snormal+3*Sdenorm,
+  4*Snormal, 10*Sdenorm, 0, 4, Snormal+2*Sdenorm,
+  4*Snormal, 14*Sdenorm, 0, 4, Snormal+4*Sdenorm,
 };
 
 #if 1

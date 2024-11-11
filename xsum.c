@@ -2112,14 +2112,17 @@ xsum_flt xsum_small_div_unsigned
      exponent greater than 1, and for a normal number with exponent of 1 
      or a denormalized number (also having true biased exponent of 1). */
 
-  if (i > 1 || tacc.chunk[1] >= (1 << (XSUM_HIGH_MANTISSA_BITS+1)))
+  if (i > 1 || tacc.chunk[1] >= (1 << (XSUM_HIGH_MANTISSA_BITS+2)))
   {
     /* Normalized number with at least two bits at bottom of chunk 0
        below the mantissa.  Just need to 'or' in a 1 at the bottom if
        remainder is non-zero to break a tie if bits below bottom of
        mantissa are exactly 1/2. */
 
-    if (xsum_debug) printf("normalized (2+ bits below), remainder %u\n",rem);
+    if (xsum_debug) 
+    { printf("normalized (2+ bits below), low %016lx %016lx, remainder %u\n",
+              tacc.chunk[1],tacc.chunk[0],rem);
+    }
 
     if (rem > 0)
     { tacc.chunk[0] |= 1;
@@ -2133,7 +2136,16 @@ xsum_flt xsum_small_div_unsigned
        and the remainder - round up if lower > 1/2 or >= 1/2 and
        odd. */
 
-    if (xsum_debug) printf("denormalized, remainder %u\n",rem);
+    if (xsum_debug)
+    { if (tacc.chunk[1] >= (1 << (XSUM_HIGH_MANTISSA_BITS+1)))
+      { printf("small normalized, low %016lx %016lx, remainder %u\n",
+                tacc.chunk[1],tacc.chunk[0],rem);
+      }
+      else
+      { printf("denormalized, low %016lx %016lx, remainder %u\n",
+                tacc.chunk[1],tacc.chunk[0],rem);
+      }
+    }
 
     if (tacc.chunk[0] & 1)  /* lower part is >= 1/2 */
     {
