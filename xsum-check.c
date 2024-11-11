@@ -71,6 +71,7 @@ xsum_flt one_term[] = {
   3.2e-10,
   123e123,
   54.11e-150,
+  8191.99999809264955,
   2*((.5/pow2_128)+(.25/pow2_128)*pow2_52),
   2*((.5/pow2_128)-(.25/pow2_128)*pow2_52),  /* Mantissa all 1s */
   Lnormal,                                /* Largest normal number */

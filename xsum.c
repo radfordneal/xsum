@@ -2089,6 +2089,11 @@ xsum_flt xsum_small_div_unsigned
   /* Do the division in the small accumulator, putting the remainder after
      dividing the bottom chunk in 'rem'. */
 
+  if (xsum_debug)
+  { printf("\nBefore division by %u: ",div);
+    xsum_small_display (&tacc);
+  }
+
   rem = 0;
   for (j = i; j>=0; j--)
   { xsum_uint num = ((xsum_uint) rem << XSUM_LOW_MANTISSA_BITS) + tacc.chunk[j];
