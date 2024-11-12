@@ -25,6 +25,11 @@ xsum-check.o:	xsum-check.c xsum.h pbinary.h
 xsum-time.o:	xsum-time.c xsum.h pbinary.h
 xsum.o:		xsum.c xsum.h pbinary.h
 
+double-utils.o: double-utils.c
+shewchuk.o: shewchuk.c double-utils.h
+addition-with-bigints.o: addition-with-bigints.c double-utils.h
+fuzz.o: fuzz.c shewchuk.h addition-with-bigints.h double-utils.h xsum.h
+
 ExactSum.o:	ExactSum.cpp ExactSum.h
 	$(CPP) $(CFLAGS) $(ZHUFLAGS) -c ExactSum.cpp
 
@@ -57,3 +62,8 @@ xsum-time:	xsum-time.o xsum.o pbinary.o
 xsum-time-zhu:	xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o
 	$(LDCPP) xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o $(LDLIBS) \
 	          -o xsum-time-zhu
+
+fuzz:	fuzz.o shewchuk.o addition-with-bigints.o double-utils.o xsum.o \
+		pbinary.o
+	$(LDC) fuzz.o shewchuk.o addition-with-bigints.o double-utils.o xsum.o \
+		pbinary.o $(LDLIBS) -o fuzz
