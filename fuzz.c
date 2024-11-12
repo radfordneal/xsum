@@ -1,7 +1,12 @@
 /*
-Fuzz xsum against Shewchuck and addition-with-bigints.
-Does not check -Infinity / Infinity / NaN in inputs.
-Also does not check the case where inputs are all -0.
+  Fuzz xsum against Shewchuck and addition-with-bigints.
+  Does not check -Infinity / Infinity / NaN in inputs.
+  Also does not check the case where inputs are all -0.
+  Checks only summation, not vector norm, dot product, or division.
+
+    Usage: fuzz iterations [ seed ]
+
+  If seed is absent, it is set from the time. 
 */
 
 /* Copyright 2024 Kevin Gibbons
@@ -26,6 +31,9 @@ Also does not check the case where inputs are all -0.
    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/* Radford Neal, Nov. 2024:  Added command-line options to set the number
+   of iterations and to set the seed. */
+
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
@@ -36,7 +44,30 @@ Also does not check the case where inputs are all -0.
 #include "addition-with-bigints.h"
 #include "xsum.h"
 
-int main() {
+static void usage(void) 
+{ fprintf(stderr,"Usage: fuzz iterations [ seed ]\n");
+  exit(1);
+}
+
+int main(int argc, char **argv) {
+
+  long iterations;
+  double iters;
+  char junk;
+
+  if (argc != 2 && argc != 3) usage();
+
+  if (sscanf(argv[1],"%lf%c",&iters,&junk) != 1 
+       || (iterations=(long)iters) != iters || iterations < 0) usage();
+
+  int seed = time(NULL);
+  if (argc > 2)
+  { if (sscanf(argv[2],"%d%c",&seed,&junk) != 1 || seed <= 0) usage();
+  }
+
+  printf("iterations: %ld, seed: %d\n", iterations, seed);
+  srand(seed);
+
   xsum_small_accumulator sacc;
   xsum_large_accumulator lacc;
 
@@ -46,12 +77,8 @@ int main() {
   bigint bigint_sum;
   bigint bigint_addend;
 
-  int seed = time(NULL);
-  printf("seed: %d\n", seed);
-  srand(seed);
-
   double addends[10];
-  for (int i = 0; i < 1e6; ++i) {
+  for (long i = 0; i < iterations; ++i) {
     xsum_small_init(&sacc);
     xsum_large_init(&lacc);
     shewchuk_reinit(&adder);

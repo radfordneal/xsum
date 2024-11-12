@@ -7,11 +7,19 @@ Source repository is at gitlab.com/radfordneal/xsum
 See NEWS for information on release history.
 
 
-These routines and programs implement the methods described in the
+This software allows exact summation of double-precision (FP64)
+floating-point values, storing the sum in a "superaccumulator", with
+the final sum then being rounded to the closest double-precision
+representation of the sum.  Specialized versions of the summation
+functions for computing vector norms and dot products are also
+provided.  Functions for finding the exact rouding of a
+superaccumulator divided by an integer are also provided.
+
+These methods (except the division functions) are described in the
 paper "Fast Exact Summation Using Small and Large Superaccumulators",
 by Radford M. Neal, available at https://arxiv.org/abs/1505.05571 (and
-also here as xsum-paper.pdf), and can be used to reproduce the results
-therein.  The routines may also be of practical use.
+also here as xsum-paper.pdf).  The software here and can be used to
+reproduce the results therein.
 
 The routines and programs are licensed under the "MIT" license, which
 is in the file "LICENSE".
@@ -21,9 +29,9 @@ See the 'api-doc' file for documentation on how to use the routines in
 an application program.
 
 
-The various test and timing programs can be built using one of the
-several Makefiles included.  For instance, the following should work
-on Intel/AMD Linux systems with gcc installed:
+Various test and timing programs can be built using one of the several
+Makefiles included.  For instance, the following should work on
+Intel/AMD Linux systems with gcc installed:
 
     make -f Makefile-gcc-intel
 
@@ -37,6 +45,9 @@ performance.
 
 It may be best to make the programs using the "compile" script
 described below, rather than use "make" directly.
+
+The "fuzz" target for make will make a fuzzer program for testing,
+written by Kevin Gibbons.  See comments in fuzz.c for how to use it.
 
 The xsum-check program does automatic correctness checks.  The
 xsum-test program can be used to test the functions manually.  The
@@ -72,5 +83,5 @@ results are in corresponding files named results-xxx-ccc, where ccc is
 the compiler used.  The plots in the paper are also there, produced by
 the plots.r script.
 
-The directory newer-results contains results of more recent timing
-tests, similarly to paper-results.
+The directories newer-results and newer-results2 contain results of
+more recent timing tests, similarly to paper-results.

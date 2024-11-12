@@ -60,3 +60,8 @@ xsum-time:	xsum-time.o xsum.o pbinary.o
 xsum-time-zhu:	xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o
 	$(LDCPP) xsum-time-zhu.o xsum-zhu.o pbinary-zhu.o ExactSum.o $(LDLIBS) \
 	          -o xsum-time-zhu
+
+fuzz:	fuzz.o shewchuk.o addition-with-bigints.o double-utils.o xsum.o \
+		pbinary.o
+	$(LDC) fuzz.o shewchuk.o addition-with-bigints.o double-utils.o xsum.o \
+		pbinary.o $(LDLIBS) -o fuzz
