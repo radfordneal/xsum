@@ -14,7 +14,10 @@ Significant changes in the current development version:
   lead to a term in the dot product being omitted.  This bug did not
   affect xsum_large_add_dot.
 
-  Added a number of new tests for correctness.  
+  Added a number of new tests for correctness to xsum-check.
+
+  Added a "fuzzer" for additional testing of the exact summation
+  routines, contributed by Kevin Gibbons.
 
   Added new functions for returning the exactly-rounded result of
   dividing a superaccumulator by a signed or unsigned 32-bit integer.
