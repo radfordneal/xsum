@@ -214,9 +214,9 @@ static NOINLINE int xsum_carry_propagate (xsum_small_accumulator *restrict sacc)
         { goto found;
         }
         u -= 4;
-        if (u < 0)
-        { break;
-        }
+        if (u < 0)  /* never actually happens, because value of XSUM_SCHUNKS */
+        { break;    /*   is such that u < 0 occurs at end of do loop instead */
+        }         
         ch = _mm256_loadu_si256 ((__m256i *)(sacc->chunk+u-3));
         if (!_mm256_testz_si256(ch,ch))
         { goto found;
