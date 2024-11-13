@@ -1666,6 +1666,30 @@ int main (int argc, char **argv)
   xsum_large_add_sqnorm (&lacc, seq1, 8);
   large_result(&lacc,60.0,tstno);
 
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_sqnorm (&sacc, seq1, 1);
+  small_result(&sacc,seq1[0]*seq1[0],tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_sqnorm (&lacc, seq1, 1);
+  large_result(&lacc,seq1[0]*seq1[0],tstno);
+
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_sqnorm (&sacc, seq1, 0);
+  small_result(&sacc,0.0,tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_sqnorm (&lacc, seq1, 0);
+  large_result(&lacc,0.0,tstno);
+
   printf("\n%c: TESTS OF DOT PRODUCT\n",++section);
 
   tstno = 0;
@@ -1754,6 +1778,30 @@ int main (int argc, char **argv)
   xsum_large_add_dot (&lacc, seq1, seq2, 9);
   xsum_large_add_dot (&lacc, seq1, seq2, 9);
   large_result (&lacc, 2*(12340.0+12400.0-4.0+0.25), tstno);
+
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_dot (&sacc, seq1, seq2, 1);
+  small_result (&sacc, seq1[0]*seq2[0], tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_dot (&lacc, seq1, seq2, 1);
+  large_result (&lacc, seq1[0]*seq2[0], tstno);
+
+  tstno += 1;
+
+  xsum_debug = debug_all || debug_letter==section && debug_number==tstno;
+
+  xsum_small_init (&sacc);
+  xsum_small_add_dot (&sacc, seq1, seq2, 0);
+  small_result (&sacc, 0.0, tstno);
+
+  xsum_large_init (&lacc);
+  xsum_large_add_dot (&lacc, seq1, seq2, 0);
+  large_result (&lacc, 0.0, tstno);
 
   printf("\n%c: TESTS OF DIVISION OF ONE TERM BY VARIOUS DIVISORS\n",++section);
 
