@@ -1,4 +1,4 @@
-Significant changes in the current development version:
+Significant changes in version of 2024-11-13 (tagged as stable-version-3):
 
   Fixed a bug in the rounding of a superaccumulator to a double FP
   value (reported by Jan Štola as issue #1).  The effect of the bug
@@ -32,6 +32,7 @@ Significant changes in the current development version:
   the variance seen with different compiler versions.
 
   Some new timing results are now in the newer-results2 directory.
+
 
 Significant changes in version of 2021-05-17 (tagged as stable-version-2):
 

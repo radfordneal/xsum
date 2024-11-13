@@ -84,4 +84,7 @@ the compiler used.  The plots in the paper are also there, produced by
 the plots.r script.
 
 The directories newer-results and newer-results2 contain results of
-more recent timing tests, similarly to paper-results.
+more recent timing tests, similarly to paper-results.  Runs were made
+with several compilers, with the best for vectors of size 1000 then
+being chosen (separately for each method).  The plots show the best
+choice in dark colour and the others in light colour.
