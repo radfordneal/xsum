@@ -1,0 +1,33 @@
+# Version of the Makefile to check test coverage, using gcov.
+# This version uses -march=native so that SIMD code can be checked.
+#
+# Use as follows:
+#
+#    rm -f *.o *.gcda gmon.out
+#    make -f Makefile-gcov
+#    xsum-check
+#    gcov xsum.c
+#    more xsum.c.gcov
+
+CFLAGS=-O0 -g -fprofile-arcs -ftest-coverage -march=native
+LDLIBS=-lm
+CC=gcc -std=c99
+LD=$(CC) -pg -fprofile-arcs -ftest-coverage
+
+default:	xsum-test xsum-time xsum-check show
+
+pbinary.o:	pbinary.c pbinary.h
+show.o:		show.c pbinary.h
+xsum-test.o:	xsum-test.c xsum.h pbinary.h
+xsum-check.o:	xsum-check.c xsum.h pbinary.h
+xsum-time.o:	xsum-time.c xsum.h pbinary.h
+xsum.o:		xsum.c xsum.h pbinary.h
+
+xsum-test:	xsum-test.o xsum.o pbinary.o
+	$(LD) xsum-test.o xsum.o pbinary.o $(LDLIBS) -o xsum-test
+xsum-check:	xsum-check.o xsum.o pbinary.o
+	$(LD) xsum-check.o xsum.o pbinary.o $(LDLIBS) -o xsum-check
+xsum-time:	xsum-time.o xsum.o pbinary.o
+	$(LD) xsum-time.o xsum.o pbinary.o $(LDLIBS) -o xsum-time
+show:		show.o pbinary.o
+	$(LD) show.o pbinary.o $(LDLIBS) -o show
