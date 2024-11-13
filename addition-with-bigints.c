@@ -255,9 +255,9 @@ void print_bigint(const bigint* num) {
   if (num->is_negative) {
     printf("-");
   }
-  printf("%llx", num->digits[i]);
+  printf("%llx", (long long unsigned) num->digits[i]);
   for (i++; i < ARRAY_SIZE; i++) {
-    printf("%016llx", num->digits[i]);
+    printf("%016llx", (long long unsigned) num->digits[i]);
   }
   printf("\n");
 }

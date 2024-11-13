@@ -22,6 +22,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <stdint.h>
 
 #include "shewchuk.h"
 
